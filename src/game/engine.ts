@@ -888,6 +888,41 @@ export class Game {
     this.emitHud()
   }
 
+  setPlayerLoadout(name: string, team: Team) {
+    this.player.name = name
+    if (this.player.team !== team) {
+      this.player.team = team
+      this.scene.remove(this.player.rig.root)
+      this.player.rig = buildTank(team)
+      this.scene.add(this.player.rig.root)
+
+      // Balance teams: replace a bot on the new team if one exists
+      const botOnNewTeam = this.tanks.find(
+        (t) => !t.isPlayer && !t.isRemote && t.team === team,
+      )
+      if (botOnNewTeam) {
+        this.removeTank(botOnNewTeam)
+      }
+
+      // If the old team drops below 5, spawn a replacement bot
+      const oldTeam: Team = team === "red" ? "blue" : "red"
+      const remainingOnOldTeam = this.tanks.filter((t) => t.team === oldTeam).length
+      if (remainingOnOldTeam < 5) {
+        const unusedNames = BOT_NAMES.filter(
+          (bn) => !this.tanks.some((t) => t.name === bn),
+        )
+        const botName =
+          unusedNames[Math.floor(Math.random() * unusedNames.length)] ??
+          `bot_${Math.floor(Math.random() * 100)}`
+        const newBot = this.addTank(botName, oldTeam, false, false)
+        this.respawn(newBot, true)
+      }
+    }
+    this.respawn(this.player, true)
+    this.pushFeed(`${this.player.name} deployed on ${team === "red" ? "Red" : "Blue"} team`, team)
+    this.emitHud()
+  }
+
   start() {
     this.running = true
     this.last = performance.now()

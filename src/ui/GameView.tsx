@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
-import { Game, type GameOptions, type HudState } from "../game/engine"
+import { Game, type GameOptions, type HudState, type Team } from "../game/engine"
+import DeployModal from "./DeployModal"
 import Hud from "./Hud"
 
 const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
@@ -13,6 +14,10 @@ export default function GameView({ options, onRematch, onMenu }: Props) {
   const [progress, setProgress] = useState("Building level")
   const [error, setError] = useState<string | null>(null)
   const [scores, setScores] = useState(false)
+
+  // In-Game Deploy Modal State (appears once 3D level is loaded)
+  const [deployed, setDeployed] = useState(false)
+  const [deployModalOpen, setDeployModalOpen] = useState(true)
 
   useEffect(() => {
     const canvas = canvasRef.current!
@@ -49,6 +54,16 @@ export default function GameView({ options, onRematch, onMenu }: Props) {
     }
   }, [])
 
+  const handleDeploy = (callsign: string, team: Team) => {
+    try {
+      localStorage.setItem("tt_callsign", callsign)
+    } catch {}
+    gameRef.current?.setPlayerLoadout(callsign, team)
+    setDeployed(true)
+    setDeployModalOpen(false)
+    gameRef.current?.requestLock()
+  }
+
   return (
     <div className="relative h-full w-full bg-black">
       <canvas ref={canvasRef} className="block h-full w-full" />
@@ -57,7 +72,9 @@ export default function GameView({ options, onRematch, onMenu }: Props) {
           s={hud}
           map={options.map.id}
           showScores={scores}
-          onLock={() => gameRef.current?.requestLock()}
+          onLock={() => {
+            if (!deployModalOpen) gameRef.current?.requestLock()
+          }}
           onToggleCamera={() => gameRef.current?.toggleCameraMode()}
           onRematch={onRematch}
           onMenu={onMenu}
@@ -92,14 +109,47 @@ export default function GameView({ options, onRematch, onMenu }: Props) {
           )}
         </div>
       )}
-      {hud && !hud.over && (
-        <button
-          type="button"
-          onClick={onMenu}
-          className="absolute bottom-[7.5rem] right-4 rounded-md border border-white/15 bg-black/50 px-3 py-1.5 text-[12px] font-semibold text-white/70 backdrop-blur-sm transition-colors hover:text-white"
-        >
-          Quit to menu
-        </button>
+
+      {/* In-Game Controls & Quick Switch */}
+      {hud && !hud.over && !deployModalOpen && (
+        <div className="absolute bottom-[7.5rem] right-4 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setDeployModalOpen(true)}
+            className="rounded-md border border-white/15 bg-black/50 px-3 py-1.5 text-[12px] font-semibold text-white/70 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white"
+          >
+            Change Team / Tag
+          </button>
+          <button
+            type="button"
+            onClick={onMenu}
+            className="rounded-md border border-white/15 bg-black/50 px-3 py-1.5 text-[12px] font-semibold text-white/70 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white"
+          >
+            Quit to menu
+          </button>
+        </div>
+      )}
+
+      {/* In-Game Deploy Modal */}
+      {hud && (
+        <DeployModal
+          isOpen={deployModalOpen}
+          roomCode={options.roomCode || "SOLO"}
+          isHost={!options.joinAsClient}
+          mapName={options.map.name}
+          mapId={options.map.id}
+          initialCallsign={options.playerName}
+          initialTeam={options.playerTeam}
+          onClose={() => {
+            if (!deployed) {
+              onMenu()
+            } else {
+              setDeployModalOpen(false)
+              gameRef.current?.requestLock()
+            }
+          }}
+          onDeploy={handleDeploy}
+        />
       )}
     </div>
   )

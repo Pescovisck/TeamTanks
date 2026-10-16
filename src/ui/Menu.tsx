@@ -1,9 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { MAPS, type MapDef } from "../game/data"
 import type { Difficulty, GameOptions, Team } from "../game/engine"
 import { lobbyService, type LobbyInfo } from "../game/lobby"
 import { copyInviteLink, generateRoomCode, syncUrlParams } from "../utils/url"
-import DeployModal from "./DeployModal"
 import RoomBrowser from "./RoomBrowser"
 
 const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
@@ -107,60 +106,47 @@ export default function Menu({ initial, onStart }: Props) {
   const [copied, setCopied] = useState(false)
   const [manualCode, setManualCode] = useState("")
 
-  // Deploy Modal State
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalTarget, setModalTarget] = useState<{
-    roomCode: string
-    isHost: boolean
-    map: MapDef
-    hostTeam?: Team
-  }>({
-    roomCode: initial.roomCode || generateRoomCode(),
-    isHost: !initial.roomCode,
-    map: initial.map,
-  })
+  const set = <K extends keyof GameOptions>(k: K, v: GameOptions[K]) =>
+    setO((s) => ({ ...s, [k]: v }))
 
   // Automatically resolve the map from active lobby announcements if roomCode is set
-  useState(() => {
-    if (initial.roomCode) {
-      const active = lobbyService.getActiveLobbies()
-      const match = active.find(
-        (l) => l.roomCode.toLowerCase() === initial.roomCode.toLowerCase(),
+  useEffect(() => {
+    if (!o.roomCode) return
+    const updateFromLobbies = (lobbies: LobbyInfo[]) => {
+      const match = lobbies.find(
+        (l) => l.roomCode.toLowerCase() === o.roomCode!.toLowerCase(),
       )
       if (match) {
         const foundMap = MAPS.find((m) => m.id === match.mapId)
-        if (foundMap) {
+        if (foundMap && foundMap.id !== o.map.id) {
           setO((prev) => ({ ...prev, map: foundMap }))
-          setModalTarget((prev) => ({
-            ...prev,
-            map: foundMap,
-            hostTeam: match.hostTeam,
-          }))
         }
       }
     }
-  })
+    updateFromLobbies(lobbyService.getActiveLobbies())
+    const unsub = lobbyService.subscribe(updateFromLobbies)
+    return unsub
+  }, [o.roomCode, o.map.id])
 
-  // Open deploy modal for hosting
+  // Launch directly into 3D game as Host (In-Game Deploy Modal appears on load)
   const handleHostBattle = () => {
     const room = o.roomCode?.trim() || generateRoomCode()
-    set("roomCode", room)
-    syncUrlParams(room)
-    setModalTarget({
+    const nextOpts: GameOptions = {
+      ...o,
       roomCode: room,
-      isHost: true,
-      map: o.map,
-    })
-    setModalOpen(true)
+      joinAsClient: false,
+      teamSize: 5,
+    }
+    setO(nextOpts)
+    syncUrlParams(room)
+    onStart(nextOpts)
   }
 
-  // Open deploy modal for joining via direct room code
+  // Launch directly into 3D game as Client with custom room code
   const handleJoinWithCode = (e?: React.FormEvent) => {
     e?.preventDefault()
     const code = manualCode.trim().toUpperCase()
     if (!code) return
-    set("roomCode", code)
-    syncUrlParams(code)
     const existing = lobbyService
       .getActiveLobbies()
       .find((l) => l.roomCode.toLowerCase() === code.toLowerCase())
@@ -168,16 +154,19 @@ export default function Menu({ initial, onStart }: Props) {
       ? MAPS.find((m) => m.id === existing.mapId) ?? o.map
       : o.map
 
-    setModalTarget({
-      roomCode: code,
-      isHost: false,
+    const nextOpts: GameOptions = {
+      ...o,
       map: targetMap,
-      hostTeam: existing?.hostTeam,
-    })
-    setModalOpen(true)
+      roomCode: code,
+      joinAsClient: true,
+      teamSize: 5,
+    }
+    setO(nextOpts)
+    syncUrlParams(code)
+    onStart(nextOpts)
   }
 
-  // Open deploy modal for joining via room browser
+  // Launch directly into 3D game via Room Browser
   const handleJoinLobby = (lobby: LobbyInfo) => {
     const targetMap = MAPS.find((m) => m.id === lobby.mapId) ?? o.map
     const autoTeam: Team =
@@ -187,18 +176,17 @@ export default function Menu({ initial, onStart }: Props) {
           ? "red"
           : o.playerTeam
 
-    set("map", targetMap)
-    set("roomCode", lobby.roomCode)
-    set("playerTeam", autoTeam)
-    syncUrlParams(lobby.roomCode)
-
-    setModalTarget({
-      roomCode: lobby.roomCode,
-      isHost: false,
+    const nextOpts: GameOptions = {
+      ...o,
       map: targetMap,
-      hostTeam: lobby.hostTeam,
-    })
-    setModalOpen(true)
+      roomCode: lobby.roomCode,
+      playerTeam: autoTeam,
+      joinAsClient: true,
+      teamSize: 5,
+    }
+    setO(nextOpts)
+    syncUrlParams(lobby.roomCode)
+    onStart(nextOpts)
   }
 
   const handleCopyLink = async () => {
@@ -208,23 +196,6 @@ export default function Menu({ initial, onStart }: Props) {
     await copyInviteLink(code)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }
-
-  // Called from DeployModal to launch match
-  const handleFinalDeploy = (callsign: string, team: Team) => {
-    const finalOpts: GameOptions = {
-      ...o,
-      map: modalTarget.map,
-      playerName: callsign,
-      playerTeam: team,
-      roomCode: modalTarget.roomCode,
-      joinAsClient: !modalTarget.isHost,
-      teamSize: 5, // 5v5 default squads
-    }
-    setO(finalOpts)
-    syncUrlParams(finalOpts.roomCode)
-    setModalOpen(false)
-    onStart(finalOpts)
   }
 
   return (
@@ -270,7 +241,7 @@ export default function Menu({ initial, onStart }: Props) {
         </header>
 
         {/* Invite link detection banner */}
-        {o.roomCode && !modalOpen && (
+        {o.roomCode && (
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-hazard bg-hazard/10 px-5 py-4 backdrop-blur-sm">
             <div className="flex items-center gap-3">
               <span className="text-3xl">⚔️</span>
@@ -296,14 +267,13 @@ export default function Menu({ initial, onStart }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setModalTarget({
-                    roomCode: o.roomCode!,
-                    isHost: false,
-                    map: o.map,
+                onClick={() =>
+                  onStart({
+                    ...o,
+                    joinAsClient: true,
+                    teamSize: 5,
                   })
-                  setModalOpen(true)
-                }}
+                }
                 className="rounded bg-hazard px-6 py-2.5 font-sans text-base font-bold text-gunmetal shadow transition-transform hover:scale-105 active:scale-95"
               >
                 Join Battle Now ›
@@ -478,20 +448,6 @@ export default function Menu({ initial, onStart }: Props) {
           W3D 3D models, textures, and sounds restored.
         </footer>
       </div>
-
-      {/* Deployment Modal (Tag & Team Selection) */}
-      <DeployModal
-        isOpen={modalOpen}
-        roomCode={modalTarget.roomCode}
-        isHost={modalTarget.isHost}
-        mapName={modalTarget.map.name}
-        mapId={modalTarget.map.id}
-        initialCallsign={o.playerName}
-        initialTeam={o.playerTeam}
-        hostTeam={modalTarget.hostTeam}
-        onClose={() => setModalOpen(false)}
-        onDeploy={handleFinalDeploy}
-      />
     </div>
   )
 }

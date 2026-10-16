@@ -101,13 +101,15 @@ export default function DeployModal({
               <span className="font-mono font-bold text-hazard text-[13px]">
                 {roomCode}
               </span>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="text-[10px] text-white/40 hover:text-white"
-              >
-                {copied ? "✓ Copied" : "Copy"}
-              </button>
+              {roomCode !== "SOLO" && (
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="text-[10px] text-white/40 hover:text-white"
+                >
+                  {copied ? "✓ Copied" : "Copy"}
+                </button>
+              )}
             </div>
           </div>
         </div>
