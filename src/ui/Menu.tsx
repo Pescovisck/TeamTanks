@@ -19,7 +19,7 @@ function Segmented<T extends string | number>({
 }) {
   return (
     <div>
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
+      <div className="mb-2 text-[12px] font-semibold text-white/50">
         {label}
       </div>
       <div className="flex gap-1 rounded-md bg-black/40 p-1">
@@ -79,7 +79,7 @@ function MapCard({
         <div className="text-[13px] font-semibold leading-tight">
           {map.name}
         </div>
-        <div className="text-[10px] uppercase tracking-wider text-white/50">
+        <div className="text-[11px] text-white/50">
           {map.tile}
         </div>
       </div>
@@ -119,13 +119,13 @@ export default function Menu({ initial, onStart }: Props) {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <div className="hazard-stripe h-2 w-14 rounded-sm" />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-hazard">
-                Game Vial · Shockwave 3D · Remade
+              <span className="text-[12px] font-semibold text-hazard">
+                GameVial · Shockwave 3D · Remade
               </span>
             </div>
             <h1 className="font-display text-6xl leading-none tracking-tight sm:text-7xl">
-              <span className="text-team-red">TEAM</span>
-              <span className="text-team-blue">TANKS</span>
+              <span className="text-team-red">Team</span>{" "}
+              <span className="text-team-blue">Tanks</span>
             </h1>
             <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-white/65">
               Rebuilt in the browser from the original projector: levels
@@ -137,20 +137,12 @@ export default function Menu({ initial, onStart }: Props) {
           <button
             type="button"
             onClick={() => onStart(o)}
-            className="group relative flex h-14 w-64 items-center justify-center font-display text-2xl tracking-wider text-black transition-all hover:scale-105 active:scale-100 drop-shadow-[0_4px_12px_rgba(242,194,48,0.4)]"
-            style={{
-              backgroundImage: `url(${asset("ui/parallelogram_button_normal.png")})`,
-              backgroundSize: "100% 100%",
-              backgroundRepeat: "no-repeat",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_hover.png")})`
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_normal.png")})`
-            }}
+            className="group relative overflow-hidden rounded-md bg-hazard px-10 py-5 font-sans font-bold text-2xl tracking-wide text-gunmetal shadow-[0_10px_40px_rgba(242,194,48,0.35)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
           >
-            <span className="font-display tracking-widest">DEPLOY</span>
+            Deploy
+            <span className="ml-3 inline-block transition-transform group-hover:translate-x-1">
+              ›
+            </span>
           </button>
         </header>
 
@@ -182,7 +174,7 @@ export default function Menu({ initial, onStart }: Props) {
               <div>
                 <label
                   htmlFor="callsign"
-                  className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45"
+                  className="mb-2 block text-[12px] font-semibold text-white/50"
                 >
                   Tag
                 </label>
@@ -204,7 +196,7 @@ export default function Menu({ initial, onStart }: Props) {
               <div>
                 <label
                   htmlFor="roomcode"
-                  className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45"
+                  className="mb-2 block text-[12px] font-semibold text-white/50"
                 >
                   P2P Room (Optional)
                 </label>
@@ -223,51 +215,15 @@ export default function Menu({ initial, onStart }: Props) {
                 />
               </div>
             </div>
-            <div>
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
-                Team
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => set("playerTeam", "red")}
-                  className={`relative h-20 overflow-hidden rounded-md border text-left transition-all ${
-                    o.playerTeam === "red"
-                      ? "border-team-red ring-2 ring-team-red/60 scale-[1.02]"
-                      : "border-white/10 opacity-70 hover:opacity-100"
-                  }`}
-                  style={{
-                    backgroundImage: `url(${asset("ui/team_card_red.png")})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent p-3 flex flex-col justify-between">
-                    <span className="font-display text-xl text-team-red drop-shadow">RED TEAM</span>
-                    <span className="text-[10px] uppercase tracking-widest text-white/70">Red Vanguard</span>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => set("playerTeam", "blue")}
-                  className={`relative h-20 overflow-hidden rounded-md border text-left transition-all ${
-                    o.playerTeam === "blue"
-                      ? "border-team-blue ring-2 ring-team-blue/60 scale-[1.02]"
-                      : "border-white/10 opacity-70 hover:opacity-100"
-                  }`}
-                  style={{
-                    backgroundImage: `url(${asset("ui/team_card_blue.png")})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent p-3 flex flex-col justify-between">
-                    <span className="font-display text-xl text-team-blue drop-shadow">BLUE TEAM</span>
-                    <span className="text-[10px] uppercase tracking-widest text-white/70">Blue Iron</span>
-                  </div>
-                </button>
-              </div>
-            </div>
+            <Segmented<Team>
+              label="Team"
+              value={o.playerTeam}
+              onChange={(v) => set("playerTeam", v)}
+              options={[
+                { value: "red", label: "Red", tone: "red" },
+                { value: "blue", label: "Blue", tone: "blue" },
+              ]}
+            />
             <Segmented<number>
               label="Tanks per team"
               value={o.teamSize}

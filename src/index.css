@@ -26,7 +26,7 @@
 }
 
 @theme {
-  --font-sans: "Eight Track", "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Eight Track", "Russo One", sans-serif;
   --color-hazard: #f2c230;
   --color-gunmetal: #14171c;

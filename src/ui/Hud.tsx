@@ -95,7 +95,7 @@ function Minimap({ s, map }: { s: HudState; map: string }) {
         ))}
       </div>
       {s.netStatus && (
-        <div className="mt-1.5 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-wider text-white/65">
+        <div className="mt-1.5 flex items-center justify-between px-1 text-[10px] font-semibold text-white/65">
           <span>Room: {s.netStatus.roomCode}</span>
           <span className="text-hazard">
             {s.netStatus.peers} {s.netStatus.peers === 1 ? "peer" : "peers"}
@@ -134,7 +134,7 @@ function Meter({
 }) {
   return (
     <div>
-      <div className="mb-1 flex justify-between text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
+      <div className="mb-1 flex justify-between text-[10px] font-semibold text-white/50">
         <span>{label}</span>
         <span className="tabular-nums text-white/80">{Math.round(value)}</span>
       </div>
@@ -153,32 +153,18 @@ function Meter({
 
 function Status({ s }: { s: HudState }) {
   const low = s.health < 30
-  const hpPct = Math.max(0, Math.min(100, (s.health / MAX_HEALTH) * 100))
   return (
     <div className="plate pointer-events-none absolute bottom-4 left-4 flex items-center gap-4 rounded-lg p-3 pr-5">
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-md bg-black/50 overflow-hidden">
-        <img
-          src={asset("ui/healthempty.png")}
-          alt=""
-          className="pixelated absolute h-14 w-14 object-contain opacity-40"
-        />
-        <div
-          className="absolute inset-x-1 bottom-1 overflow-hidden transition-[height] duration-200"
-          style={{ height: `${(hpPct / 100) * 56}px` }}
-        >
-          <img
-            src={asset("ui/healthfull.png")}
-            alt=""
-            className="pixelated absolute bottom-0 left-0 h-14 w-14 object-contain"
-          />
+      <div
+        className={`flex h-14 w-14 flex-col items-center justify-center rounded-md ${
+          low ? "bg-team-red/80" : "bg-black/40"
+        }`}
+      >
+        <div className="font-display text-2xl leading-none tabular-nums">
+          {Math.round(s.health)}
         </div>
-        <div className="relative z-10 flex flex-col items-center justify-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-          <span className="font-display text-2xl leading-none tabular-nums text-white">
-            {Math.round(s.health)}
-          </span>
-          <span className="text-[8px] font-semibold uppercase tracking-[0.2em] text-white/70">
-            HP
-          </span>
+        <div className="mt-0.5 text-[8px] font-semibold tracking-wider text-white/55">
+          Hp
         </div>
       </div>
       <div className="flex flex-col gap-2.5">
@@ -197,7 +183,7 @@ function Status({ s }: { s: HudState }) {
           }
         />
       </div>
-      <div className="ml-1 flex flex-col gap-1 text-[11px] font-semibold uppercase tracking-wider">
+      <div className="ml-1 flex flex-col gap-1 text-[11px] font-semibold">
         {s.speedT > 0 && (
           <span className="rounded bg-hazard px-2 py-0.5 text-gunmetal">
             Speed {Math.ceil(s.speedT / 60)}
@@ -218,11 +204,10 @@ function Status({ s }: { s: HudState }) {
 
 function WeaponPanel({ s }: { s: HudState }) {
   const w = s.weapon ? WEAPONS[s.weapon] : null
-  const hudIcon = w ? w.icon : 1
   return (
     <div className="plate pointer-events-none absolute bottom-4 right-4 flex items-center gap-4 rounded-lg p-3 pl-5">
       <div className="text-right">
-        <div className="flex items-center justify-end gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
+        <div className="flex items-center justify-end gap-1.5 text-[10px] font-semibold text-white/50">
           <span>{s.proMode ? "Pro" : "Casual"}</span>
           <span className="rounded bg-white/10 px-1 py-0.5 text-[9px] text-hazard">V</span>
         </div>
@@ -233,11 +218,11 @@ function WeaponPanel({ s }: { s: HudState }) {
           {w ? s.ammo : "—"}
         </div>
       </div>
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-md bg-black/50 overflow-hidden">
+      <div className="flex h-16 w-16 items-center justify-center rounded-md bg-black/40">
         <img
-          src={asset(`ui/ammo_hud_${hudIcon}.png`)}
+          src={asset(`ui/icon_${w ? w.icon : 1}.png`)}
           alt=""
-          className="pixelated h-14 w-14 object-contain"
+          className="h-14 w-14 object-contain"
         />
       </div>
       <div className="w-14 text-right font-display text-sm tabular-nums text-white/55">
@@ -335,7 +320,7 @@ export function Scoreboard({ s, title }: { s: HudState; title?: string }) {
             </div>
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="text-left text-[10px] uppercase tracking-widest text-white/40">
+                <tr className="text-left text-[10px] text-white/40">
                   <th className="px-4 py-2 font-semibold">Tag</th>
                   <th className="px-2 py-2 text-right font-semibold">K</th>
                   <th className="px-2 py-2 text-right font-semibold">D</th>
@@ -407,8 +392,8 @@ export default function Hud({
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black/55 p-6 backdrop-blur-[2px]">
         <div className="w-full max-w-3xl">
-          <div className="mb-2 text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">
-            Round over
+          <div className="mb-2 text-center text-[11px] font-semibold text-white/50">
+            Round Over
           </div>
           <h2 className={`mb-2 text-center font-display text-7xl ${tone}`}>
             {label}
@@ -424,38 +409,16 @@ export default function Hud({
             <button
               type="button"
               onClick={onRematch}
-              className="group relative flex h-12 w-52 items-center justify-center font-display text-lg text-black transition-transform hover:scale-105 active:scale-100 drop-shadow-[0_4px_12px_rgba(242,194,48,0.4)]"
-              style={{
-                backgroundImage: `url(${asset("ui/parallelogram_button_normal.png")})`,
-                backgroundSize: "100% 100%",
-                backgroundRepeat: "no-repeat",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_hover.png")})`
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_normal.png")})`
-              }}
+              className="rounded-md bg-hazard px-8 py-3 text-lg font-semibold text-gunmetal shadow-[0_10px_30px_rgba(242,194,48,0.3)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
             >
-              <span>Rematch</span>
+              Rematch
             </button>
             <button
               type="button"
               onClick={onMenu}
-              className="group relative flex h-12 w-52 items-center justify-center font-display text-lg text-white transition-transform hover:scale-105 active:scale-100 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-              style={{
-                backgroundImage: `url(${asset("ui/parallelogram_button_back.png")})`,
-                backgroundSize: "100% 100%",
-                backgroundRepeat: "no-repeat",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_back_hover.png")})`
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_back.png")})`
-              }}
+              className="rounded-md border border-white/20 px-8 py-3 text-lg font-semibold text-white transition-colors hover:bg-white/10"
             >
-              <span>Change map</span>
+              Change Map
             </button>
           </div>
         </div>
@@ -470,10 +433,10 @@ export default function Hud({
       {!s.dead && <Crosshair s={s} />}
       {!s.dead && <WeaponSight s={s} />}
       {s.isControllingRc && (
-        <div className="pointer-events-none absolute left-1/2 top-20 flex -translate-x-1/2 items-center gap-2 rounded-md bg-team-red/80 px-4 py-1.5 font-display text-sm uppercase tracking-wider text-white shadow-lg backdrop-blur-sm animate-pulse">
+        <div className="pointer-events-none absolute left-1/2 top-20 flex -translate-x-1/2 items-center gap-2 rounded-md bg-team-red/80 px-4 py-1.5 text-sm font-semibold text-white shadow-lg backdrop-blur-sm animate-pulse">
           <span>Remote Control Active</span>
           <span className="text-white/60">·</span>
-          <span className="text-xs font-sans text-hazard">Right-Click / Ctrl to Detonate</span>
+          <span className="text-xs text-hazard">Right-Click / Ctrl to Detonate</span>
         </div>
       )}
       <HurtIndicator dir={s.hurtDir} />
