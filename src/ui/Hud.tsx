@@ -153,18 +153,32 @@ function Meter({
 
 function Status({ s }: { s: HudState }) {
   const low = s.health < 30
+  const hpPct = Math.max(0, Math.min(100, (s.health / MAX_HEALTH) * 100))
   return (
     <div className="plate pointer-events-none absolute bottom-4 left-4 flex items-center gap-4 rounded-lg p-3 pr-5">
-      <div
-        className={`flex h-14 w-14 flex-col items-center justify-center rounded-md ${
-          low ? "bg-team-red/80" : "bg-black/40"
-        }`}
-      >
-        <div className="font-display text-2xl leading-none tabular-nums">
-          {Math.round(s.health)}
+      <div className="relative flex h-16 w-16 items-center justify-center rounded-md bg-black/50 overflow-hidden">
+        <img
+          src={asset("ui/healthempty.png")}
+          alt=""
+          className="pixelated absolute h-14 w-14 object-contain opacity-40"
+        />
+        <div
+          className="absolute inset-x-1 bottom-1 overflow-hidden transition-[height] duration-200"
+          style={{ height: `${(hpPct / 100) * 56}px` }}
+        >
+          <img
+            src={asset("ui/healthfull.png")}
+            alt=""
+            className="pixelated absolute bottom-0 left-0 h-14 w-14 object-contain"
+          />
         </div>
-        <div className="mt-0.5 text-[8px] font-semibold uppercase tracking-[0.2em] text-white/55">
-          HP
+        <div className="relative z-10 flex flex-col items-center justify-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+          <span className="font-display text-2xl leading-none tabular-nums text-white">
+            {Math.round(s.health)}
+          </span>
+          <span className="text-[8px] font-semibold uppercase tracking-[0.2em] text-white/70">
+            HP
+          </span>
         </div>
       </div>
       <div className="flex flex-col gap-2.5">
@@ -204,6 +218,7 @@ function Status({ s }: { s: HudState }) {
 
 function WeaponPanel({ s }: { s: HudState }) {
   const w = s.weapon ? WEAPONS[s.weapon] : null
+  const hudIcon = w ? w.icon : 1
   return (
     <div className="plate pointer-events-none absolute bottom-4 right-4 flex items-center gap-4 rounded-lg p-3 pl-5">
       <div className="text-right">
@@ -218,11 +233,11 @@ function WeaponPanel({ s }: { s: HudState }) {
           {w ? s.ammo : "—"}
         </div>
       </div>
-      <div className="flex h-16 w-16 items-center justify-center rounded-md bg-black/40">
+      <div className="relative flex h-16 w-16 items-center justify-center rounded-md bg-black/50 overflow-hidden">
         <img
-          src={asset(`ui/icon_${w ? w.icon : 1}.png`)}
+          src={asset(`ui/ammo_hud_${hudIcon}.png`)}
           alt=""
-          className="h-14 w-14 object-contain"
+          className="pixelated h-14 w-14 object-contain"
         />
       </div>
       <div className="w-14 text-right font-display text-sm tabular-nums text-white/55">
@@ -405,20 +420,42 @@ export default function Hud({
             />
           </div>
           <Scoreboard s={s} title="final" />
-          <div className="mt-6 flex justify-center gap-3">
+          <div className="mt-6 flex justify-center gap-4">
             <button
               type="button"
               onClick={onRematch}
-              className="rounded-md bg-hazard px-8 py-3 font-display text-lg text-gunmetal transition-transform hover:-translate-y-0.5"
+              className="group relative flex h-12 w-52 items-center justify-center font-display text-lg text-black transition-transform hover:scale-105 active:scale-100 drop-shadow-[0_4px_12px_rgba(242,194,48,0.4)]"
+              style={{
+                backgroundImage: `url(${asset("ui/parallelogram_button_normal.png")})`,
+                backgroundSize: "100% 100%",
+                backgroundRepeat: "no-repeat",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_hover.png")})`
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_normal.png")})`
+              }}
             >
-              Rematch
+              <span>Rematch</span>
             </button>
             <button
               type="button"
               onClick={onMenu}
-              className="rounded-md border border-white/20 px-8 py-3 font-display text-lg transition-colors hover:bg-white/10"
+              className="group relative flex h-12 w-52 items-center justify-center font-display text-lg text-white transition-transform hover:scale-105 active:scale-100 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+              style={{
+                backgroundImage: `url(${asset("ui/parallelogram_button_back.png")})`,
+                backgroundSize: "100% 100%",
+                backgroundRepeat: "no-repeat",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_back_hover.png")})`
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_back.png")})`
+              }}
             >
-              Change map
+              <span>Change map</span>
             </button>
           </div>
         </div>

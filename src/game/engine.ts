@@ -220,7 +220,6 @@ export class Game {
   camera = new THREE.PerspectiveCamera(62, 1, 10, 60000)
   level!: Level
   colliders: THREE.Object3D[] = []
-  wallColliders: THREE.Object3D[] = []
   sun!: THREE.DirectionalLight
   audio = new Audio()
   tanks: Tank[] = []
@@ -344,7 +343,7 @@ export class Game {
       pad.position.y = terrainAt(l, s.pos.x, s.pos.z) - 4
       pad.rotation.y = -s.yaw
       this.scene.add(pad)
-      if (pad.userData.collider) this.wallColliders.push(pad.userData.collider)
+      if (pad.userData.collider) this.colliders.push(pad.userData.collider)
     }
     for (const c of l.caps) {
       const rig = buildCapturePoint()
@@ -352,7 +351,7 @@ export class Game {
       this.scene.add(rig.group)
       this.caps.push({ pos: c.clone(), v: 127, rig })
       if (rig.group.userData.collider)
-        this.wallColliders.push(rig.group.userData.collider)
+        this.colliders.push(rig.group.userData.collider)
     }
     for (const p of l.pickups) {
       const weapon = (PICKUP_SUBSTITUTE[p.kind] ?? p.kind) as WeaponId
@@ -819,7 +818,7 @@ export class Game {
     this.disposers.forEach((d) => d())
     this.mp?.dispose()
     if (document.pointerLockElement === this.canvas) document.exitPointerLock()
-    this.audio.stopLoop("engine")
+    this.audio.stopAllLoops()
     void this.audio.ctx.close()
     this.renderer?.dispose()
   }
@@ -924,15 +923,28 @@ export class Game {
       }
     }
 
-    // Authentic tank engine audio loop (vloop.wav)
-    if (!p.dead && !this.over) {
-      const sp = Math.hypot(p.vel.x, p.vel.z)
-      const isDriving = p.input.throttle !== 0
-      const pitch = 0.85 + Math.min(0.65, (sp / 820) * 0.45 + (isDriving ? 0.15 : 0))
-      const vol = 0.35 + Math.min(0.4, (sp / 820) * 0.3 + (isDriving ? 0.1 : 0))
-      this.audio.loop("engine", "vloop", vol, pitch)
-    } else {
-      this.audio.stopLoop("engine")
+    // Authentic tank engine audio loop attached to each tank with 3D falloff & normalized volume
+    for (const t of this.tanks) {
+      const channel = `engine_${t.id}`
+      if (t.dead || this.over) {
+        this.audio.stopLoop(channel)
+        continue
+      }
+      const dist = Math.hypot(
+        t.pos.x - this.audio.listener.x,
+        t.pos.y - this.audio.listener.y,
+        t.pos.z - this.audio.listener.z,
+      )
+      const atten = t.isPlayer ? 1 : Math.max(0, 1 - dist / 3200) ** 1.8
+      if (atten <= 0.01) {
+        this.audio.stopLoop(channel)
+        continue
+      }
+      const sp = Math.hypot(t.vel.x, t.vel.z)
+      const isDriving = t.input.throttle !== 0
+      const baseVol = 0.08 + Math.min(0.08, (sp / 820) * 0.06 + (isDriving ? 0.02 : 0))
+      const pitch = 0.8 + Math.min(0.5, (sp / 820) * 0.35 + (isDriving ? 0.12 : 0))
+      this.audio.loop(channel, "vloop", baseVol * atten, pitch)
     }
 
     // Broadcast local player state to P2P room every 3 frames (20 Hz)
@@ -1095,17 +1107,27 @@ export class Game {
     }
   }
 
-  /** Terrain height, raised by any ramp under (x, z). */
+  /** Terrain height, raised by any ramp, platform, or structure under (x, z). */
   groundAt(x: number, z: number, y: number, n: THREE.Vector3) {
     let h = terrainAt(this.level, x, z, n)
     if (this.colliders.length) {
-      this.raycaster.set(tmpV2.set(x, y + 150, z), tmpV.set(0, -1, 0))
-      this.raycaster.far = 400
-      const hit = this.raycaster.intersectObjects(this.colliders, false)[0]
-      if (hit && hit.point.y > h && hit.face) {
-        h = hit.point.y
-        n.copy(hit.face.normal).transformDirection(hit.object.matrixWorld)
-        if (n.y < 0) n.negate()
+      const startY = Math.max(y + 160, h + 80)
+      this.raycaster.set(tmpV2.set(x, startY, z), tmpV.set(0, -1, 0))
+      this.raycaster.far = Math.max(300, startY - h + 50)
+      const hits = this.raycaster.intersectObjects(this.colliders, false)
+      for (const hit of hits) {
+        if (!hit.face) continue
+        const norm = hit.face.normal.clone().transformDirection(hit.object.matrixWorld)
+        // Upward-facing drivable surface (slope normal.y > 0.15, not vertical walls/ceilings)
+        if (norm.y > 0.15 && hit.point.y > h) {
+          // Driving step tolerance: climb smoothly up slopes up to +70 units from current position
+          // or land on platforms if descending/airborne
+          if (hit.point.y <= y + 70 || y >= hit.point.y - 15) {
+            h = hit.point.y
+            n.copy(norm)
+            break
+          }
+        }
       }
     }
     return h
@@ -1211,16 +1233,16 @@ export class Game {
     }
     t.pos.addScaledVector(t.vel, DT)
 
-    // Horizontal obstacle bumper collision against spawn buildings and capture pillars (wallColliders)
-    if (this.wallColliders.length && t.vel.lengthSq() > 100) {
+    // Horizontal obstacle bumper collision against true vertical walls only (not ramps)
+    if (this.colliders.length && t.vel.lengthSq() > 100) {
       const vNorm = tmpV.copy(t.vel).normalize()
       this.raycaster.set(tmpV2.copy(t.pos).add(new THREE.Vector3(0, 15, 0)), vNorm)
       this.raycaster.far = BSP * 1.2
-      const hit = this.raycaster.intersectObjects(this.wallColliders, false)[0]
+      const hit = this.raycaster.intersectObjects(this.colliders, false)[0]
       if (hit && hit.face) {
         const wallN = hit.face.normal.clone().transformDirection(hit.object.matrixWorld)
-        if (Math.abs(wallN.y) < 0.6) {
-          // Push tank away from wall
+        if (Math.abs(wallN.y) < 0.25) {
+          // Push tank away from vertical wall
           const overlap = this.raycaster.far - hit.distance
           t.pos.addScaledVector(wallN, overlap)
           const dot = t.vel.dot(wallN)
@@ -1944,12 +1966,10 @@ export class Game {
         hit = true
 
       // Obstacle collision against props/spawns/caps/brick wall
-      if (!hit && (this.colliders.length || this.wallColliders.length) && p.vel.lengthSq() > 1) {
+      if (!hit && this.colliders.length && p.vel.lengthSq() > 1) {
         this.raycaster.set(p.pos, tmpV.copy(p.vel).normalize())
         this.raycaster.far = Math.max(25, p.vel.length() * DT)
-        const obsHit =
-          (this.colliders.length ? this.raycaster.intersectObjects(this.colliders, false)[0] : null) ||
-          (this.wallColliders.length ? this.raycaster.intersectObjects(this.wallColliders, false)[0] : null)
+        const obsHit = this.raycaster.intersectObjects(this.colliders, false)[0]
         if (obsHit) hit = true
       }
 
@@ -2213,7 +2233,7 @@ export class Game {
 
   /** endgame.ls: sum of the blue channel vs 127 * count decides the round. */
   endRound() {
-    this.audio.stopLoop("engine")
+    this.audio.stopAllLoops()
     const total = this.caps.reduce((s, c) => s + c.v, 0)
     const mid = 127 * this.caps.length
     const winner: Team | "draw" =

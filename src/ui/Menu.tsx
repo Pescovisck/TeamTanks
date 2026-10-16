@@ -137,12 +137,20 @@ export default function Menu({ initial, onStart }: Props) {
           <button
             type="button"
             onClick={() => onStart(o)}
-            className="group relative overflow-hidden rounded-md bg-hazard px-10 py-5 font-display text-2xl tracking-wide text-gunmetal shadow-[0_10px_40px_rgba(242,194,48,0.35)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className="group relative flex h-14 w-64 items-center justify-center font-display text-2xl tracking-wider text-black transition-all hover:scale-105 active:scale-100 drop-shadow-[0_4px_12px_rgba(242,194,48,0.4)]"
+            style={{
+              backgroundImage: `url(${asset("ui/parallelogram_button_normal.png")})`,
+              backgroundSize: "100% 100%",
+              backgroundRepeat: "no-repeat",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_hover.png")})`
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundImage = `url(${asset("ui/parallelogram_button_normal.png")})`
+            }}
           >
-            DEPLOY
-            <span className="ml-3 inline-block transition-transform group-hover:translate-x-1">
-              ›
-            </span>
+            <span className="font-display tracking-widest">DEPLOY</span>
           </button>
         </header>
 
@@ -215,15 +223,51 @@ export default function Menu({ initial, onStart }: Props) {
                 />
               </div>
             </div>
-            <Segmented<Team>
-              label="Team"
-              value={o.playerTeam}
-              onChange={(v) => set("playerTeam", v)}
-              options={[
-                { value: "red", label: "Red", tone: "red" },
-                { value: "blue", label: "Blue", tone: "blue" },
-              ]}
-            />
+            <div>
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
+                Team
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => set("playerTeam", "red")}
+                  className={`relative h-20 overflow-hidden rounded-md border text-left transition-all ${
+                    o.playerTeam === "red"
+                      ? "border-team-red ring-2 ring-team-red/60 scale-[1.02]"
+                      : "border-white/10 opacity-70 hover:opacity-100"
+                  }`}
+                  style={{
+                    backgroundImage: `url(${asset("ui/team_card_red.png")})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent p-3 flex flex-col justify-between">
+                    <span className="font-display text-xl text-team-red drop-shadow">RED TEAM</span>
+                    <span className="text-[10px] uppercase tracking-widest text-white/70">Red Vanguard</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => set("playerTeam", "blue")}
+                  className={`relative h-20 overflow-hidden rounded-md border text-left transition-all ${
+                    o.playerTeam === "blue"
+                      ? "border-team-blue ring-2 ring-team-blue/60 scale-[1.02]"
+                      : "border-white/10 opacity-70 hover:opacity-100"
+                  }`}
+                  style={{
+                    backgroundImage: `url(${asset("ui/team_card_blue.png")})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent p-3 flex flex-col justify-between">
+                    <span className="font-display text-xl text-team-blue drop-shadow">BLUE TEAM</span>
+                    <span className="text-[10px] uppercase tracking-widest text-white/70">Blue Iron</span>
+                  </div>
+                </button>
+              </div>
+            </div>
             <Segmented<number>
               label="Tanks per team"
               value={o.teamSize}

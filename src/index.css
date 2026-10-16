@@ -1,9 +1,33 @@
 @import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&display=swap");
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Eight Track";
+  src: url("/fonts/EightTrack.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Eight Track";
+  src: url("/fonts/EIGH3___.TTF") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Eight Track";
+  src: url("/fonts/EIGH1___.TTF") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
 @theme {
-  --font-sans: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Russo One", "Chakra Petch", sans-serif;
+  --font-sans: "Eight Track", "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Eight Track", "Russo One", sans-serif;
   --color-hazard: #f2c230;
   --color-gunmetal: #14171c;
   --color-steel: #232830;

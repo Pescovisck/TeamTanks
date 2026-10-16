@@ -47,6 +47,7 @@ const FILES: Record<string, string> = {
 export class Audio {
   ctx: AudioContext
   master: GainNode
+  compressor: DynamicsCompressorNode
   buffers = new Map<string, AudioBuffer>()
   listener = { x: 0, y: 0, z: 0 }
   muted = false
@@ -54,8 +55,17 @@ export class Audio {
   constructor() {
     this.ctx = new AudioContext()
     this.master = this.ctx.createGain()
-    this.master.gain.value = 0.55
-    this.master.connect(this.ctx.destination)
+    this.master.gain.value = 0.5
+
+    // Dynamic compression normalization to prevent clipping and balance loud audio
+    this.compressor = this.ctx.createDynamicsCompressor()
+    this.compressor.threshold.value = -18
+    this.compressor.knee.value = 24
+    this.compressor.ratio.value = 6
+    this.compressor.attack.value = 0.003
+    this.compressor.release.value = 0.25
+
+    this.master.connect(this.compressor).connect(this.ctx.destination)
   }
 
   async load() {
@@ -142,5 +152,16 @@ export class Audio {
       // already stopped
     }
     this.loops.delete(channel)
+  }
+
+  stopAllLoops() {
+    for (const [_, l] of this.loops.entries()) {
+      try {
+        l.src.stop()
+      } catch {
+        // already stopped
+      }
+    }
+    this.loops.clear()
   }
 }
