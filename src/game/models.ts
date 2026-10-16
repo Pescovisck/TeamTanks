@@ -432,13 +432,14 @@ export function buildProp(kind: string): THREE.Object3D {
 /** Original W3D brick wall on grass1: initgame.ls ground whitebrick1 (scale [1.3, 0.78, 1.3], pos [0, 220, 0], tex brick). */
 export function buildBrickWall(): THREE.Object3D {
   const g = new THREE.Group()
+  g.position.set(0, 220, 0)
   const mat = shadyMat("brick", "#464646")
   const m = new THREE.Mesh(getModelGeometry("groundwhitebrick1"), mat)
   m.scale.set(1.3, 0.78, 1.3)
-  m.position.set(0, 220, 0)
   m.castShadow = m.receiveShadow = true
   g.add(m)
   g.userData.collider = m
+  g.updateMatrixWorld(true)
   return g
 }
 

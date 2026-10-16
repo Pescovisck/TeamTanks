@@ -115,6 +115,10 @@ type Tank = {
   vel: THREE.Vector3
   q: THREE.Quaternion
   angVel: THREE.Vector3
+  prevPos: THREE.Vector3
+  prevQ: THREE.Quaternion
+  renderPos: THREE.Vector3
+  renderQ: THREE.Quaternion
   onFloor: boolean
   health: number
   weapon: WeaponId | null
@@ -216,6 +220,7 @@ export class Game {
   camera = new THREE.PerspectiveCamera(62, 1, 10, 60000)
   level!: Level
   colliders: THREE.Object3D[] = []
+  wallColliders: THREE.Object3D[] = []
   sun!: THREE.DirectionalLight
   audio = new Audio()
   tanks: Tank[] = []
@@ -339,7 +344,7 @@ export class Game {
       pad.position.y = terrainAt(l, s.pos.x, s.pos.z) - 4
       pad.rotation.y = -s.yaw
       this.scene.add(pad)
-      if (pad.userData.collider) this.colliders.push(pad.userData.collider)
+      if (pad.userData.collider) this.wallColliders.push(pad.userData.collider)
     }
     for (const c of l.caps) {
       const rig = buildCapturePoint()
@@ -347,7 +352,7 @@ export class Game {
       this.scene.add(rig.group)
       this.caps.push({ pos: c.clone(), v: 127, rig })
       if (rig.group.userData.collider)
-        this.colliders.push(rig.group.userData.collider)
+        this.wallColliders.push(rig.group.userData.collider)
     }
     for (const p of l.pickups) {
       const weapon = (PICKUP_SUBSTITUTE[p.kind] ?? p.kind) as WeaponId
@@ -596,6 +601,10 @@ export class Game {
       vel: new THREE.Vector3(),
       q: new THREE.Quaternion(),
       angVel: new THREE.Vector3(),
+      prevPos: new THREE.Vector3(),
+      prevQ: new THREE.Quaternion(),
+      renderPos: new THREE.Vector3(),
+      renderQ: new THREE.Quaternion(),
       onFloor: false,
       health: MAX_HEALTH,
       weapon: "mgun",
@@ -635,26 +644,24 @@ export class Game {
   /** goody.repos: drop onto a random team spawn, facing the map centre, with spawn protection. */
   respawn(t: Tank, initial = false) {
     const spots = this.level.spawns.filter((s) => s.team === t.team)
-    const s = spots[Math.floor(Math.random() * spots.length)]
-    // each team has a single spawn pad, so fan tanks out around it instead of stacking them
+    const s = spots[0] ?? this.level.spawns[0]
     const mates = this.tanks.filter((o) => o.team === t.team)
     const slot = mates.indexOf(t)
-    const ang =
-      (slot / Math.max(1, mates.length)) * Math.PI * 2 + Math.random() * 0.6
-    const r = 260 + Math.random() * 120
-    t.pos
-      .copy(s ? s.pos : new THREE.Vector3())
-      .add(new THREE.Vector3(Math.cos(ang) * r, 0, Math.sin(ang) * r))
-    const lim = this.level.half * 0.95
-    t.pos.x = THREE.MathUtils.clamp(t.pos.x, -lim, lim)
-    t.pos.z = THREE.MathUtils.clamp(t.pos.z, -lim, lim)
-    t.pos.y = terrainAt(this.level, t.pos.x, t.pos.z) + 120
+    const spawnYaw = s ? -s.yaw : 0
+    // Arrange tanks side-by-side directly on top of the spawn pad surface
+    const lateralOffset = (slot - (mates.length - 1) / 2) * 32
+    const right = new THREE.Vector3(Math.cos(spawnYaw), 0, -Math.sin(spawnYaw))
+    t.pos.copy(s ? s.pos : new THREE.Vector3()).addScaledVector(right, lateralOffset)
+    t.pos.y = terrainAt(this.level, t.pos.x, t.pos.z) + 16
     t.vel.set(0, 0, 0)
     t.angVel.set(0, 0, 0)
-    const yaw = Math.atan2(t.pos.x, t.pos.z)
-    t.q.setFromAxisAngle(UP, yaw)
-    t.aimYaw = yaw
+    t.q.setFromAxisAngle(UP, spawnYaw)
+    t.aimYaw = spawnYaw
     t.aimPitch = 0.05
+    t.prevPos.copy(t.pos)
+    t.prevQ.copy(t.q)
+    t.renderPos.copy(t.pos)
+    t.renderQ.copy(t.q)
     t.health = MAX_HEALTH
     t.weapon = "mgun"
     t.ammo = WEAPONS.mgun.ammo
@@ -819,6 +826,10 @@ export class Game {
   // ---------------------------------------------------------------- simulation
   step() {
     this.frame++
+    for (const t of this.tanks) {
+      t.prevPos.copy(t.pos)
+      t.prevQ.copy(t.q)
+    }
     if (!this.over) {
       this.timeLeft -= DT
       if (this.timeLeft <= 0) this.endRound()
@@ -958,8 +969,10 @@ export class Game {
       const n = new THREE.Vector3()
       const gh = this.groundAt(rc.pos.x, rc.pos.z, rc.pos.y, n)
       rc.pos.y = Math.max(rc.pos.y, gh + 10)
+      if (this.keys.has("KeyA") || this.keys.has("ArrowLeft")) rc.rot.z += 0.04
+      if (this.keys.has("KeyD") || this.keys.has("ArrowRight")) rc.rot.z -= 0.04
       if (this.mouseDown || this.keys.has("KeyW") || this.keys.has("ArrowUp")) {
-        const fwd = new THREE.Vector3(Math.sin(rc.rot.z), 0, Math.cos(rc.rot.z))
+        const fwd = new THREE.Vector3(-Math.sin(rc.rot.z), 0, -Math.cos(rc.rot.z))
         rc.vel.copy(fwd).multiplyScalar(rc.push * 25)
       } else {
         rc.vel.multiplyScalar(0.92)
@@ -998,13 +1011,13 @@ export class Game {
         rc.push = 20
         if (this.keys.has("KeyA") || this.keys.has("ArrowLeft")) rc.rot.z += 0.04
         if (this.keys.has("KeyD") || this.keys.has("ArrowRight")) rc.rot.z -= 0.04
-        if (this.keys.has("KeyW") || this.keys.has("ArrowUp")) rc.rot.x += 0.03
-        if (this.keys.has("KeyS") || this.keys.has("ArrowDown")) rc.rot.x -= 0.03
+        if (this.keys.has("KeyW") || this.keys.has("ArrowUp")) rc.rot.x = Math.min(1.1, rc.rot.x + 0.03)
+        if (this.keys.has("KeyS") || this.keys.has("ArrowDown")) rc.rot.x = Math.max(-1.1, rc.rot.x - 0.03)
       }
       const fwd = new THREE.Vector3(
-        Math.sin(rc.rot.z) * Math.cos(rc.rot.x),
+        -Math.sin(rc.rot.z) * Math.cos(rc.rot.x),
         Math.sin(rc.rot.x),
-        Math.cos(rc.rot.z) * Math.cos(rc.rot.x),
+        -Math.cos(rc.rot.z) * Math.cos(rc.rot.x),
       ).normalize()
       rc.vel.copy(fwd).multiplyScalar(rc.push * 25)
       rc.pos.addScaledVector(rc.vel, DT)
@@ -1112,12 +1125,12 @@ export class Game {
       // goody.jump: impulse along the tank's up axis; forward+jump is a back flip, sideways a roll
       if (t.input.jump && t.jumpCd === 0) {
         const pow = t.superT > 0 ? 1.35 : 1
-        t.vel.addScaledVector(n, 780 * pow)
+        t.vel.addScaledVector(n, 1050 * pow)
         if (thr !== 0) {
-          t.angVel.copy(right).multiplyScalar(thr * 4.8 * pow)
+          t.angVel.copy(right).multiplyScalar(thr * 6.6 * pow)
           t.trickKey = thr > 0 ? "Back" : "Front"
         } else if (t.input.turn !== 0) {
-          t.angVel.copy(fwd).multiplyScalar(t.input.turn * 4.8 * pow)
+          t.angVel.copy(fwd).multiplyScalar(t.input.turn * 6.6 * pow)
           t.trickKey = t.input.turn > 0 ? "Backside" : "Frontside"
         } else {
           t.trickKey = ""
@@ -1152,12 +1165,12 @@ export class Game {
     }
     t.pos.addScaledVector(t.vel, DT)
 
-    // Horizontal obstacle bumper collision against props/spawns/caps/brick wall
-    if (this.colliders.length && t.vel.lengthSq() > 100) {
+    // Horizontal obstacle bumper collision against spawn buildings and capture pillars (wallColliders)
+    if (this.wallColliders.length && t.vel.lengthSq() > 100) {
       const vNorm = tmpV.copy(t.vel).normalize()
       this.raycaster.set(tmpV2.copy(t.pos).add(new THREE.Vector3(0, 15, 0)), vNorm)
       this.raycaster.far = BSP * 1.2
-      const hit = this.raycaster.intersectObjects(this.colliders, false)[0]
+      const hit = this.raycaster.intersectObjects(this.wallColliders, false)[0]
       if (hit && hit.face) {
         const wallN = hit.face.normal.clone().transformDirection(hit.object.matrixWorld)
         if (Math.abs(wallN.y) < 0.6) {
@@ -1587,46 +1600,63 @@ export class Game {
         break
       }
       case "rcbomb": {
-        if (!this.rcPawn) {
-          const spawnPos = pos.clone().addScaledVector(dir, 100)
-          const obj = buildProjectileMesh("rcbomb", "rcbomb", t.team)
-          obj.position.copy(spawnPos)
-          this.scene.add(obj)
-          this.rcPawn = {
-            kind: "rcbomb",
-            pos: spawnPos,
-            vel: dir.clone().multiplyScalar(400),
-            rot: new THREE.Vector3(0, 0, t.aimYaw),
-            mesh: obj,
-            life: 0,
-            maxLife: 1000,
-            fuel: 1000,
-            push: 20,
+        const spawnPos = pos.clone().addScaledVector(dir, 100)
+        if (t.isPlayer) {
+          if (!this.rcPawn) {
+            const obj = buildProjectileMesh("rcbomb", "rcbomb", t.team)
+            obj.position.copy(spawnPos)
+            this.scene.add(obj)
+            this.rcPawn = {
+              kind: "rcbomb",
+              pos: spawnPos,
+              vel: dir.clone().multiplyScalar(400),
+              rot: new THREE.Vector3(0, 0, t.aimYaw),
+              mesh: obj,
+              life: 0,
+              maxLife: 1000,
+              fuel: 1000,
+              push: 20,
+            }
+            this.audio.play("rcbombrelease", spawnPos, 0.8)
+            t.cooldown = 30
           }
+        } else {
+          // Bot fires rcbomb: autonomous bomb rolling forward
+          this.spawnProjectile(t, "bomb", "rcbomb", spawnPos, dir.multiplyScalar(450), 0.5, 300)
           this.audio.play("rcbombrelease", spawnPos, 0.8)
-          t.cooldown = 30
+          t.cooldown = 60
+          t.ammo--
         }
         break
       }
       case "rcrocket": {
-        if (!this.rcPawn) {
-          const spawnPos = pos.clone().addScaledVector(dir, 120)
-          const obj = buildProjectileMesh("rcrocket", "rcrocket", t.team)
-          obj.position.copy(spawnPos)
-          this.scene.add(obj)
-          this.rcPawn = {
-            kind: "rcrocket",
-            pos: spawnPos,
-            vel: dir.clone().multiplyScalar(500),
-            rot: new THREE.Vector3(0, 0, t.aimYaw),
-            mesh: obj,
-            life: 0,
-            maxLife: 1200,
-            fuel: 1200,
-            push: 20,
+        const spawnPos = pos.clone().addScaledVector(dir, 120)
+        if (t.isPlayer) {
+          if (!this.rcPawn) {
+            const obj = buildProjectileMesh("rcrocket", "rcrocket", t.team)
+            obj.position.copy(spawnPos)
+            this.scene.add(obj)
+            this.rcPawn = {
+              kind: "rcrocket",
+              pos: spawnPos,
+              vel: dir.clone().multiplyScalar(500),
+              rot: new THREE.Vector3(0, 0, t.aimYaw),
+              mesh: obj,
+              life: 0,
+              maxLife: 1200,
+              fuel: 1200,
+              push: 20,
+            }
+            this.audio.play("offrock", spawnPos, 0.8)
+            t.cooldown = 30
           }
+        } else {
+          // Bot fires rcrocket: autonomous rocket towards target
+          const target = this.lockTarget(t, pos, dir)
+          this.spawnProjectile(t, "rocket", "rcrocket", spawnPos, dir.multiplyScalar(600), 0, 300, target)
           this.audio.play("offrock", spawnPos, 0.8)
-          t.cooldown = 30
+          t.cooldown = 60
+          t.ammo--
         }
         break
       }
@@ -1867,10 +1897,12 @@ export class Game {
         hit = true
 
       // Obstacle collision against props/spawns/caps/brick wall
-      if (!hit && this.colliders.length && p.vel.lengthSq() > 1) {
+      if (!hit && (this.colliders.length || this.wallColliders.length) && p.vel.lengthSq() > 1) {
         this.raycaster.set(p.pos, tmpV.copy(p.vel).normalize())
         this.raycaster.far = Math.max(25, p.vel.length() * DT)
-        const obsHit = this.raycaster.intersectObjects(this.colliders, false)[0]
+        const obsHit =
+          (this.colliders.length ? this.raycaster.intersectObjects(this.colliders, false)[0] : null) ||
+          (this.wallColliders.length ? this.raycaster.intersectObjects(this.wallColliders, false)[0] : null)
         if (obsHit) hit = true
       }
 
@@ -2302,13 +2334,33 @@ export class Game {
   // ---------------------------------------------------------------- rendering
   render() {
     const p = this.player
+    const isZoomed =
+      this.proMode &&
+      this.rightMouseDown &&
+      p.weapon !== null &&
+      !["speed", "thrusters", "health", "stealth", "remotemine", "proximitymine"].includes(p.weapon)
+
+    const alpha = Math.min(1, Math.max(0, this.acc / DT))
+
     for (const t of this.tanks) {
       if (t.dead) continue
+      // Interpolate position and orientation between physics steps for high-refresh fluidity
+      t.renderPos.copy(t.prevPos).lerp(t.pos, alpha)
+      t.renderQ.copy(t.prevQ).slerp(t.q, alpha)
+
       const r = t.rig
       updateTankWeaponRig(r, t.weapon)
-      r.root.position.copy(t.pos)
-      r.root.quaternion.copy(t.q)
-      const fwd = tmpV.set(0, 0, -1).applyQuaternion(t.q)
+      r.root.position.copy(t.renderPos)
+      r.root.quaternion.copy(t.renderQ)
+
+      // Hide local tank when zoomed so it doesn't clip into camera / screen
+      if (t.isPlayer && isZoomed) {
+        r.root.visible = false
+      } else {
+        r.root.visible = true
+      }
+
+      const fwd = tmpV.set(0, 0, -1).applyQuaternion(t.renderQ)
       const hullYaw = Math.atan2(-fwd.x, -fwd.z)
       r.turret.rotation.y = wrapAngle(t.aimYaw - hullYaw)
       r.barrel.rotation.x = t.aimPitch
@@ -2370,33 +2422,27 @@ export class Game {
         const back = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw))
         const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw))
 
-        const isZoomed =
-          this.proMode &&
-          this.rightMouseDown &&
-          p.weapon !== null &&
-          !["speed", "thrusters", "health", "stealth", "remotemine", "proximitymine"].includes(p.weapon)
-
         let want: THREE.Vector3
         let look: THREE.Vector3
 
         if (isZoomed) {
-          // Pro zoom: camera close to breach, looking down aim direction
-          want = p.pos.clone().addScaledVector(back, 20).add(new THREE.Vector3(0, 30 - p.aimPitch * 15, 0))
-          look = p.pos.clone().addScaledVector(fwd, 2000).add(new THREE.Vector3(0, 30 + p.aimPitch * 2000, 0))
+          // Pro zoom: camera placed directly at breech/sight position looking along barrel, tank mesh hidden
+          want = p.renderPos.clone().add(new THREE.Vector3(0, 26, 0)).addScaledVector(fwd, 15)
+          look = want.clone().addScaledVector(fwd, 2000).add(new THREE.Vector3(0, p.aimPitch * 2000, 0))
         } else {
-          // Authentic Shockwave distance: 200 units back, 65 units up
-          want = p.pos.clone().addScaledVector(back, 200).add(new THREE.Vector3(0, 65 - p.aimPitch * 100, 0))
+          // Authentic Shockwave distance: 200 units back, 65 units up (tracking smoothly interpolated renderPos)
+          want = p.renderPos.clone().addScaledVector(back, 200).add(new THREE.Vector3(0, 65 - p.aimPitch * 100, 0))
           const g = terrainAt(this.level, want.x, want.z) + 30
           if (want.y < g) want.y = g
-          look = p.pos.clone().addScaledVector(fwd, 800).add(new THREE.Vector3(0, 45 + p.aimPitch * 600, 0))
+          look = p.renderPos.clone().addScaledVector(fwd, 800).add(new THREE.Vector3(0, 45 + p.aimPitch * 600, 0))
         }
 
         if (this.camPos.lengthSq() === 0) {
           this.camPos.copy(want)
           this.camLook.copy(look)
         }
-        this.camPos.lerp(want, p.dead ? 0.05 : isZoomed ? 0.45 : 0.28)
-        this.camLook.lerp(look, isZoomed ? 0.5 : 0.35)
+        this.camPos.lerp(want, p.dead ? 0.05 : isZoomed ? 0.6 : 0.28)
+        this.camLook.lerp(look, isZoomed ? 0.7 : 0.35)
       }
     } else {
       const a = this.frame * 0.003
@@ -2423,12 +2469,6 @@ export class Game {
     }
     this.camera.lookAt(this.camLook)
 
-    const isZoomed =
-      this.proMode &&
-      this.rightMouseDown &&
-      p.weapon !== null &&
-      !["speed", "thrusters", "health", "stealth", "remotemine", "proximitymine"].includes(p.weapon)
-
     const targetFov =
       isZoomed && p.weapon
         ? WEAPONS[p.weapon].aimFov
@@ -2436,13 +2476,13 @@ export class Game {
           ? 58
           : 50
     if (Math.abs(this.camera.fov - targetFov) > 0.05) {
-      this.camera.fov += (targetFov - this.camera.fov) * (isZoomed ? 0.15 : 0.08)
+      this.camera.fov += (targetFov - this.camera.fov) * (isZoomed ? 0.2 : 0.08)
       this.camera.updateProjectionMatrix()
     }
-    this.audio.listener = p.pos
+    this.audio.listener = p.renderPos
 
-    this.sun.position.copy(p.pos).add(new THREE.Vector3(2000, 8000, 1500))
-    this.sun.target.position.copy(p.pos)
+    this.sun.position.copy(p.renderPos).add(new THREE.Vector3(2000, 8000, 1500))
+    this.sun.target.position.copy(p.renderPos)
     this.renderer.render(this.scene, this.camera)
   }
 
