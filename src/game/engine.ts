@@ -343,6 +343,7 @@ export class Game {
       pad.position.y = terrainAt(l, s.pos.x, s.pos.z) - 4
       pad.rotation.y = -s.yaw
       this.scene.add(pad)
+      pad.updateMatrixWorld(true)
       if (pad.userData.collider) this.colliders.push(pad.userData.collider)
     }
     for (const c of l.caps) {
@@ -350,6 +351,7 @@ export class Game {
       rig.group.position.copy(c)
       this.scene.add(rig.group)
       this.caps.push({ pos: c.clone(), v: 127, rig })
+      rig.group.updateMatrixWorld(true)
       if (rig.group.userData.collider)
         this.colliders.push(rig.group.userData.collider)
     }
@@ -368,6 +370,7 @@ export class Game {
       })
     }
     this.buildFence()
+    this.scene.updateMatrixWorld(true)
 
     // bangs.ls animates a sprite sheet: 4x4 frames (nook 8x8)
     for (const [name, grid] of [
@@ -651,7 +654,25 @@ export class Game {
     const lateralOffset = (slot - (mates.length - 1) / 2) * 32
     const right = new THREE.Vector3(Math.cos(spawnYaw), 0, -Math.sin(spawnYaw))
     t.pos.copy(s ? s.pos : new THREE.Vector3()).addScaledVector(right, lateralOffset)
-    t.pos.y = terrainAt(this.level, t.pos.x, t.pos.z) + 16
+    // Spawn directly on top of the spawn structure platform (W3D spawn pad platform at Y = 276.64 above pad position)
+    let platformY = terrainAt(this.level, t.pos.x, t.pos.z)
+    if (s) {
+      const padSurfaceY = terrainAt(this.level, s.pos.x, s.pos.z) - 4 + 276.64
+      platformY = padSurfaceY
+      const startY = padSurfaceY + 300
+      this.raycaster.set(tmpV2.set(t.pos.x, startY, t.pos.z), tmpV.set(0, -1, 0))
+      this.raycaster.far = 400
+      const hits = this.raycaster.intersectObjects(this.colliders, false)
+      for (const hit of hits) {
+        if (!hit.face) continue
+        const norm = hit.face.normal.clone().transformDirection(hit.object.matrixWorld)
+        if (norm.y > 0.5 && hit.point.y > platformY - 50) {
+          platformY = hit.point.y
+          break
+        }
+      }
+    }
+    t.pos.y = platformY + 16
     t.vel.set(0, 0, 0)
     t.angVel.set(0, 0, 0)
     t.q.setFromAxisAngle(UP, spawnYaw)
@@ -671,6 +692,10 @@ export class Game {
     t.trickAngle = 0
     t.airFrames = 0
     updateTankWeaponRig(t.rig, t.weapon)
+    if (initial && t.isPlayer) {
+      this.camPos.set(0, 0, 0)
+      this.camLook.set(0, 0, 0)
+    }
     if (!initial && t.isPlayer) this.audio.play("reload", undefined, 0.6)
   }
 
