@@ -33,18 +33,16 @@ const DEFAULTS: GameOptions = {
   roomCode: "",
 }
 
-// Deep link: ?map=<id> preselects a battlefield, ?room=<code> sets P2P room, ?play starts it immediately.
+// Deep link: ?room=<code> sets P2P room, ?play starts it immediately.
 function fromUrl(): { options: GameOptions; play: boolean } {
   const q = new URLSearchParams(window.location.search)
-  const map = MAPS.find((m) => m.id === q.get("map")) ?? DEFAULTS.map
-  const roomCode = q.get("room") ?? ""
+  const roomCode = q.get("room")?.trim().toUpperCase() ?? ""
   const callsign = getOrCreateCallsign()
   const joinAsClient = q.has("join") || (roomCode.length > 0 && !q.has("host"))
   return {
     options: {
       ...DEFAULTS,
       playerName: callsign,
-      map,
       roomCode,
       joinAsClient,
     },
@@ -60,8 +58,8 @@ export default function App() {
   )
 
   useEffect(() => {
-    syncUrlParams(options.roomCode, options.map.id)
-  }, [options.roomCode, options.map.id])
+    syncUrlParams(options.roomCode)
+  }, [options.roomCode])
 
   if (playing) {
     return (
@@ -91,7 +89,7 @@ export default function App() {
         } catch {}
         const fixed = { ...o, playerName: callsign }
         setOptions(fixed)
-        syncUrlParams(fixed.roomCode, fixed.map.id)
+        syncUrlParams(fixed.roomCode)
         setPlaying(fixed)
       }}
     />

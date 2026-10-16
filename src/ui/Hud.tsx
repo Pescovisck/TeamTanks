@@ -59,7 +59,7 @@ function Minimap({ s, map }: { s: HudState; map: string }) {
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!s.netStatus) return
-    await copyInviteLink(s.netStatus.roomCode, map)
+    await copyInviteLink(s.netStatus.roomCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -347,7 +347,7 @@ export function Scoreboard({
 
   const handleCopy = async () => {
     if (!s.netStatus) return
-    await copyInviteLink(s.netStatus.roomCode, map)
+    await copyInviteLink(s.netStatus.roomCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

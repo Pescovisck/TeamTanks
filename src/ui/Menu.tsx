@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { MAPS, type MapDef } from "../game/data"
 import type { Difficulty, GameOptions, Team } from "../game/engine"
-import type { LobbyInfo } from "../game/lobby"
+import { lobbyService, type LobbyInfo } from "../game/lobby"
 import { copyInviteLink, generateRoomCode, syncUrlParams } from "../utils/url"
 import DeployModal from "./DeployModal"
 import RoomBrowser from "./RoomBrowser"
@@ -120,14 +120,32 @@ export default function Menu({ initial, onStart }: Props) {
     map: initial.map,
   })
 
-  const set = <K extends keyof GameOptions>(k: K, v: GameOptions[K]) =>
-    setO((s) => ({ ...s, [k]: v }))
+  // Automatically resolve the map from active lobby announcements if roomCode is set
+  useState(() => {
+    if (initial.roomCode) {
+      const active = lobbyService.getActiveLobbies()
+      const match = active.find(
+        (l) => l.roomCode.toLowerCase() === initial.roomCode.toLowerCase(),
+      )
+      if (match) {
+        const foundMap = MAPS.find((m) => m.id === match.mapId)
+        if (foundMap) {
+          setO((prev) => ({ ...prev, map: foundMap }))
+          setModalTarget((prev) => ({
+            ...prev,
+            map: foundMap,
+            hostTeam: match.hostTeam,
+          }))
+        }
+      }
+    }
+  })
 
   // Open deploy modal for hosting
   const handleHostBattle = () => {
     const room = o.roomCode?.trim() || generateRoomCode()
     set("roomCode", room)
-    syncUrlParams(room, o.map.id)
+    syncUrlParams(room)
     setModalTarget({
       roomCode: room,
       isHost: true,
@@ -142,11 +160,19 @@ export default function Menu({ initial, onStart }: Props) {
     const code = manualCode.trim().toUpperCase()
     if (!code) return
     set("roomCode", code)
-    syncUrlParams(code, o.map.id)
+    syncUrlParams(code)
+    const existing = lobbyService
+      .getActiveLobbies()
+      .find((l) => l.roomCode.toLowerCase() === code.toLowerCase())
+    const targetMap = existing
+      ? MAPS.find((m) => m.id === existing.mapId) ?? o.map
+      : o.map
+
     setModalTarget({
       roomCode: code,
       isHost: false,
-      map: o.map,
+      map: targetMap,
+      hostTeam: existing?.hostTeam,
     })
     setModalOpen(true)
   }
@@ -164,7 +190,7 @@ export default function Menu({ initial, onStart }: Props) {
     set("map", targetMap)
     set("roomCode", lobby.roomCode)
     set("playerTeam", autoTeam)
-    syncUrlParams(lobby.roomCode, targetMap.id)
+    syncUrlParams(lobby.roomCode)
 
     setModalTarget({
       roomCode: lobby.roomCode,
@@ -178,8 +204,8 @@ export default function Menu({ initial, onStart }: Props) {
   const handleCopyLink = async () => {
     const code = o.roomCode?.trim() || generateRoomCode()
     set("roomCode", code)
-    syncUrlParams(code, o.map.id)
-    await copyInviteLink(code, o.map.id)
+    syncUrlParams(code)
+    await copyInviteLink(code)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -196,7 +222,7 @@ export default function Menu({ initial, onStart }: Props) {
       teamSize: 5, // 5v5 default squads
     }
     setO(finalOpts)
-    syncUrlParams(finalOpts.roomCode, finalOpts.map.id)
+    syncUrlParams(finalOpts.roomCode)
     setModalOpen(false)
     onStart(finalOpts)
   }
@@ -348,7 +374,6 @@ export default function Menu({ initial, onStart }: Props) {
                   active={m.id === o.map.id}
                   onClick={() => {
                     set("map", m)
-                    syncUrlParams(o.roomCode, m.id)
                   }}
                 />
               ))}

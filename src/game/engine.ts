@@ -441,7 +441,7 @@ export class Game {
         peers: 0,
       }
       this.mp = new MultiplayerSession(
-        `${this.opts.map.id}_${room}`,
+        room,
         this.player.name,
         this.player.team,
         (msg) => this.onNetMessage(msg),

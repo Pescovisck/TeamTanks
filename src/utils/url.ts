@@ -1,5 +1,6 @@
 /**
  * Utilities for URL query sync, deep linking, and invite sharing.
+ * Only the room code is stored in the URL.
  */
 
 export function generateRoomCode(): string {
@@ -14,42 +15,36 @@ export function generateRoomCode(): string {
   return `${word}${num}`
 }
 
-export function getInviteUrl(roomCode: string, mapId?: string): string {
+export function getInviteUrl(roomCode: string): string {
   const url = new URL(window.location.href)
   if (roomCode && roomCode.trim()) {
-    url.searchParams.set("room", roomCode.trim().toLowerCase())
+    url.searchParams.set("room", roomCode.trim().toUpperCase())
   } else {
     url.searchParams.delete("room")
   }
-  if (mapId) {
-    url.searchParams.set("map", mapId)
-  }
+  // Strip map query param completely to ensure room code is the single source of truth
+  url.searchParams.delete("map")
   url.searchParams.delete("play")
   return url.toString()
 }
 
-export function syncUrlParams(roomCode?: string, mapId?: string) {
+export function syncUrlParams(roomCode?: string) {
   try {
     const url = new URL(window.location.href)
     if (roomCode && roomCode.trim()) {
-      url.searchParams.set("room", roomCode.trim().toLowerCase())
+      url.searchParams.set("room", roomCode.trim().toUpperCase())
     } else {
       url.searchParams.delete("room")
     }
-    if (mapId) {
-      url.searchParams.set("map", mapId)
-    }
+    url.searchParams.delete("map")
     window.history.replaceState({}, "", url.toString())
   } catch {
     // Ignore in non-browser environments
   }
 }
 
-export async function copyInviteLink(
-  roomCode: string,
-  mapId?: string,
-): Promise<boolean> {
-  const link = getInviteUrl(roomCode, mapId)
+export async function copyInviteLink(roomCode: string): Promise<boolean> {
+  const link = getInviteUrl(roomCode)
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(link)
