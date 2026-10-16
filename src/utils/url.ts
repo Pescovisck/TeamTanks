@@ -2,6 +2,18 @@
  * Utilities for URL query sync, deep linking, and invite sharing.
  */
 
+export function generateRoomCode(): string {
+  const words = [
+    "HAWK", "APEX", "DUNE", "WOLF", "FURY", "IRON", "BOLT", "ECHO",
+    "NOVA", "RUSH", "TITN", "COLT", "BEAR", "LION", "TANK", "FIRE",
+    "ARES", "MARS", "THOR", "ACES", "RAID", "WARP", "DARK", "GRIT",
+    "FROST", "VIPR", "SAGE", "ONYX", "RUBY", "JADE", "OPAL", "CORE"
+  ]
+  const word = words[Math.floor(Math.random() * words.length)]
+  const num = Math.floor(10 + Math.random() * 90)
+  return `${word}${num}`
+}
+
 export function getInviteUrl(roomCode: string, mapId?: string): string {
   const url = new URL(window.location.href)
   if (roomCode && roomCode.trim()) {

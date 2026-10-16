@@ -56,7 +56,7 @@ export default function RoomBrowser({ currentRoom, onJoin }: Props) {
             No active public battles detected right now.
           </p>
           <p className="mt-1 text-[12px] text-white/40">
-            Enter a Room Code on the right to host a new battle or send an invite link to friends!
+            Click "Host Battle" above to create a room, or enter a room code on the left to join a friend!
           </p>
         </div>
       ) : (

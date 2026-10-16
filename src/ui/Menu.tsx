@@ -2,7 +2,8 @@ import { useState } from "react"
 import { MAPS, type MapDef } from "../game/data"
 import type { Difficulty, GameOptions, Team } from "../game/engine"
 import type { LobbyInfo } from "../game/lobby"
-import { copyInviteLink, syncUrlParams } from "../utils/url"
+import { copyInviteLink, generateRoomCode, syncUrlParams } from "../utils/url"
+import DeployModal from "./DeployModal"
 import RoomBrowser from "./RoomBrowser"
 
 const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
@@ -82,9 +83,7 @@ function MapCard({
         <div className="text-[13px] font-semibold leading-tight">
           {map.name}
         </div>
-        <div className="text-[11px] text-white/50">
-          {map.tile}
-        </div>
+        <div className="text-[11px] text-white/50">{map.tile}</div>
       </div>
       {active && <div className="hazard-stripe absolute inset-x-0 top-0 h-1" />}
     </button>
@@ -106,34 +105,100 @@ const CONTROLS: [string, string][] = [
 export default function Menu({ initial, onStart }: Props) {
   const [o, setO] = useState<GameOptions>(initial)
   const [copied, setCopied] = useState(false)
+  const [manualCode, setManualCode] = useState("")
+
+  // Deploy Modal State
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalTarget, setModalTarget] = useState<{
+    roomCode: string
+    isHost: boolean
+    map: MapDef
+    hostTeam?: Team
+  }>({
+    roomCode: initial.roomCode || generateRoomCode(),
+    isHost: !initial.roomCode,
+    map: initial.map,
+  })
+
   const set = <K extends keyof GameOptions>(k: K, v: GameOptions[K]) =>
     setO((s) => ({ ...s, [k]: v }))
 
+  // Open deploy modal for hosting
+  const handleHostBattle = () => {
+    const room = o.roomCode?.trim() || generateRoomCode()
+    set("roomCode", room)
+    syncUrlParams(room, o.map.id)
+    setModalTarget({
+      roomCode: room,
+      isHost: true,
+      map: o.map,
+    })
+    setModalOpen(true)
+  }
+
+  // Open deploy modal for joining via direct room code
+  const handleJoinWithCode = (e?: React.FormEvent) => {
+    e?.preventDefault()
+    const code = manualCode.trim().toUpperCase()
+    if (!code) return
+    set("roomCode", code)
+    syncUrlParams(code, o.map.id)
+    setModalTarget({
+      roomCode: code,
+      isHost: false,
+      map: o.map,
+    })
+    setModalOpen(true)
+  }
+
+  // Open deploy modal for joining via room browser
+  const handleJoinLobby = (lobby: LobbyInfo) => {
+    const targetMap = MAPS.find((m) => m.id === lobby.mapId) ?? o.map
+    const autoTeam: Team =
+      lobby.hostTeam === "red"
+        ? "blue"
+        : lobby.hostTeam === "blue"
+          ? "red"
+          : o.playerTeam
+
+    set("map", targetMap)
+    set("roomCode", lobby.roomCode)
+    set("playerTeam", autoTeam)
+    syncUrlParams(lobby.roomCode, targetMap.id)
+
+    setModalTarget({
+      roomCode: lobby.roomCode,
+      isHost: false,
+      map: targetMap,
+      hostTeam: lobby.hostTeam,
+    })
+    setModalOpen(true)
+  }
+
   const handleCopyLink = async () => {
-    let code = o.roomCode?.trim()
-    if (!code) {
-      code = `room${Math.floor(100 + Math.random() * 900)}`
-      set("roomCode", code)
-      syncUrlParams(code, o.map.id)
-    }
+    const code = o.roomCode?.trim() || generateRoomCode()
+    set("roomCode", code)
+    syncUrlParams(code, o.map.id)
     await copyInviteLink(code, o.map.id)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleJoinLobby = (lobby: LobbyInfo) => {
-    const targetMap = MAPS.find((m) => m.id === lobby.mapId) ?? o.map
-    const autoTeam: Team = lobby.hostTeam === "red" ? "blue" : lobby.hostTeam === "blue" ? "red" : o.playerTeam
-    const nextOpts: GameOptions = {
+  // Called from DeployModal to launch match
+  const handleFinalDeploy = (callsign: string, team: Team) => {
+    const finalOpts: GameOptions = {
       ...o,
-      map: targetMap,
-      playerTeam: autoTeam,
-      roomCode: lobby.roomCode,
-      joinAsClient: true,
+      map: modalTarget.map,
+      playerName: callsign,
+      playerTeam: team,
+      roomCode: modalTarget.roomCode,
+      joinAsClient: !modalTarget.isHost,
+      teamSize: 5, // 5v5 default squads
     }
-    setO(nextOpts)
-    syncUrlParams(lobby.roomCode, targetMap.id)
-    onStart(nextOpts)
+    setO(finalOpts)
+    syncUrlParams(finalOpts.roomCode, finalOpts.map.id)
+    setModalOpen(false)
+    onStart(finalOpts)
   }
 
   return (
@@ -146,7 +211,8 @@ export default function Menu({ initial, onStart }: Props) {
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(11,13,16,0.55),rgba(11,13,16,0.96)_70%)]" />
 
       <div className="relative mx-auto flex min-h-full max-w-6xl flex-col px-6 py-10 lg:py-14">
-        <header className="mb-10 flex flex-wrap items-end justify-between gap-6">
+        {/* Header */}
+        <header className="mb-8 flex flex-wrap items-end justify-between gap-6">
           <div>
             <div className="mb-3 flex items-center gap-3">
               <div className="hazard-stripe h-2 w-14 rounded-sm" />
@@ -167,26 +233,30 @@ export default function Menu({ initial, onStart }: Props) {
           </div>
           <button
             type="button"
-            onClick={() => onStart(o)}
-            className="group relative overflow-hidden rounded-md bg-hazard px-10 py-5 font-sans font-bold text-2xl tracking-wide text-gunmetal shadow-[0_10px_40px_rgba(242,194,48,0.35)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            onClick={handleHostBattle}
+            className="group relative overflow-hidden rounded-md bg-hazard px-10 py-5 font-sans text-2xl font-bold tracking-wide text-gunmetal shadow-[0_10px_40px_rgba(242,194,48,0.35)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
           >
-            Deploy
+            Host Battle
             <span className="ml-3 inline-block transition-transform group-hover:translate-x-1">
               ›
             </span>
           </button>
         </header>
 
-        {o.roomCode && (
+        {/* Invite link detection banner */}
+        {o.roomCode && !modalOpen && (
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-hazard bg-hazard/10 px-5 py-4 backdrop-blur-sm">
             <div className="flex items-center gap-3">
               <span className="text-3xl">⚔️</span>
               <div>
                 <div className="text-[15px] font-bold text-white">
-                  Room Invite: <span className="font-mono text-hazard">{o.roomCode}</span>
+                  Room Invite:{" "}
+                  <span className="font-mono text-hazard">{o.roomCode}</span>
                 </div>
                 <div className="text-[12px] text-white/70">
-                  Battlefield: <span className="font-semibold text-white">{o.map.name}</span> · Ready to connect as peer
+                  Battlefield:{" "}
+                  <span className="font-semibold text-white">{o.map.name}</span>{" "}
+                  · Ready to join squad
                 </div>
               </div>
             </div>
@@ -200,7 +270,14 @@ export default function Menu({ initial, onStart }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => onStart({ ...o, joinAsClient: true })}
+                onClick={() => {
+                  setModalTarget({
+                    roomCode: o.roomCode!,
+                    isHost: false,
+                    map: o.map,
+                  })
+                  setModalOpen(true)
+                }}
                 className="rounded bg-hazard px-6 py-2.5 font-sans text-base font-bold text-gunmetal shadow transition-transform hover:scale-105 active:scale-95"
               >
                 Join Battle Now ›
@@ -209,11 +286,51 @@ export default function Menu({ initial, onStart }: Props) {
           </div>
         )}
 
-        <div className="mb-6">
+        {/* Room Discovery & Direct Join Row */}
+        <div className="mb-6 grid gap-6 md:grid-cols-[1fr_2fr]">
+          {/* Direct Code Join Card */}
+          <div className="plate flex flex-col justify-between rounded-lg p-5">
+            <div>
+              <div className="mb-1 flex items-center gap-2">
+                <span className="font-display text-lg tracking-wide text-white">
+                  Join by Room Code
+                </span>
+              </div>
+              <p className="text-[12px] text-white/50">
+                Have a 4-6 character code from a friend? Enter it below to join.
+              </p>
+            </div>
+
+            <form onSubmit={handleJoinWithCode} className="mt-4 flex gap-2">
+              <input
+                type="text"
+                value={manualCode}
+                maxLength={8}
+                onChange={(e) =>
+                  setManualCode(
+                    e.target.value.replace(/[^a-z0-9_-]/gi, "").toUpperCase(),
+                  )
+                }
+                placeholder="e.g. HAWK42"
+                className="flex-1 rounded-md border border-white/15 bg-black/40 px-3 py-2 font-mono text-sm font-bold uppercase text-white outline-none transition-colors placeholder:text-white/25 focus:border-hazard"
+              />
+              <button
+                type="submit"
+                disabled={!manualCode.trim()}
+                className="rounded-md bg-hazard px-4 py-2 font-sans text-sm font-bold text-gunmetal transition-transform hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+              >
+                Join ›
+              </button>
+            </form>
+          </div>
+
+          {/* Live Battles (Room Browser) */}
           <RoomBrowser currentRoom={o.roomCode} onJoin={handleJoinLobby} />
         </div>
 
+        {/* Room Creation Configuration */}
         <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+          {/* Battlefield Selection */}
           <section className="plate rounded-lg p-5">
             <div className="mb-4 flex items-baseline justify-between">
               <h2 className="font-display text-lg tracking-wide">
@@ -238,132 +355,65 @@ export default function Menu({ initial, onStart }: Props) {
             </div>
           </section>
 
-          <section className="plate flex flex-col gap-5 rounded-lg p-5">
-            <h2 className="font-display text-lg tracking-wide">Deployment</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label
-                  htmlFor="callsign"
-                  className="mb-2 block text-[12px] font-semibold text-white/50"
-                >
-                  Tag
-                </label>
-                <input
-                  id="callsign"
-                  value={o.playerName}
-                  maxLength={14}
-                  onChange={(e) =>
-                    set(
-                      "playerName",
-                      e.target.value.replace(/[^a-z0-9]/gi, "").toLowerCase() ||
-                        "",
-                    )
-                  }
-                  placeholder="tankcommander"
-                  className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 font-semibold outline-none transition-colors placeholder:text-white/25 focus:border-hazard"
-                />
+          {/* Match Configuration */}
+          <section className="plate flex flex-col justify-between rounded-lg p-5">
+            <div>
+              <div className="mb-4 flex items-baseline justify-between">
+                <h2 className="font-display text-lg tracking-wide">
+                  Match Rules
+                </h2>
+                <span className="text-xs text-hazard font-semibold">
+                  5v5 Squads
+                </span>
               </div>
-              <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <label
-                    htmlFor="roomcode"
-                    className="block text-[12px] font-semibold text-white/50"
-                  >
-                    P2P Room (Optional)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleCopyLink}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-hazard transition-colors hover:text-white"
-                  >
-                    {copied ? (
-                      <span className="text-[#6fd36a]">✓ Copied!</span>
-                    ) : (
-                      <span>{o.roomCode ? "Copy Link" : "Create Link"}</span>
-                    )}
-                  </button>
-                </div>
-                <div className="relative flex items-center">
-                  <input
-                    id="roomcode"
-                    value={o.roomCode ?? ""}
-                    maxLength={16}
-                    onChange={(e) => {
-                      const v = e.target.value
-                        .replace(/[^a-z0-9_-]/gi, "")
-                        .toLowerCase()
-                      set("roomCode", v)
-                      syncUrlParams(v, o.map.id)
-                    }}
-                    placeholder="solo / room1"
-                    className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 pr-8 font-semibold outline-none transition-colors placeholder:text-white/25 focus:border-hazard"
-                  />
-                  {o.roomCode && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        set("roomCode", "")
-                        syncUrlParams("", o.map.id)
-                      }}
-                      title="Clear room"
-                      className="absolute right-2.5 text-xs text-white/35 hover:text-white/80"
-                    >
-                      ✕
-                    </button>
-                  )}
+
+              <div className="flex flex-col gap-5">
+                <Segmented<Difficulty>
+                  label="Bot Skill"
+                  value={o.difficulty}
+                  onChange={(v) => set("difficulty", v)}
+                  options={[
+                    { value: "rookie", label: "Rookie" },
+                    { value: "regular", label: "Regular" },
+                    { value: "veteran", label: "Veteran" },
+                  ]}
+                />
+
+                <Segmented<number>
+                  label="Round Length"
+                  value={o.minutes}
+                  onChange={(v) => set("minutes", v)}
+                  options={[
+                    { value: 3, label: "3 min" },
+                    { value: 5, label: "5 min" },
+                    { value: 10, label: "10 min" },
+                  ]}
+                />
+
+                <div className="rounded-md border border-white/10 bg-black/30 p-3.5 text-[12px] text-white/60">
+                  <div className="mb-1 font-semibold text-white/80">
+                    Squad Dynamic Balancing
+                  </div>
+                  <div>
+                    Matches start with 5 tanks on each side. When human players
+                    join, they take the place of bots to keep teams balanced.
+                    More players can join anytime with no player limit!
+                  </div>
                 </div>
               </div>
             </div>
-            <Segmented<Team>
-              label="Team"
-              value={o.playerTeam}
-              onChange={(v) => set("playerTeam", v)}
-              options={[
-                { value: "red", label: "Red", tone: "red" },
-                { value: "blue", label: "Blue", tone: "blue" },
-              ]}
-            />
-            <Segmented<number>
-              label="Tanks per team"
-              value={o.teamSize}
-              onChange={(v) => set("teamSize", v)}
-              options={[2, 3, 4, 5].map((n) => ({
-                value: n,
-                label: `${n}v${n}`,
-              }))}
-            />
-            <Segmented<Difficulty>
-              label="Enemy skill"
-              value={o.difficulty}
-              onChange={(v) => set("difficulty", v)}
-              options={[
-                { value: "rookie", label: "Rookie" },
-                { value: "regular", label: "Regular" },
-                { value: "veteran", label: "Veteran" },
-              ]}
-            />
-            <Segmented<number>
-              label="Round length"
-              value={o.minutes}
-              onChange={(v) => set("minutes", v)}
-              options={[
-                { value: 3, label: "3 min" },
-                { value: 5, label: "5 min" },
-                { value: 10, label: "10 min" },
-              ]}
-            />
-            <Segmented<boolean>
-              label="Camera & Turret Mode"
-              value={o.proMode ?? true}
-              onChange={(v) => set("proMode", v)}
-              options={[
-                { value: true, label: "Pro (Mouse Aim + Zoom)" },
-                { value: false, label: "Casual (Auto-Aim + Chase)" },
-              ]}
-            />
+
+            <button
+              type="button"
+              onClick={handleHostBattle}
+              className="mt-6 w-full rounded-md bg-hazard py-3.5 font-sans text-lg font-bold text-gunmetal shadow transition-transform hover:scale-[1.02] active:scale-100"
+            >
+              Host Match on {o.map.name} ›
+            </button>
           </section>
         </div>
 
+        {/* Mission & Controls Reference */}
         <section className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
           <div className="plate rounded-lg p-5">
             <h2 className="mb-3 font-display text-lg tracking-wide">Mission</h2>
@@ -372,8 +422,11 @@ export default function Menu({ initial, onStart }: Props) {
               pull it toward your colour. When the clock runs out, the team with
               more total glow wins. Grab icons for nooks, rockets, lasers and
               airstrikes. Land flips to fill your uber meter and get
-              supercharged. Enter a Room Code to battle friends over WebRTC P2P
-              or across browser tabs.
+              supercharged. Toggle camera modes anytime in-game with{" "}
+              <kbd className="rounded border border-white/20 bg-black/40 px-1 py-0.5 font-mono text-xs font-bold text-hazard">
+                V
+              </kbd>
+              .
             </p>
           </div>
           <div className="plate rounded-lg p-5">
@@ -400,6 +453,20 @@ export default function Menu({ initial, onStart }: Props) {
           W3D 3D models, textures, and sounds restored.
         </footer>
       </div>
+
+      {/* Deployment Modal (Tag & Team Selection) */}
+      <DeployModal
+        isOpen={modalOpen}
+        roomCode={modalTarget.roomCode}
+        isHost={modalTarget.isHost}
+        mapName={modalTarget.map.name}
+        mapId={modalTarget.map.id}
+        initialCallsign={o.playerName}
+        initialTeam={o.playerTeam}
+        hostTeam={modalTarget.hostTeam}
+        onClose={() => setModalOpen(false)}
+        onDeploy={handleFinalDeploy}
+      />
     </div>
   )
 }

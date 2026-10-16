@@ -424,9 +424,10 @@ export class Game {
     const pTeam = this.opts.playerTeam
     this.player = this.addTank(this.opts.playerName, pTeam, true)
     const names = [...BOT_NAMES].sort(() => Math.random() - 0.5)
-    for (let i = 0; i < this.opts.teamSize - 1; i++)
+    const squadSize = this.opts.teamSize || 5
+    for (let i = 0; i < squadSize - 1; i++)
       this.addTank(names.pop()!, pTeam, false)
-    for (let i = 0; i < this.opts.teamSize; i++)
+    for (let i = 0; i < squadSize; i++)
       this.addTank(names.pop()!, pTeam === "red" ? "blue" : "red", false)
     for (const t of this.tanks) this.respawn(t, true)
 
@@ -477,18 +478,16 @@ export class Game {
       let rt = this.tanks.find((t) => t.isRemote && t.name === remoteName)
       if (!rt) {
         // A player joining takes the place of a bot on their team to keep both sides balanced
-        let botToReplace = this.tanks.find(
+        const botToReplace = this.tanks.find(
           (t) => !t.isPlayer && !t.isRemote && t.team === s.team,
         )
-        if (!botToReplace) {
-          botToReplace = this.tanks.find((t) => !t.isPlayer && !t.isRemote)
-        }
 
         if (botToReplace) {
           const oldName = botToReplace.name
           this.removeTank(botToReplace)
           this.pushFeed(`${remoteName} replaced ${oldName}`, s.team)
         } else {
+          // If all spots on that team are already humans, allow unlimited joining!
           this.pushFeed(`${remoteName} joined the battle`, s.team)
         }
 
@@ -593,16 +592,19 @@ export class Game {
         this.removeTank(rt)
         this.pushFeed(`${name} left the room`, team)
 
-        // Spawn a replacement bot so both sides maintain the same number of tanks
-        const unusedNames = BOT_NAMES.filter(
-          (bn) => !this.tanks.some((t) => t.name === bn),
-        )
-        const botName =
-          unusedNames[Math.floor(Math.random() * unusedNames.length)] ??
-          `bot_${Math.floor(Math.random() * 100)}`
-        const newBot = this.addTank(botName, team, false, false)
-        this.respawn(newBot, true)
-        this.pushFeed(`${botName} joined to replace ${name}`, team)
+        // Only spawn a replacement bot if the team has fallen below the 5-tank squad baseline
+        const remainingOnTeam = this.tanks.filter((t) => t.team === team).length
+        if (remainingOnTeam < 5) {
+          const unusedNames = BOT_NAMES.filter(
+            (bn) => !this.tanks.some((t) => t.name === bn),
+          )
+          const botName =
+            unusedNames[Math.floor(Math.random() * unusedNames.length)] ??
+            `bot_${Math.floor(Math.random() * 100)}`
+          const newBot = this.addTank(botName, team, false, false)
+          this.respawn(newBot, true)
+          this.pushFeed(`${botName} joined to replace ${name}`, team)
+        }
       }
     }
   }
@@ -781,8 +783,7 @@ export class Game {
       this.audio.resume()
       if (e.code === "KeyM") this.audio.setMuted(!this.audio.muted)
       if (e.code === "KeyV" && !e.repeat) {
-        this.proMode = !this.proMode
-        this.popup(this.proMode ? "PRO CAMERA" : "CASUAL CAMERA", "info")
+        this.toggleCameraMode()
       }
       if (e.code === "KeyR" && !e.repeat && !this.player.dead && !this.over) {
         this.pushFeed(`${this.player.name} respawns`) // killer "Re spawn"
@@ -879,6 +880,12 @@ export class Game {
     } catch {
       // pointer lock can be refused (e.g. inside some iframes); keyboard still works
     }
+  }
+
+  toggleCameraMode() {
+    this.proMode = !this.proMode
+    this.popup(this.proMode ? "PRO CAMERA" : "CASUAL CAMERA", "info")
+    this.emitHud()
   }
 
   start() {

@@ -58,6 +58,7 @@ export default function GameView({ options, onRematch, onMenu }: Props) {
           map={options.map.id}
           showScores={scores}
           onLock={() => gameRef.current?.requestLock()}
+          onToggleCamera={() => gameRef.current?.toggleCameraMode()}
           onRematch={onRematch}
           onMenu={onMenu}
         />

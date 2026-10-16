@@ -25,7 +25,7 @@ function getOrCreateCallsign(): string {
 const DEFAULTS: GameOptions = {
   map: MAPS[0],
   minutes: 5,
-  teamSize: 4,
+  teamSize: 5,
   difficulty: "regular",
   playerName: "tankcommander",
   playerTeam: "blue",

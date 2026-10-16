@@ -221,15 +221,31 @@ function Status({ s }: { s: HudState }) {
   )
 }
 
-function WeaponPanel({ s }: { s: HudState }) {
+function WeaponPanel({
+  s,
+  onToggleCamera,
+}: {
+  s: HudState
+  onToggleCamera?: () => void
+}) {
   const w = s.weapon ? WEAPONS[s.weapon] : null
   return (
     <div className="plate pointer-events-none absolute bottom-4 right-4 flex items-center gap-4 rounded-lg p-3 pl-5">
       <div className="text-right">
-        <div className="flex items-center justify-end gap-1.5 text-[10px] font-semibold text-white/50">
-          <span>{s.proMode ? "Pro" : "Casual"}</span>
-          <span className="rounded bg-white/10 px-1 py-0.5 text-[9px] text-hazard">V</span>
-        </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onToggleCamera?.()
+          }}
+          className="pointer-events-auto flex items-center justify-end gap-1.5 rounded px-1.5 py-0.5 text-[10px] font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          title="Click or press V to switch camera & aim mode"
+        >
+          <span>{s.proMode ? "Pro Camera" : "Casual Camera"}</span>
+          <span className="rounded bg-white/10 px-1 py-0.5 font-mono text-[9px] font-bold text-hazard">
+            V
+          </span>
+        </button>
         <div className="font-display text-xl leading-tight">
           {w ? w.label : "Unarmed"}
         </div>
@@ -421,6 +437,7 @@ type HudProps = {
   map: string
   showScores: boolean
   onLock: () => void
+  onToggleCamera?: () => void
   onRematch: () => void
   onMenu: () => void
 }
@@ -430,6 +447,7 @@ export default function Hud({
   map,
   showScores,
   onLock,
+  onToggleCamera,
   onRematch,
   onMenu,
 }: HudProps) {
@@ -499,7 +517,7 @@ export default function Hud({
       <HurtIndicator dir={s.hurtDir} />
       <Popups s={s} />
       <Status s={s} />
-      <WeaponPanel s={s} />
+      <WeaponPanel s={s} onToggleCamera={onToggleCamera} />
       {s.dead && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-team-red/10">
           <div className="font-display text-5xl text-team-red drop-shadow-[0_3px_0_#000]">
