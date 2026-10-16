@@ -5,6 +5,23 @@ import GameView from "./ui/GameView"
 import Menu from "./ui/Menu"
 import { syncUrlParams } from "./utils/url"
 
+function getOrCreateCallsign(): string {
+  try {
+    const saved = localStorage.getItem("tt_callsign")
+    if (saved && saved.trim()) return saved.trim()
+    const prefixes = [
+      "vanguard", "striker", "phantom", "reaper", "apex",
+      "titan", "havoc", "specter", "blaze", "hunter",
+      "viper", "falcon", "saber", "razor", "shadow"
+    ]
+    const pick = `${prefixes[Math.floor(Math.random() * prefixes.length)]}${Math.floor(10 + Math.random() * 90)}`
+    localStorage.setItem("tt_callsign", pick)
+    return pick
+  } catch {
+    return `commander${Math.floor(10 + Math.random() * 90)}`
+  }
+}
+
 const DEFAULTS: GameOptions = {
   map: MAPS[0],
   minutes: 5,
@@ -21,8 +38,16 @@ function fromUrl(): { options: GameOptions; play: boolean } {
   const q = new URLSearchParams(window.location.search)
   const map = MAPS.find((m) => m.id === q.get("map")) ?? DEFAULTS.map
   const roomCode = q.get("room") ?? ""
+  const callsign = getOrCreateCallsign()
+  const joinAsClient = q.has("join") || (roomCode.length > 0 && !q.has("host"))
   return {
-    options: { ...DEFAULTS, map, roomCode },
+    options: {
+      ...DEFAULTS,
+      playerName: callsign,
+      map,
+      roomCode,
+      joinAsClient,
+    },
     play: q.has("play"),
   }
 }
@@ -60,7 +85,11 @@ export default function App() {
     <Menu
       initial={options}
       onStart={(o) => {
-        const fixed = { ...o, playerName: o.playerName || "tankcommander" }
+        const callsign = o.playerName?.trim() || getOrCreateCallsign()
+        try {
+          localStorage.setItem("tt_callsign", callsign)
+        } catch {}
+        const fixed = { ...o, playerName: callsign }
         setOptions(fixed)
         syncUrlParams(fixed.roomCode, fixed.map.id)
         setPlaying(fixed)

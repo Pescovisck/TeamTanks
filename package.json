@@ -10,6 +10,7 @@
     "format": "oxfmt"
   },
   "dependencies": {
+    "mqtt": "^5.16.1",
     "peerjs": "^1.5.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

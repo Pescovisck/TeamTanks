@@ -50,6 +50,7 @@ export type GameOptions = {
   playerTeam: Team
   proMode?: boolean
   roomCode?: string
+  joinAsClient?: boolean
 }
 
 export type FeedItem = { id: number; text: string; team?: Team; t: number }
@@ -447,6 +448,12 @@ export class Game {
           this.netStatus = { roomCode: room, ...st }
           this.emitHud()
         },
+        {
+          roomCode: room,
+          mapId: this.opts.map.id,
+          mapName: this.opts.map.name,
+          joinAsClient: this.opts.joinAsClient,
+        },
       )
     }
 
@@ -466,10 +473,11 @@ export class Game {
   onNetMessage(msg: NetMessage) {
     if (msg.subject === "where") {
       const s = msg.state
-      let rt = this.tanks.find((t) => t.isRemote && t.name === s.name)
+      const remoteName = s.name === this.player.name ? `${s.name}_remote` : s.name
+      let rt = this.tanks.find((t) => t.isRemote && t.name === remoteName)
       if (!rt) {
-        rt = this.addTank(s.name, s.team, false, true)
-        this.pushFeed(`${s.name} joined the battle`, s.team)
+        rt = this.addTank(remoteName, s.team, false, true)
+        this.pushFeed(`${remoteName} joined the battle`, s.team)
       }
       rt.lastNetSeen = this.frame
       rt.team = s.team
@@ -487,7 +495,8 @@ export class Game {
       rt.dead = s.hp <= 0
       rt.rig.root.visible = !rt.dead
     } else if (msg.subject === "fire") {
-      const shooter = this.tanks.find((t) => t.name === msg.sender)
+      const shooterName = msg.sender === this.player.name ? `${msg.sender}_remote` : msg.sender
+      const shooter = this.tanks.find((t) => t.name === shooterName)
       if (!shooter) return
       const pos = new THREE.Vector3(msg.pos[0], msg.pos[1], msg.pos[2])
       const dir = new THREE.Vector3(msg.dir[0], msg.dir[1], msg.dir[2])
@@ -558,14 +567,15 @@ export class Game {
       const cap = this.caps[msg.id]
       if (cap) cap.v = msg.val
     } else if (msg.subject === "left") {
+      const senderName = msg.sender === this.player.name ? `${msg.sender}_remote` : msg.sender
       const idx = this.tanks.findIndex(
-        (t) => t.isRemote && t.name === msg.sender,
+        (t) => t.isRemote && (t.name === msg.sender || t.name === senderName),
       )
       if (idx >= 0) {
         const rt = this.tanks[idx]
         this.scene.remove(rt.rig.root)
         this.tanks.splice(idx, 1)
-        this.pushFeed(`${msg.sender} left the room`, rt.team)
+        this.pushFeed(`${rt.name} left the room`, rt.team)
       }
     }
   }

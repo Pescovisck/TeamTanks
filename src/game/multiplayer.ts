@@ -1,5 +1,6 @@
-import Peer, { DataConnection } from 'peerjs';
-import { Team, WeaponId } from './data';
+import Peer, { type DataConnection } from 'peerjs';
+import { type Team, type WeaponId } from './data';
+import { lobbyService } from './lobby';
 
 export interface NetTankState {
   name: string;
@@ -50,6 +51,13 @@ export type NetMessage =
   | { subject: 'talk'; sender: string; team: Team; text: string }
   | { subject: 'left'; sender: string };
 
+export interface RoomMeta {
+  roomCode: string;
+  mapId: string;
+  mapName: string;
+  joinAsClient?: boolean;
+}
+
 function sanitizeRoomSlug(roomId: string): string {
   return roomId.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
 }
@@ -58,6 +66,7 @@ export class MultiplayerSession {
   public readonly roomId: string;
   public readonly playerName: string;
   public readonly team: Team;
+  public readonly sessionId: string;
   public isConnected = false;
   public isHost = false;
   public peerCount = 0;
@@ -69,20 +78,25 @@ export class MultiplayerSession {
   private seenMsgIds = new Set<string>();
   private onMessage: (msg: NetMessage) => void;
   private onStatusChange?: (status: { connected: boolean; isHost: boolean; peers: number }) => void;
+  private meta?: RoomMeta;
   private destroyed = false;
+  private clientTimeoutTimer: any = null;
 
   constructor(
     roomId: string,
     playerName: string,
     team: Team,
     onMessage: (msg: NetMessage) => void,
-    onStatusChange?: (status: { connected: boolean; isHost: boolean; peers: number }) => void
+    onStatusChange?: (status: { connected: boolean; isHost: boolean; peers: number }) => void,
+    meta?: RoomMeta
   ) {
     this.roomId = roomId;
     this.playerName = playerName;
     this.team = team;
+    this.sessionId = `${playerName}_${Math.random().toString(36).slice(2, 9)}`;
     this.onMessage = onMessage;
     this.onStatusChange = onStatusChange;
+    this.meta = meta;
 
     this.initBroadcastChannel();
     this.initWebRTC();
@@ -96,20 +110,29 @@ export class MultiplayerSession {
     });
   }
 
+  private handleIncomingPacket(packet: any) {
+    if (!packet || !packet.id || !packet.msg) return;
+    if (this.seenMsgIds.has(packet.id)) return;
+    this.seenMsgIds.add(packet.id);
+    if (this.seenMsgIds.size > 2000) {
+      const first = this.seenMsgIds.values().next().value;
+      if (first) this.seenMsgIds.delete(first);
+    }
+
+    // Drop self packets (identified by unique sessionId)
+    if (packet.sessionId && packet.sessionId === this.sessionId) return;
+    if (!packet.sessionId && packet.msg.sender === this.playerName) return;
+
+    this.onMessage(packet.msg as NetMessage);
+  }
+
   private initBroadcastChannel() {
     try {
       const slug = sanitizeRoomSlug(this.roomId);
       this.bc = new BroadcastChannel(`tt2006_room_${slug}`);
       this.bc.onmessage = (ev) => {
         if (this.destroyed) return;
-        const packet = ev.data;
-        if (!packet || !packet.id || !packet.msg) return;
-        if (this.seenMsgIds.has(packet.id)) return;
-        this.seenMsgIds.add(packet.id);
-        const msg = packet.msg as NetMessage;
-        if (msg.sender !== this.playerName) {
-          this.onMessage(msg);
-        }
+        this.handleIncomingPacket(ev.data);
       };
     } catch {
       // BroadcastChannel unsupported
@@ -119,6 +142,11 @@ export class MultiplayerSession {
   private initWebRTC() {
     const slug = sanitizeRoomSlug(this.roomId);
     const hostPeerId = `tt2006-room-${slug}`;
+
+    if (this.meta?.joinAsClient) {
+      this.connectAsClient(hostPeerId, true);
+      return;
+    }
 
     try {
       const hostPeer = new Peer(hostPeerId);
@@ -133,6 +161,19 @@ export class MultiplayerSession {
         this.isConnected = true;
         this.notifyStatus();
 
+        if (this.meta) {
+          lobbyService.startHosting({
+            id: this.roomId,
+            roomCode: this.meta.roomCode,
+            mapId: this.meta.mapId,
+            mapName: this.meta.mapName,
+            hostName: this.playerName,
+            hostPeerId,
+            players: 1,
+            maxPlayers: 8,
+          });
+        }
+
         hostPeer.on('connection', (conn) => {
           this.setupHostClientConnection(conn);
         });
@@ -141,13 +182,13 @@ export class MultiplayerSession {
       hostPeer.on('error', (err: any) => {
         if (this.destroyed) return;
         if (err?.type === 'unavailable-id') {
-          // Room host already exists! Connect as client peer
+          // Room host already exists! Connect as client
           try {
             hostPeer.destroy();
           } catch {}
-          this.connectAsClient(hostPeerId);
+          this.connectAsClient(hostPeerId, false);
         } else {
-          // Even if public broker is unreachable offline, BroadcastChannel still works locally
+          // Public broker unreachable or socket error
           this.isConnected = true;
           this.notifyStatus();
         }
@@ -164,15 +205,14 @@ export class MultiplayerSession {
       this.clientConns.set(conn.peer, conn);
       this.peerCount = this.clientConns.size;
       this.notifyStatus();
+      lobbyService.updatePlayerCount(this.peerCount + 1);
     });
 
     conn.on('data', (raw: any) => {
       if (this.destroyed) return;
-      if (!raw || !raw.id || !raw.msg) return;
-      if (this.seenMsgIds.has(raw.id)) return;
-      this.seenMsgIds.add(raw.id);
+      this.handleIncomingPacket(raw);
 
-      // Relay to all other WebRTC clients in the room
+      // Relay to all other WebRTC clients in this room
       for (const [peerId, other] of this.clientConns.entries()) {
         if (peerId !== conn.peer && other.open) {
           try {
@@ -180,23 +220,19 @@ export class MultiplayerSession {
           } catch {}
         }
       }
-
-      const msg = raw.msg as NetMessage;
-      if (msg.sender !== this.playerName) {
-        this.onMessage(msg);
-      }
     });
 
     const cleanup = () => {
       this.clientConns.delete(conn.peer);
       this.peerCount = this.clientConns.size;
       this.notifyStatus();
+      lobbyService.updatePlayerCount(this.peerCount + 1);
     };
     conn.on('close', cleanup);
     conn.on('error', cleanup);
   }
 
-  private connectAsClient(hostPeerId: string) {
+  private connectAsClient(hostPeerId: string, fallbackToHost: boolean) {
     try {
       const clientPeer = new Peer();
       this.peer = clientPeer;
@@ -206,11 +242,30 @@ export class MultiplayerSession {
           clientPeer.destroy();
           return;
         }
-        const conn = clientPeer.connect(hostPeerId, { reliable: false });
+
+        const conn = clientPeer.connect(hostPeerId, { reliable: true });
         this.hostConn = conn;
+
+        if (fallbackToHost) {
+          this.clientTimeoutTimer = setTimeout(() => {
+            if (!this.isConnected && !this.destroyed) {
+              // Host did not respond, promote this peer to host
+              try {
+                conn.close();
+                clientPeer.destroy();
+              } catch {}
+              this.meta = { ...this.meta!, joinAsClient: false };
+              this.initWebRTC();
+            }
+          }, 3500);
+        }
 
         conn.on('open', () => {
           if (this.destroyed) return;
+          if (this.clientTimeoutTimer) {
+            clearTimeout(this.clientTimeoutTimer);
+            this.clientTimeoutTimer = null;
+          }
           this.isConnected = true;
           this.isHost = false;
           this.peerCount = 1;
@@ -219,18 +274,18 @@ export class MultiplayerSession {
 
         conn.on('data', (raw: any) => {
           if (this.destroyed) return;
-          if (!raw || !raw.id || !raw.msg) return;
-          if (this.seenMsgIds.has(raw.id)) return;
-          this.seenMsgIds.add(raw.id);
-          const msg = raw.msg as NetMessage;
-          if (msg.sender !== this.playerName) {
-            this.onMessage(msg);
-          }
+          this.handleIncomingPacket(raw);
         });
 
         conn.on('close', () => {
           if (this.destroyed) return;
           this.peerCount = 0;
+          this.notifyStatus();
+        });
+
+        conn.on('error', () => {
+          if (this.destroyed) return;
+          this.isConnected = true;
           this.notifyStatus();
         });
       });
@@ -254,9 +309,9 @@ export class MultiplayerSession {
       if (first) this.seenMsgIds.delete(first);
     }
 
-    const packet = { id, msg };
+    const packet = { id, sessionId: this.sessionId, msg };
 
-    // 1. Send via BroadcastChannel (same-machine tabs)
+    // 1. Send via BroadcastChannel (same-machine browser tabs)
     try {
       this.bc?.postMessage(packet);
     } catch {}
@@ -279,8 +334,17 @@ export class MultiplayerSession {
 
   public dispose() {
     if (this.destroyed) return;
+    if (this.clientTimeoutTimer) {
+      clearTimeout(this.clientTimeoutTimer);
+      this.clientTimeoutTimer = null;
+    }
     this.send({ subject: 'left', sender: this.playerName });
     this.destroyed = true;
+
+    if (this.isHost) {
+      lobbyService.stopHosting();
+    }
+
     try {
       this.bc?.close();
     } catch {}

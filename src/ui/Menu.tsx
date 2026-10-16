@@ -1,7 +1,9 @@
 import { useState } from "react"
 import { MAPS, type MapDef } from "../game/data"
 import type { Difficulty, GameOptions, Team } from "../game/engine"
+import type { LobbyInfo } from "../game/lobby"
 import { copyInviteLink, syncUrlParams } from "../utils/url"
+import RoomBrowser from "./RoomBrowser"
 
 const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
 
@@ -119,6 +121,19 @@ export default function Menu({ initial, onStart }: Props) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleJoinLobby = (lobby: LobbyInfo) => {
+    const targetMap = MAPS.find((m) => m.id === lobby.mapId) ?? o.map
+    const nextOpts: GameOptions = {
+      ...o,
+      map: targetMap,
+      roomCode: lobby.roomCode,
+      joinAsClient: true,
+    }
+    setO(nextOpts)
+    syncUrlParams(lobby.roomCode, targetMap.id)
+    onStart(nextOpts)
+  }
+
   return (
     <div className="relative h-full w-full overflow-y-auto">
       <img
@@ -159,6 +174,42 @@ export default function Menu({ initial, onStart }: Props) {
             </span>
           </button>
         </header>
+
+        {o.roomCode && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-hazard bg-hazard/10 px-5 py-4 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">⚔️</span>
+              <div>
+                <div className="text-[15px] font-bold text-white">
+                  Room Invite: <span className="font-mono text-hazard">{o.roomCode}</span>
+                </div>
+                <div className="text-[12px] text-white/70">
+                  Battlefield: <span className="font-semibold text-white">{o.map.name}</span> · Ready to connect as peer
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="rounded border border-white/20 bg-black/40 px-3 py-2 text-xs font-semibold text-white/80 transition-colors hover:bg-black/60 hover:text-white"
+              >
+                {copied ? "✓ Copied!" : "Copy Link"}
+              </button>
+              <button
+                type="button"
+                onClick={() => onStart({ ...o, joinAsClient: true })}
+                className="rounded bg-hazard px-6 py-2.5 font-sans text-base font-bold text-gunmetal shadow transition-transform hover:scale-105 active:scale-95"
+              >
+                Join Battle Now ›
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="mb-6">
+          <RoomBrowser currentRoom={o.roomCode} onJoin={handleJoinLobby} />
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
           <section className="plate rounded-lg p-5">
