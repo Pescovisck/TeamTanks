@@ -1,41 +1,21 @@
-# figma-make-app
+# TeamTanks Web
 
-React + Vite + Tailwind CSS project running inside Figma Make.
-
-## Development Server
-
-A Vite development server is **already running** on `$PORT` (default 8443). You don't need to start it manually.
-
-- Preview URL: The user can access the running app through the preview panel
-- Hot reload: Changes to source files are reflected immediately
+Web remake of the classic 2006 GameVial Shockwave 3D game **TeamTanks**, built with React 19, Three.js, PeerJS (WebRTC multiplayer), and Vite.
 
 ## Project Structure
 
-This is the canonical project structure. Start with task-relevant files below. Only follow imports or inspect other files when required, when a documented path is missing, or when the repository contradicts this guide.
+- `src/game/data.ts` — Weapons, maps, teams, ranks, and original game constants
+- `src/game/models.ts` — W3D 3D model loader (`public/tt/models/models.bin`) and procedural rig builders
+- `src/game/engine.ts` — Three.js 3D simulation, physics, AI bots, weapons, pickups, and camera modes
+- `src/game/net.ts` — PeerJS WebRTC P2P multiplayer lobby & state synchronization
+- `src/game/audio.ts` — Original MP3 sound effects & procedural audio synthesis
+- `src/ui/Menu.tsx` — Main menu, tank customization, map & mode selection, multiplayer lobby
+- `src/ui/Hud.tsx` — In-game HUD, radar, scoreboard, weapon sights, and chat
+- `public/tt/` — Runtime 3D models, terrain heightmaps, textures, sounds, and HUD sprites
+- `raw_assets/` & `teamtanks_re/` — Complete archive of decompiled Shockwave Director scripts (`.ls`), W3D/OBJ 3D models, textures, and Flash UI assets
 
-- `src/main.tsx` - React entrypoint; imports `src/index.css` and mounts `src/App.tsx` into the `#root` element
-- `src/App.tsx` - Primary application component and the usual starting point for UI work
-- `src/index.css` - Global CSS entrypoint and Tailwind CSS v4 import
-- `index.html` - Vite HTML shell containing the `#root` element and loading `src/main.tsx`
-- `package.json` - Project dependencies and the Vite build, development, preview, and formatting scripts
-- `vite.config.ts` - Vite configuration with React, Tailwind CSS v4, and Figma Make plugins plus the `@` alias for `src`
-- `.mise.toml` - Toolchain versions for Node.js and pnpm
+## Commands
 
-## Dependencies
-
-- Runtime: React 19 and React DOM 19
-- Styling: Tailwind CSS v4 with the `@tailwindcss/vite` plugin
-- Build tooling: Vite 8, TypeScript 5.7, and `@vitejs/plugin-react`
-- Formatting: oxfmt
-
-## Styling
-
-This project uses **Tailwind CSS v4** through the `@tailwindcss/vite` plugin configured in `vite.config.ts`. `src/index.css` imports Tailwind with `@import 'tailwindcss';`. Use Tailwind utility classes directly in JSX and put global CSS or Tailwind v4 theme customization in `src/index.css`. This scaffold does not need a Tailwind config file or PostCSS config.
-
-`src/main.tsx` imports `src/index.css`, so global font wiring belongs in `src/index.css`. Keep CSS `@import` statements first, then add any `@font-face` rules and font-family defaults there.
-
-## Code quality
-
-- Use double quotes for strings containing apostrophes (`"We're here to help"`), or escape them in single-quoted strings. An unescaped apostrophe in a single-quoted string breaks the build.
-- Ensure JSX tags are closed and braces are balanced.
-- Export components as default exports.
+- `npm run dev` — Start Vite development server
+- `npm run build` — Build production bundle to `dist/`
+- `npm run preview` — Preview production build locally

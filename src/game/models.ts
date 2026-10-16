@@ -367,7 +367,7 @@ export function updateTankWeaponRig(rig: TankRig, weapon: string | null) {
   rig.currentWeapon = weapon
   const w = weapon ?? "mgun"
   const gRes = weapon ? VGRES[w] : null
-  const tRes = weapon ? VTRES[w] : "turret"
+  const tRes = weapon ? VTRES[w] : null
   const bRes = weapon ? VBRES[w] : null
 
   if (!gRes) {
@@ -429,6 +429,19 @@ export function buildProp(kind: string): THREE.Object3D {
   return g
 }
 
+/** Original W3D brick wall on grass1: initgame.ls ground whitebrick1 (scale [1.3, 0.78, 1.3], pos [0, 220, 0], tex brick). */
+export function buildBrickWall(): THREE.Object3D {
+  const g = new THREE.Group()
+  const mat = shadyMat("brick", "#464646")
+  const m = new THREE.Mesh(getModelGeometry("groundwhitebrick1"), mat)
+  m.scale.set(1.3, 0.78, 1.3)
+  m.position.set(0, 220, 0)
+  m.castShadow = m.receiveShadow = true
+  g.add(m)
+  g.userData.collider = m
+  return g
+}
+
 /** Original W3D spawn building (initgame.ls: 6 submeshes, scale 0.6). */
 export function buildSpawnPad(team: "red" | "blue") {
   const g = new THREE.Group()
@@ -446,6 +459,7 @@ export function buildSpawnPad(team: "red" | "blue") {
   m.scale.setScalar(0.6)
   m.castShadow = m.receiveShadow = true
   g.add(m)
+  g.userData.collider = m
   return g
 }
 
@@ -474,6 +488,7 @@ export function buildCapturePoint(): CapRig {
   const cpMesh = new THREE.Mesh(getModelGeometry("capturepoint"), cpMats)
   cpMesh.castShadow = cpMesh.receiveShadow = true
   g.add(cpMesh)
+  g.userData.collider = cpMesh
 
   const glowTex = tex("glow").clone()
   glowTex.needsUpdate = true
@@ -497,18 +512,19 @@ export function buildCapturePoint(): CapRig {
   return { group: g, glow, core, light }
 }
 
-/** Original pickup icon plane (pickups.ls: 100x100 double-sided plane with member("icons") frame). */
-const pickupGeo = new THREE.PlaneGeometry(96, 96)
+/** Original pickup icon plane (pickups.ls: 100x100 double-sided plane with transparent weapon icon). */
+const pickupGeo = new THREE.PlaneGeometry(100, 100)
 export function buildPickup(icon: number) {
   const g = new THREE.Group()
-  // icon is ammo_hud_<n> where n = index + 2 (2..20); pickup_<k> is 1..19
-  const pickupIdx = Math.max(1, Math.min(19, icon - 1))
-  const iconTex = loader.load(asset(`tex/pickup_${pickupIdx}.png`))
+  // icon is 2..20 matching icon_<icon>.png (transparent vivid icon)
+  const iconTex = loader.load(asset(`ui/icon_${icon}.png`))
   iconTex.colorSpace = THREE.SRGBColorSpace
   const card = new THREE.Mesh(
     pickupGeo,
     new THREE.MeshBasicMaterial({
       map: iconTex,
+      transparent: true,
+      alphaTest: 0.05,
       side: THREE.DoubleSide,
     }),
   )
@@ -529,12 +545,15 @@ export function buildProjectileMesh(
       getModelGeometry(modelName),
       shadyMat(`${team}mines`),
     )
-    const blink = new THREE.Mesh(
-      new THREE.SphereGeometry(6),
-      new THREE.MeshBasicMaterial({ color: TEAM_COLORS[team] }),
+    m.scale.setScalar(1)
+    return m
+  }
+  if (kind === "health") {
+    const m = new THREE.Mesh(
+      getModelGeometry("health"),
+      shadyMat("tboxhealth"),
     )
-    blink.position.y = 10
-    m.add(blink)
+    m.scale.setScalar(0.5)
     return m
   }
   if (kind === "bomb") {
@@ -544,6 +563,7 @@ export function buildProjectileMesh(
       shadyMat(`${team}bombtex`),
     )
     m.rotation.x = -Math.PI / 2
+    m.scale.setScalar(1)
     g.add(m)
     g.visible = false
     return g
@@ -552,8 +572,9 @@ export function buildProjectileMesh(
     const isNook = weapon === "nook"
     const m = new THREE.Mesh(
       getModelGeometry(isNook ? "nook" : "mortar"),
-      shadyMat(isNook ? `${team}nook` : `${team}rocketlauncher`),
+      shadyMat(isNook ? `${team}nook` : `${team}mortarlauncher`),
     )
+    m.scale.setScalar(isNook ? 1 : 2)
     return m
   }
   if (kind === "shell") {
@@ -562,7 +583,7 @@ export function buildProjectileMesh(
       getModelGeometry("shell"),
       shadyMat(`${team}shell`),
     )
-    m.scale.setScalar(2)
+    m.scale.setScalar(4)
     g.add(m)
     return g
   }
@@ -589,18 +610,10 @@ export function buildProjectileMesh(
   const texName =
     weapon === "rcrocket" ? `${team}rcrocket` : `${team}rocket`
   const body = new THREE.Mesh(getModelGeometry(modelName), shadyMat(texName))
+  const scale =
+    weapon === "rocketx4" ? 4 : weapon === "guidedmissile" ? 1.5 : weapon === "rcrocket" ? 1.5 : 2
+  body.scale.setScalar(scale)
   g.add(body)
-  const flame = new THREE.Sprite(
-    new THREE.SpriteMaterial({
-      color: "#ffb347",
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }),
-  )
-  flame.scale.set(36, 36, 1)
-  flame.position.z = 28
-  g.add(flame)
   return g
 }
 

@@ -21,6 +21,7 @@ import {
   type Level,
 } from "./level"
 import {
+  buildBrickWall,
   buildCapturePoint,
   buildDebrisPiece,
   buildPickup,
@@ -47,6 +48,7 @@ export type GameOptions = {
   difficulty: Difficulty
   playerName: string
   playerTeam: Team
+  proMode?: boolean
   roomCode?: string
 }
 
@@ -75,6 +77,10 @@ export type HudState = {
   spawnProtect: boolean
   hitMarker: number
   hurtDir: number | null
+  proMode: boolean
+  zoomed: boolean
+  siteIndex: number
+  isControllingRc: boolean
   scoreboard: {
     name: string
     team: Team
@@ -226,6 +232,23 @@ export class Game {
   keys = new Set<string>()
   mouseDown = false
   locked = false
+  proMode = false
+  rightMouseDown = false
+  paiminc = 50
+  rcPawn: {
+    kind: "rcbomb" | "rcrocket"
+    pos: THREE.Vector3
+    vel: THREE.Vector3
+    rot: THREE.Vector3 // pitch, roll, yaw
+    mesh: THREE.Object3D
+    life: number
+    maxLife: number
+    fuel: number
+    push: number
+  } | null = null
+  airstrikeMarker: THREE.Mesh | null = null
+  sparkMat!: THREE.SpriteMaterial
+  bloodMat!: THREE.SpriteMaterial
   running = false
   raf = 0
   acc = 0
@@ -254,6 +277,7 @@ export class Game {
     this.opts = opts
     this.onHud = onHud
     this.timeLeft = opts.minutes * 60
+    if (opts.proMode !== undefined) this.proMode = opts.proMode
   }
 
   async init(onProgress?: (msg: string) => void) {
@@ -304,18 +328,26 @@ export class Game {
       this.scene.add(o)
       if (o.userData.collider) this.colliders.push(o.userData.collider)
     }
+    if (this.opts.map.id === "grass1") {
+      const brick = buildBrickWall()
+      this.scene.add(brick)
+      if (brick.userData.collider) this.colliders.push(brick.userData.collider)
+    }
     for (const s of l.spawns) {
       const pad = buildSpawnPad(s.team)
       pad.position.copy(s.pos)
       pad.position.y = terrainAt(l, s.pos.x, s.pos.z) - 4
       pad.rotation.y = -s.yaw
       this.scene.add(pad)
+      if (pad.userData.collider) this.colliders.push(pad.userData.collider)
     }
     for (const c of l.caps) {
       const rig = buildCapturePoint()
       rig.group.position.copy(c)
       this.scene.add(rig.group)
       this.caps.push({ pos: c.clone(), v: 127, rig })
+      if (rig.group.userData.collider)
+        this.colliders.push(rig.group.userData.collider)
     }
     for (const p of l.pickups) {
       const weapon = (PICKUP_SUBSTITUTE[p.kind] ?? p.kind) as WeaponId
@@ -350,6 +382,18 @@ export class Game {
       transparent: true,
       depthWrite: false,
       opacity: 0.6,
+    })
+    this.sparkMat = new THREE.SpriteMaterial({
+      map: tex("pufft"),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+    this.bloodMat = new THREE.SpriteMaterial({
+      map: tex("tblood"),
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.85,
     })
 
     onProgress?.("Fuelling tanks")
@@ -641,6 +685,10 @@ export class Game {
       this.keys.add(e.code)
       this.audio.resume()
       if (e.code === "KeyM") this.audio.setMuted(!this.audio.muted)
+      if (e.code === "KeyV" && !e.repeat) {
+        this.proMode = !this.proMode
+        this.popup(this.proMode ? "PRO CAMERA" : "CASUAL CAMERA", "info")
+      }
       if (e.code === "KeyR" && !e.repeat && !this.player.dead && !this.over) {
         this.pushFeed(`${this.player.name} respawns`) // killer "Re spawn"
         this.respawn(this.player)
@@ -654,34 +702,56 @@ export class Game {
         return
       }
       if (e.button === 0) this.mouseDown = true
+      if (e.button === 2) this.rightMouseDown = true
     }
     const mu = (e: MouseEvent) => {
       if (e.button === 0) this.mouseDown = false
+      if (e.button === 2) this.rightMouseDown = false
     }
     const mm = (e: MouseEvent) => {
       if (!this.locked || this.player.dead || this.over) return
-      this.player.aimYaw -= e.movementX * 0.0024
+      if (this.rcPawn) {
+        this.rcPawn.rot.z -= e.movementX * 0.0025
+        if (this.rcPawn.kind === "rcrocket") {
+          this.rcPawn.rot.x = THREE.MathUtils.clamp(
+            this.rcPawn.rot.x - e.movementY * 0.002,
+            -1.1,
+            1.1,
+          )
+        }
+        return
+      }
+      if (!this.proMode) return
+      const sens = this.rightMouseDown ? 0.0006 : 0.0024
+      const pSens = this.rightMouseDown ? 0.0005 : 0.0018
+      this.player.aimYaw -= e.movementX * sens
       this.player.aimPitch = THREE.MathUtils.clamp(
-        this.player.aimPitch - e.movementY * 0.0018,
-        -0.3,
-        0.55,
+        this.player.aimPitch - e.movementY * pSens,
+        -0.5,
+        1.1,
       )
     }
+    const cm = (e: MouseEvent) => e.preventDefault()
     const pl = () => {
       this.locked = document.pointerLockElement === this.canvas
-      if (!this.locked) this.mouseDown = false
+      if (!this.locked) {
+        this.mouseDown = false
+        this.rightMouseDown = false
+      }
       this.emitHud()
     }
     const rs = () => this.resize()
     const blur = () => {
       this.keys.clear()
       this.mouseDown = false
+      this.rightMouseDown = false
     }
     window.addEventListener("keydown", kd)
     window.addEventListener("keyup", ku)
     this.canvas.addEventListener("mousedown", md)
     window.addEventListener("mouseup", mu)
     window.addEventListener("mousemove", mm)
+    this.canvas.addEventListener("contextmenu", cm)
     document.addEventListener("pointerlockchange", pl)
     window.addEventListener("resize", rs)
     window.addEventListener("blur", blur)
@@ -691,6 +761,7 @@ export class Game {
       this.canvas.removeEventListener("mousedown", md)
       window.removeEventListener("mouseup", mu)
       window.removeEventListener("mousemove", mm)
+      this.canvas.removeEventListener("contextmenu", cm)
       document.removeEventListener("pointerlockchange", pl)
       window.removeEventListener("resize", rs)
       window.removeEventListener("blur", blur)
@@ -768,6 +839,53 @@ export class Game {
       if (k.has("KeyE")) p.aimYaw -= 0.035
       if (k.has("KeyZ")) p.aimPitch = Math.min(0.55, p.aimPitch + 0.012)
       if (k.has("KeyX")) p.aimPitch = Math.max(-0.3, p.aimPitch - 0.012)
+
+      // Casual camera & gun mode (goody.ls: vgunangs, hull alignment, autoaim)
+      if (!this.proMode && !this.rcPawn) {
+        const fwd = tmpV.set(0, 0, -1).applyQuaternion(p.q)
+        const hullYaw = Math.atan2(-fwd.x, -fwd.z)
+        const gunAngles: Partial<Record<WeaponId, number>> = {
+          nook: 30 * (Math.PI / 180),
+          mortar: 20 * (Math.PI / 180),
+          rcrocket: 35 * (Math.PI / 180),
+          rocket: 1 * (Math.PI / 180),
+          guidedmissile: 1 * (Math.PI / 180),
+          sonicgun: -1 * (Math.PI / 180),
+        }
+        const targetPitch = (p.weapon && gunAngles[p.weapon]) ?? -0.02
+        p.aimPitch += (targetPitch - p.aimPitch) * 0.1
+
+        if (p.input.throttle !== 0) {
+          p.aimYaw += wrapAngle(hullYaw - p.aimYaw) * 0.12
+        } else if (p.input.turn !== 0) {
+          p.aimYaw += p.input.turn * 0.04
+        }
+
+        if (p.input.fire) {
+          let bestTarget: Tank | null = null
+          let bestDist = 4000
+          const aimDir = tmpV.set(-Math.sin(p.aimYaw), 0, -Math.cos(p.aimYaw))
+          for (const t of this.tanks) {
+            if (t.team !== p.team && !t.dead && t.stealthT === 0) {
+              const d = tmpV2.subVectors(t.pos, p.pos)
+              const dist = d.length()
+              if (dist < bestDist) {
+                d.y = 0
+                d.normalize()
+                if (aimDir.angleTo(d) < 0.22) {
+                  bestTarget = t
+                  bestDist = dist
+                }
+              }
+            }
+          }
+          if (bestTarget) {
+            const toTarget = tmpV2.subVectors(bestTarget.pos, p.pos)
+            const targetYaw = Math.atan2(-toTarget.x, -toTarget.z)
+            p.aimYaw += wrapAngle(targetYaw - p.aimYaw) * 0.2
+          }
+        }
+      }
     } else {
       p.input = { throttle: 0, turn: 0, fire: false, jump: false }
     }
@@ -818,6 +936,7 @@ export class Game {
     }
 
     this.collideTanks()
+    this.stepRcPawn()
     this.stepProjectiles()
     this.stepPickups()
     if (this.frame % 16 === 0) this.stepCaps()
@@ -825,6 +944,96 @@ export class Game {
     if (this.hitMarker > 0) this.hitMarker--
     if (this.hurtT > 0 && --this.hurtT === 0) this.hurtDir = null
     if (this.frame % 4 === 0) this.emitHud()
+  }
+
+  stepRcPawn() {
+    const rc = this.rcPawn
+    if (!rc) return
+    const p = this.player
+    rc.life++
+    rc.fuel--
+
+    if (rc.kind === "rcbomb") {
+      // Ground movement
+      const n = new THREE.Vector3()
+      const gh = this.groundAt(rc.pos.x, rc.pos.z, rc.pos.y, n)
+      rc.pos.y = Math.max(rc.pos.y, gh + 10)
+      if (this.mouseDown || this.keys.has("KeyW") || this.keys.has("ArrowUp")) {
+        const fwd = new THREE.Vector3(Math.sin(rc.rot.z), 0, Math.cos(rc.rot.z))
+        rc.vel.copy(fwd).multiplyScalar(rc.push * 25)
+      } else {
+        rc.vel.multiplyScalar(0.92)
+      }
+      rc.pos.addScaledVector(rc.vel, DT)
+      rc.mesh.position.copy(rc.pos)
+      rc.mesh.rotation.y = rc.rot.z
+
+      if (this.frame % 30 === 0)
+        this.audio.play("rcbeep", rc.pos, 0.4)
+
+      const shouldDetonate =
+        this.rightMouseDown ||
+        (this.keys.has("ControlLeft") && rc.life > 60) ||
+        rc.fuel <= 0 ||
+        rc.life > rc.maxLife
+
+      if (shouldDetonate) {
+        this.explode(rc.pos.clone(), 20, p, "rcbomb")
+        this.scene.remove(rc.mesh)
+        disposeTree(rc.mesh)
+        this.rcPawn = null
+        p.weapon = null
+        p.ammo = 0
+        updateTankWeaponRig(p.rig, null)
+      }
+    } else if (rc.kind === "rcrocket") {
+      // Air flight movement
+      if (this.proMode) {
+        if (this.mouseDown || this.keys.has("ControlLeft")) {
+          rc.push = Math.min(30, rc.push * 1.02)
+        } else {
+          rc.push = Math.max(12, rc.push * 0.98)
+        }
+      } else {
+        rc.push = 20
+        if (this.keys.has("KeyA") || this.keys.has("ArrowLeft")) rc.rot.z += 0.04
+        if (this.keys.has("KeyD") || this.keys.has("ArrowRight")) rc.rot.z -= 0.04
+        if (this.keys.has("KeyW") || this.keys.has("ArrowUp")) rc.rot.x += 0.03
+        if (this.keys.has("KeyS") || this.keys.has("ArrowDown")) rc.rot.x -= 0.03
+      }
+      const fwd = new THREE.Vector3(
+        Math.sin(rc.rot.z) * Math.cos(rc.rot.x),
+        Math.sin(rc.rot.x),
+        Math.cos(rc.rot.z) * Math.cos(rc.rot.x),
+      ).normalize()
+      rc.vel.copy(fwd).multiplyScalar(rc.push * 25)
+      rc.pos.addScaledVector(rc.vel, DT)
+      rc.mesh.position.copy(rc.pos)
+      rc.mesh.lookAt(rc.pos.clone().add(fwd))
+
+      if (this.frame % 2 === 0)
+        this.puff(rc.pos, 50, 30)
+
+      const gh = terrainAt(this.level, rc.pos.x, rc.pos.z)
+      const hitGround = rc.pos.y <= gh + 5
+
+      const shouldDetonate =
+        hitGround ||
+        this.rightMouseDown ||
+        (this.keys.has("ControlLeft") && rc.life > 60) ||
+        rc.fuel <= 0 ||
+        rc.life > rc.maxLife
+
+      if (shouldDetonate) {
+        this.explode(rc.pos.clone(), 25, p, "rcrocket")
+        this.scene.remove(rc.mesh)
+        disposeTree(rc.mesh)
+        this.rcPawn = null
+        p.weapon = null
+        p.ammo = 0
+        updateTankWeaponRig(p.rig, null)
+      }
+    }
   }
 
   /** Terrain height, raised by any ramp under (x, z). */
@@ -855,8 +1064,8 @@ export class Game {
     t.onFloor = dist <= 6 && t.vel.dot(n) < 260 && upright > 0.35
 
     if (t.jumpCd > 0) t.jumpCd--
-    const boost = t.speedT > 0 ? 2.1 : 1
-    const maxSpeed = 1250 * boost * (t.superT > 0 ? 1.15 : 1)
+    const boost = t.speedT > 0 ? 2.2 : 1
+    const maxSpeed = 820 * boost * (t.superT > 0 ? 1.15 : 1)
 
     if (t.onFloor) {
       if (wasAir && t.airFrames > 10) this.land(t)
@@ -882,13 +1091,13 @@ export class Game {
           Math.sign(along) !== Math.sign(thr) && Math.abs(along) > 30
         t.vel.addScaledVector(
           fwd,
-          thr * 2600 * boost * DT * (braking ? 1.6 : 1),
+          thr * 1700 * boost * DT * (braking ? 1.6 : 1),
         )
       }
       // vturn reverses when driving backwards and is zero when stationary
       const dir = along < -20 ? -1 : along > 20 ? 1 : 0
       const steer =
-        t.input.turn * dir * 2.4 * Math.min(1, Math.abs(along) / 260 + 0.25)
+        t.input.turn * dir * 2.2 * Math.min(1, Math.abs(along) / 220 + 0.25)
       if (steer) t.q.premultiply(tmpQ.setFromAxisAngle(n, steer * DT))
       const lat = tmpV2
         .copy(t.vel)
@@ -899,16 +1108,16 @@ export class Game {
         -(1 - Math.exp(-DT * (5 + l.def.friction * 30))),
       )
       t.vel.multiplyScalar(thr === 0 ? 0.985 : 0.995)
-      t.vel.y -= GRAVITY * DT * 0.6
+      t.vel.y -= GRAVITY * DT * 0.5
       // goody.jump: impulse along the tank's up axis; forward+jump is a back flip, sideways a roll
       if (t.input.jump && t.jumpCd === 0) {
-        const pow = t.superT > 0 ? 1.45 : 1
-        t.vel.addScaledVector(n, 1050 * pow)
+        const pow = t.superT > 0 ? 1.35 : 1
+        t.vel.addScaledVector(n, 780 * pow)
         if (thr !== 0) {
-          t.angVel.copy(right).multiplyScalar(thr * 6.6 * pow)
+          t.angVel.copy(right).multiplyScalar(thr * 4.8 * pow)
           t.trickKey = thr > 0 ? "Back" : "Front"
         } else if (t.input.turn !== 0) {
-          t.angVel.copy(fwd).multiplyScalar(t.input.turn * 6.6 * pow)
+          t.angVel.copy(fwd).multiplyScalar(t.input.turn * 4.8 * pow)
           t.trickKey = t.input.turn > 0 ? "Backside" : "Frontside"
         } else {
           t.trickKey = ""
@@ -935,13 +1144,32 @@ export class Game {
         const axis = new THREE.Vector3().crossVectors(up, n)
         if (axis.lengthSq() < 1e-4) axis.set(1, 0, 0).applyQuaternion(t.q)
         t.angVel.copy(axis.normalize()).multiplyScalar(5)
-        t.vel.y = Math.max(t.vel.y, 380)
+        t.vel.y = Math.max(t.vel.y, 320)
         t.vel.multiplyScalar(0.92)
         if (this.frame % 30 === 0) this.audio.play("crash", t.pos, 0.4)
         t.trickAngle = 0
       }
     }
     t.pos.addScaledVector(t.vel, DT)
+
+    // Horizontal obstacle bumper collision against props/spawns/caps/brick wall
+    if (this.colliders.length && t.vel.lengthSq() > 100) {
+      const vNorm = tmpV.copy(t.vel).normalize()
+      this.raycaster.set(tmpV2.copy(t.pos).add(new THREE.Vector3(0, 15, 0)), vNorm)
+      this.raycaster.far = BSP * 1.2
+      const hit = this.raycaster.intersectObjects(this.colliders, false)[0]
+      if (hit && hit.face) {
+        const wallN = hit.face.normal.clone().transformDirection(hit.object.matrixWorld)
+        if (Math.abs(wallN.y) < 0.6) {
+          // Push tank away from wall
+          const overlap = this.raycaster.far - hit.distance
+          t.pos.addScaledVector(wallN, overlap)
+          const dot = t.vel.dot(wallN)
+          if (dot < 0) t.vel.addScaledVector(wallN, -dot * 1.2)
+        }
+      }
+    }
+
     const ground = terrainAt(l, t.pos.x, t.pos.z)
     if (t.pos.y < ground + 2) {
       t.pos.y = ground + 2
@@ -1223,6 +1451,7 @@ export class Game {
           .normalize()
         this.hitscan(t, pos, dir, w.id)
         t.vel.addScaledVector(dir, w.id === "lasergun" ? -6 : -14) // bullettest recoil
+        t.ammo--
         break
       case "shell":
         this.spawnProjectile(
@@ -1236,6 +1465,7 @@ export class Game {
         )
         this.audio.play("bgun", pos, 0.7)
         this.flash(pos, 1.4)
+        t.ammo--
         break
       case "rocket":
         this.spawnProjectile(
@@ -1248,6 +1478,7 @@ export class Game {
           200,
         )
         this.audio.play("rocket", pos, 0.7)
+        t.ammo--
         break
       case "lob":
         this.spawnProjectile(
@@ -1259,7 +1490,8 @@ export class Game {
           0.7,
           400,
         )
-        this.audio.play(w.id === "nook" ? "grenade" : "mortar", pos, 0.7)
+        this.audio.play(w.id === "nook" ? "nook" : "mortar", pos, 0.7)
+        t.ammo--
         break
       case "homing": {
         const target = this.lockTarget(t, pos, dir)
@@ -1273,11 +1505,13 @@ export class Game {
           300,
           target,
         )
-        this.audio.play("rocket", pos, 0.7, 1.15)
+        this.audio.play("offrock", pos, 0.7)
+        t.ammo--
         break
       }
       case "mine": {
-        if (t.mines.length >= 6) this.removeProjectile(t.mines[0]) // pminelist: oldest mine goes
+        if (t.mines.length >= (w.id === "remotemine" ? 3 : 5))
+          this.removeProjectile(t.mines[0])
         const back = new THREE.Vector3(0, 0, 1)
           .applyQuaternion(t.q)
           .multiplyScalar(80)
@@ -1295,34 +1529,113 @@ export class Game {
         m.armed = 60
         t.mines.push(m)
         this.audio.play("minedrop", back, 0.6)
+        t.ammo--
+        break
+      }
+      case "heal": {
+        const back = new THREE.Vector3(0, 0, 1)
+          .applyQuaternion(t.q)
+          .multiplyScalar(80)
+          .add(t.pos)
+        back.y = terrainAt(this.level, back.x, back.z) + 8
+        const m = this.spawnProjectile(
+          t,
+          "mine",
+          w.id,
+          back,
+          new THREE.Vector3(),
+          0,
+          3600,
+        )
+        m.armed = 50
+        t.mines.push(m)
+        this.audio.play("minedrop", back, 0.6)
+        t.ammo--
         break
       }
       case "sonic":
         this.explode(pos.clone().addScaledVector(dir, 320), w.power, t, w.id)
-        this.audio.play("bangmortar", pos, 0.8, 1.4)
+        this.audio.play("sonicblast", pos, 0.8)
+        t.ammo--
         break
       case "airstrike":
         this.airstrike(t, this.aimPoint(pos, dir, 7000))
+        t.ammo--
         break
       case "boost":
-        t.speedT = 600
-        this.audio.play("speed", t.pos, 0.8)
-        if (t.isPlayer) this.popup(w.label.toUpperCase(), "info")
-        break
-      case "heal":
-        t.health = Math.min(MAX_HEALTH, t.health + 60)
-        this.audio.play("powerup", t.pos, 0.6, 1.2)
-        if (t.isPlayer) this.popup("+60 HEALTH", "info")
+        t.speedT = Math.min(600, t.speedT + 20)
+        t.ammo = Math.max(0, t.ammo - 1)
+        if (t.isPlayer && this.frame % 30 === 0)
+          this.audio.play("speed", t.pos, 0.6)
         break
       case "cloak":
-        t.stealthT = 720
-        if (t.isPlayer) this.popup("STEALTH", "info")
+        t.stealthT = Math.min(720, t.stealthT + 20)
+        t.ammo = Math.max(0, t.ammo - 1)
+        if (t.isPlayer && this.frame % 40 === 0)
+          this.audio.play("stealth", t.pos, 0.6)
         break
+      case "thrusters": {
+        t.ammo = Math.max(0, t.ammo - 1)
+        const upVec = new THREE.Vector3(0, 1, 0).applyQuaternion(t.q)
+        t.vel.addScaledVector(upVec, 45)
+        t.onFloor = false
+        if (t.isPlayer) {
+          t.rig.thrustMesh.visible = true
+          if (this.frame % 20 === 0)
+            this.audio.play("jetengine", t.pos, 0.7)
+        }
+        break
+      }
+      case "rcbomb": {
+        if (!this.rcPawn) {
+          const spawnPos = pos.clone().addScaledVector(dir, 100)
+          const obj = buildProjectileMesh("rcbomb", "rcbomb", t.team)
+          obj.position.copy(spawnPos)
+          this.scene.add(obj)
+          this.rcPawn = {
+            kind: "rcbomb",
+            pos: spawnPos,
+            vel: dir.clone().multiplyScalar(400),
+            rot: new THREE.Vector3(0, 0, t.aimYaw),
+            mesh: obj,
+            life: 0,
+            maxLife: 1000,
+            fuel: 1000,
+            push: 20,
+          }
+          this.audio.play("rcbombrelease", spawnPos, 0.8)
+          t.cooldown = 30
+        }
+        break
+      }
+      case "rcrocket": {
+        if (!this.rcPawn) {
+          const spawnPos = pos.clone().addScaledVector(dir, 120)
+          const obj = buildProjectileMesh("rcrocket", "rcrocket", t.team)
+          obj.position.copy(spawnPos)
+          this.scene.add(obj)
+          this.rcPawn = {
+            kind: "rcrocket",
+            pos: spawnPos,
+            vel: dir.clone().multiplyScalar(500),
+            rot: new THREE.Vector3(0, 0, t.aimYaw),
+            mesh: obj,
+            life: 0,
+            maxLife: 1200,
+            fuel: 1200,
+            push: 20,
+          }
+          this.audio.play("offrock", spawnPos, 0.8)
+          t.cooldown = 30
+        }
+        break
+      }
     }
-    if (--t.ammo <= 0) {
-      // fall back to a short machine-gun clip; an empty machine gun leaves you unarmed until a pickup
-      t.weapon = t.weapon === "mgun" ? null : "mgun"
-      t.ammo = t.weapon ? 60 : 0
+
+    if (t.ammo <= 0) {
+      // Unarmed state (goody.pweapon = #none, reload(me, "remove"))
+      t.weapon = null
+      t.ammo = 0
     }
     updateTankWeaponRig(t.rig, t.weapon)
   }
@@ -1473,16 +1786,42 @@ export class Game {
     for (const p of [...this.projectiles]) {
       if (!this.projectiles.includes(p)) continue
       p.life--
+      if (p.weapon === "health") {
+        if (p.armed! > 0) p.armed!--
+        else {
+          for (const o of this.tanks) {
+            if (o.dead) continue
+            if (o.pos.distanceTo(p.pos) < BSP * 1.6) {
+              o.health = MAX_HEALTH
+              this.audio.play("pickup", p.pos, 0.8)
+              if (o.isPlayer) this.popup("REPAIR PACK (+FULL)", "info")
+              this.removeProjectile(p)
+              break
+            }
+          }
+        }
+        if (p.life <= 0 && this.projectiles.includes(p))
+          this.removeProjectile(p)
+        continue
+      }
       if (p.kind === "mine") {
         if (p.armed! > 0) p.armed!--
         else {
-          const blink = p.obj.children[0]
-          if (blink) blink.visible = this.frame % 40 < 8
-          for (const o of this.tanks) {
-            if (o.dead || o.team === p.owner.team) continue
-            if (o.pos.distanceTo(p.pos) < 190) {
-              this.explode(p.pos, WEAPONS[p.weapon].power, p.owner, p.weapon, p)
-              break
+          if (
+            p.weapon === "remotemine" &&
+            p.owner.isPlayer &&
+            (this.rightMouseDown || this.keys.has("KeyE") || this.keys.has("ControlLeft"))
+          ) {
+            this.explode(p.pos, WEAPONS[p.weapon].power, p.owner, p.weapon, p)
+            continue
+          }
+          if (p.weapon === "proximitymine") {
+            for (const o of this.tanks) {
+              if (o.dead || o.team === p.owner.team) continue
+              if (o.pos.distanceTo(p.pos) < 190) {
+                this.explode(p.pos, WEAPONS[p.weapon].power, p.owner, p.weapon, p)
+                break
+              }
             }
           }
         }
@@ -1526,6 +1865,15 @@ export class Game {
           Math.abs(p.pos.z) > this.level.half)
       )
         hit = true
+
+      // Obstacle collision against props/spawns/caps/brick wall
+      if (!hit && this.colliders.length && p.vel.lengthSq() > 1) {
+        this.raycaster.set(p.pos, tmpV.copy(p.vel).normalize())
+        this.raycaster.far = Math.max(25, p.vel.length() * DT)
+        const obsHit = this.raycaster.intersectObjects(this.colliders, false)[0]
+        if (obsHit) hit = true
+      }
+
       if (!hit) {
         for (const o of this.tanks) {
           if (o.dead || o === p.owner) continue
@@ -1735,20 +2083,12 @@ export class Game {
       for (const t of this.tanks) {
         if (t.dead || t.pos.distanceTo(p.pos) > 120) continue
         const w = WEAPONS[p.weapon]
-        if (w.kind === "heal") t.health = Math.min(MAX_HEALTH, t.health + 60)
-        else if (w.kind === "boost") t.speedT = 600
-        else if (w.kind === "cloak") t.stealthT = 720
-        else {
-          t.weapon = w.id
-          t.ammo = w.ammo
-          t.cooldown = 10
-          updateTankWeaponRig(t.rig, t.weapon)
-        }
+        t.weapon = w.id
+        t.ammo = w.ammo
+        t.cooldown = 10
+        updateTankWeaponRig(t.rig, t.weapon)
         if (t.isPlayer) {
-          this.popup(
-            w.kind === "heal" ? "+60 HEALTH" : w.label.toUpperCase(),
-            "info",
-          )
+          this.popup(w.label.toUpperCase(), "info")
           this.audio.play("pickup", undefined, 0.8)
         }
         p.respawn = 900
@@ -2007,26 +2347,57 @@ export class Game {
       if (gm.map) gm.map.offset.y = (gm.map.offset.y + 0.003) % 1
     }
 
-    // third-person camera behind the turret aim (goody.docams)
+    // third-person camera & RC follow (goody.docams / rcbomb / rcrocket)
     if (!this.over) {
-      const yaw = p.aimYaw
-      const back = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw))
-      const want = p.pos
-        .clone()
-        .addScaledVector(back, 430)
-        .add(new THREE.Vector3(0, 175 - p.aimPitch * 260, 0))
-      const g = terrainAt(this.level, want.x, want.z) + 60
-      if (want.y < g) want.y = g
-      const look = p.pos
-        .clone()
-        .addScaledVector(back, -700)
-        .add(new THREE.Vector3(0, 60 + p.aimPitch * 700, 0))
-      if (this.camPos.lengthSq() === 0) {
-        this.camPos.copy(want)
-        this.camLook.copy(look)
+      if (this.rcPawn) {
+        const pawn = this.rcPawn
+        const back = new THREE.Vector3(Math.sin(pawn.rot.z), 0, Math.cos(pawn.rot.z))
+        const fwd = new THREE.Vector3(-Math.sin(pawn.rot.z), 0, -Math.cos(pawn.rot.z))
+        const dist = pawn.kind === "rcbomb" ? 80 : 150
+        const height = pawn.kind === "rcbomb" ? 28 : 60
+        const want = pawn.pos.clone().addScaledVector(back, dist).add(new THREE.Vector3(0, height, 0))
+        const g = terrainAt(this.level, want.x, want.z) + 15
+        if (want.y < g) want.y = g
+        const look = pawn.pos.clone().addScaledVector(fwd, 200).add(new THREE.Vector3(0, 10, 0))
+        if (this.camPos.lengthSq() === 0) {
+          this.camPos.copy(want)
+          this.camLook.copy(look)
+        }
+        this.camPos.lerp(want, 0.25)
+        this.camLook.lerp(look, 0.35)
+      } else {
+        const yaw = p.aimYaw
+        const back = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw))
+        const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw))
+
+        const isZoomed =
+          this.proMode &&
+          this.rightMouseDown &&
+          p.weapon !== null &&
+          !["speed", "thrusters", "health", "stealth", "remotemine", "proximitymine"].includes(p.weapon)
+
+        let want: THREE.Vector3
+        let look: THREE.Vector3
+
+        if (isZoomed) {
+          // Pro zoom: camera close to breach, looking down aim direction
+          want = p.pos.clone().addScaledVector(back, 20).add(new THREE.Vector3(0, 30 - p.aimPitch * 15, 0))
+          look = p.pos.clone().addScaledVector(fwd, 2000).add(new THREE.Vector3(0, 30 + p.aimPitch * 2000, 0))
+        } else {
+          // Authentic Shockwave distance: 200 units back, 65 units up
+          want = p.pos.clone().addScaledVector(back, 200).add(new THREE.Vector3(0, 65 - p.aimPitch * 100, 0))
+          const g = terrainAt(this.level, want.x, want.z) + 30
+          if (want.y < g) want.y = g
+          look = p.pos.clone().addScaledVector(fwd, 800).add(new THREE.Vector3(0, 45 + p.aimPitch * 600, 0))
+        }
+
+        if (this.camPos.lengthSq() === 0) {
+          this.camPos.copy(want)
+          this.camLook.copy(look)
+        }
+        this.camPos.lerp(want, p.dead ? 0.05 : isZoomed ? 0.45 : 0.28)
+        this.camLook.lerp(look, isZoomed ? 0.5 : 0.35)
       }
-      this.camPos.lerp(want, p.dead ? 0.03 : 0.22)
-      this.camLook.lerp(look, 0.3)
     } else {
       const a = this.frame * 0.003
       this.camPos.lerp(
@@ -2051,9 +2422,21 @@ export class Game {
       this.shake *= 0.88
     }
     this.camera.lookAt(this.camLook)
-    const targetFov = p.speedT > 0 ? 72 : 62
+
+    const isZoomed =
+      this.proMode &&
+      this.rightMouseDown &&
+      p.weapon !== null &&
+      !["speed", "thrusters", "health", "stealth", "remotemine", "proximitymine"].includes(p.weapon)
+
+    const targetFov =
+      isZoomed && p.weapon
+        ? WEAPONS[p.weapon].aimFov
+        : p.speedT > 0
+          ? 58
+          : 50
     if (Math.abs(this.camera.fov - targetFov) > 0.05) {
-      this.camera.fov += (targetFov - this.camera.fov) * 0.05
+      this.camera.fov += (targetFov - this.camera.fov) * (isZoomed ? 0.15 : 0.08)
       this.camera.updateProjectionMatrix()
     }
     this.audio.listener = p.pos
@@ -2068,7 +2451,13 @@ export class Game {
     const now = this.frame
     const l = this.level
     this.feed = this.feed.filter((f) => now - f.t < 60 * 8)
-    this.popups = this.popups.filter((f) => now - f.t < 90)
+    const isZoomed =
+      this.proMode &&
+      this.rightMouseDown &&
+      p.weapon !== null &&
+      !["speed", "thrusters", "health", "stealth", "remotemine", "proximitymine"].includes(p.weapon)
+    const curW = p.weapon ? WEAPONS[p.weapon] : null
+
     this.onHud({
       health: Math.max(0, p.health),
       weapon: p.weapon,
@@ -2086,6 +2475,10 @@ export class Game {
       spawnProtect: p.spawnProtect > 0,
       hitMarker: this.hitMarker,
       hurtDir: this.hurtDir,
+      proMode: this.proMode,
+      zoomed: isZoomed,
+      siteIndex: isZoomed && curW ? curW.site : 0,
+      isControllingRc: this.rcPawn !== null,
       scoreboard: this.tanks
         .map((t) => ({
           name: t.name,

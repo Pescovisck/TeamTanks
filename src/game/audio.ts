@@ -26,6 +26,20 @@ const FILES: Record<string, string> = {
   c2: "c2.mp3",
   c3: "c3.mp3",
   bgun: "rebgun.mp3",
+  jetengine: "jetengine.wav",
+  rcbeep: "rcbeep.mp3",
+  rcbombrelease: "rcbombrelease.mp3",
+  offrock: "reoffrock.mp3",
+  bangrcrocket: "rebangrcrocket.mp3",
+  sonicblast: "resonicblast.mp3",
+  sonicboom: "resonicboom.mp3",
+  stealth: "restealth.mp3",
+  missilelock: "remissilelock.mp3",
+  airraidsiren: "airraidsiren.mp3",
+  bombwhistle: "bombwhistle.mp3",
+  missilebang: "missile_bang.mp3",
+  powerdown: "superpowerdown.mp3",
+  impulse: "impulsesnd.wav",
 }
 
 /** Web Audio player for the extracted clips; positional volume mimics playsound(pos, ...). */
@@ -93,5 +107,39 @@ export class Audio {
     g.gain.value = v
     src.connect(g).connect(this.master)
     src.start()
+  }
+
+  loops = new Map<string, { src: AudioBufferSourceNode; gain: GainNode }>()
+
+  /** Director-style puppet sound channel: start (or keep) a looping clip on a named channel. */
+  loop(channel: string, name: string, volume = 1, rate = 1) {
+    const cur = this.loops.get(channel)
+    if (cur) {
+      cur.gain.gain.value = volume
+      cur.src.playbackRate.value = rate
+      return
+    }
+    const buf = this.buffers.get(name)
+    if (!buf || this.ctx.state === "closed") return
+    const src = this.ctx.createBufferSource()
+    src.buffer = buf
+    src.loop = true
+    src.playbackRate.value = rate
+    const gain = this.ctx.createGain()
+    gain.gain.value = volume
+    src.connect(gain).connect(this.master)
+    src.start()
+    this.loops.set(channel, { src, gain })
+  }
+
+  stopLoop(channel: string) {
+    const cur = this.loops.get(channel)
+    if (!cur) return
+    try {
+      cur.src.stop()
+    } catch {
+      // already stopped
+    }
+    this.loops.delete(channel)
   }
 }

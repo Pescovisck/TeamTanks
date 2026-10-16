@@ -207,8 +207,9 @@ function WeaponPanel({ s }: { s: HudState }) {
   return (
     <div className="plate pointer-events-none absolute bottom-4 right-4 flex items-center gap-4 rounded-lg p-3 pl-5">
       <div className="text-right">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
-          Weapon
+        <div className="flex items-center justify-end gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
+          <span>{s.proMode ? "Pro" : "Casual"}</span>
+          <span className="rounded bg-white/10 px-1 py-0.5 text-[9px] text-hazard">V</span>
         </div>
         <div className="font-display text-xl leading-tight">
           {w ? w.label : "Unarmed"}
@@ -219,9 +220,9 @@ function WeaponPanel({ s }: { s: HudState }) {
       </div>
       <div className="flex h-16 w-16 items-center justify-center rounded-md bg-black/40">
         <img
-          src={asset(`ui/ammo_hud_${w ? w.icon : 1}.png`)}
+          src={asset(`ui/icon_${w ? w.icon : 1}.png`)}
           alt=""
-          className="h-14 w-14"
+          className="h-14 w-14 object-contain"
         />
       </div>
       <div className="w-14 text-right font-display text-sm tabular-nums text-white/55">
@@ -232,7 +233,21 @@ function WeaponPanel({ s }: { s: HudState }) {
   )
 }
 
+function WeaponSight({ s }: { s: HudState }) {
+  if (!s.zoomed || s.siteIndex <= 0) return null
+  return (
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      <img
+        src={asset(`tex/site_${s.siteIndex}.png`)}
+        alt="Weapon Sight"
+        className="pixelated h-56 w-56 object-contain opacity-95 drop-shadow-[0_0_12px_rgba(0,0,0,0.9)]"
+      />
+    </div>
+  )
+}
+
 function Crosshair({ s }: { s: HudState }) {
+  if (s.zoomed && s.siteIndex > 0) return null
   return (
     <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
       <div className="relative h-10 w-10">
@@ -416,6 +431,14 @@ export default function Hud({
       <Feed s={s} />
       <Minimap s={s} map={map} />
       {!s.dead && <Crosshair s={s} />}
+      {!s.dead && <WeaponSight s={s} />}
+      {s.isControllingRc && (
+        <div className="pointer-events-none absolute left-1/2 top-20 flex -translate-x-1/2 items-center gap-2 rounded-md bg-team-red/80 px-4 py-1.5 font-display text-sm uppercase tracking-wider text-white shadow-lg backdrop-blur-sm animate-pulse">
+          <span>Remote Control Active</span>
+          <span className="text-white/60">·</span>
+          <span className="text-xs font-sans text-hazard">Right-Click / Ctrl to Detonate</span>
+        </div>
+      )}
       <HurtIndicator dir={s.hurtDir} />
       <Popups s={s} />
       <Status s={s} />

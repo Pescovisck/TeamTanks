@@ -11,6 +11,7 @@ const DEFAULTS: GameOptions = {
   difficulty: "regular",
   playerName: "tankcommander",
   playerTeam: "blue",
+  proMode: true,
   roomCode: "",
 }
 

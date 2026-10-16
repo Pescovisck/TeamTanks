@@ -128,10 +128,15 @@ export type WeaponDef = {
     | "boost"
     | "heal"
     | "cloak"
+    | "thrusters"
+    | "rcbomb"
+    | "rcrocket"
   cooldown: number // frames at 60 fps (weaponry.ls `waitgun`)
   power: number // explosion power (bangs.ls `ppower`) or hitscan damage (weaponry.ls `vpains`)
-  ammo: number // remake tuning; the original ammo model is not modelled
-  speed?: number // projectile speed, units/s (remake tuning)
+  ammo: number // exact original values from pickups.ls
+  speed?: number // projectile speed, units/s
+  aimFov: number // goody.ls `vaimdepths`
+  site: number // goody.ls `pweapsites` site_1..site_8 (0 = none)
   verb: string // kill-feed verb (mus.ls `vdesc`)
 }
 
@@ -141,9 +146,11 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     label: "Machine Gun",
     icon: 2,
     kind: "hitscan",
-    cooldown: 5,
+    cooldown: 3,
     power: 6,
-    ammo: 150,
+    ammo: 80,
+    aimFov: 35,
+    site: 1,
     verb: "guns",
   },
   bgun: {
@@ -153,8 +160,10 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "shell",
     cooldown: 18,
     power: 10,
-    ammo: 25,
-    speed: 5200,
+    ammo: 6,
+    speed: 5130, // 171 u/frame * 30fps
+    aimFov: 35,
+    site: 2,
     verb: "cannons",
   },
   nook: {
@@ -164,8 +173,10 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "lob",
     cooldown: 70,
     power: 40,
-    ammo: 3,
-    speed: 2600,
+    ammo: 1,
+    speed: 1500, // 50 u/frame * 30fps
+    aimFov: 45,
+    site: 3,
     verb: "nooks",
   },
   rocket: {
@@ -175,8 +186,10 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "rocket",
     cooldown: 40,
     power: 15,
-    ammo: 12,
-    speed: 3400,
+    ammo: 4,
+    speed: 2400, // 80 u/frame * 30fps
+    aimFov: 35,
+    site: 4,
     verb: "rockets",
   },
   proximitymine: {
@@ -186,7 +199,9 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "mine",
     cooldown: 18,
     power: 20,
-    ammo: 6,
+    ammo: 5,
+    aimFov: 50,
+    site: 0,
     verb: "mines",
   },
   speed: {
@@ -196,7 +211,9 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "boost",
     cooldown: 0,
     power: 0,
-    ammo: 1,
+    ammo: 100, // 100 fuel frames
+    aimFov: 50,
+    site: 0,
     verb: "gets",
   },
   lasergun: {
@@ -204,9 +221,11 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     label: "Laser",
     icon: 8,
     kind: "hitscan",
-    cooldown: 1,
+    cooldown: 3,
     power: 3,
-    ammo: 360,
+    ammo: 120,
+    aimFov: 25,
+    site: 5,
     verb: "lasers",
   },
   mgunx2: {
@@ -214,9 +233,11 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     label: "Twin 73",
     icon: 9,
     kind: "hitscan",
-    cooldown: 3,
+    cooldown: 5,
     power: 6,
-    ammo: 240,
+    ammo: 80,
+    aimFov: 35,
+    site: 1,
     verb: "twin 73's",
   },
   rocketx4: {
@@ -226,8 +247,10 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "rocket",
     cooldown: 40,
     power: 25,
-    ammo: 8,
-    speed: 3000,
+    ammo: 2,
+    speed: 960, // 80 * 0.4 * 30fps
+    aimFov: 35,
+    site: 4,
     verb: "tankbusts",
   },
   remotemine: {
@@ -237,7 +260,9 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "mine",
     cooldown: 18,
     power: 28,
-    ammo: 6,
+    ammo: 3,
+    aimFov: 50,
+    site: 0,
     verb: "remote mines",
   },
   sonicgun: {
@@ -247,7 +272,9 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "sonic",
     cooldown: 40,
     power: 8,
-    ammo: 10,
+    ammo: 4,
+    aimFov: 35,
+    site: 6,
     verb: "sonic blasts",
   },
   guidedmissile: {
@@ -257,18 +284,22 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "homing",
     cooldown: 55,
     power: 11,
-    ammo: 6,
-    speed: 2600,
+    ammo: 3,
+    speed: 750, // 25 u/frame * 30fps
+    aimFov: 35,
+    site: 4,
     verb: "missiles",
   },
   thrusters: {
     id: "thrusters",
     label: "Thrusters",
     icon: 14,
-    kind: "boost",
+    kind: "thrusters",
     cooldown: 0,
     power: 0,
-    ammo: 1,
+    ammo: 400, // 400 fuel frames
+    aimFov: 50,
+    site: 0,
     verb: "gets",
   },
   mortar: {
@@ -278,8 +309,10 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "lob",
     cooldown: 25,
     power: 14,
-    ammo: 12,
-    speed: 3000,
+    ammo: 5,
+    speed: 3000, // 100 u/frame * 30fps
+    aimFov: 45,
+    site: 7,
     verb: "mortars",
   },
   airstrike: {
@@ -290,28 +323,34 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     cooldown: 60,
     power: 18,
     ammo: 1,
+    aimFov: 40,
+    site: 8,
     verb: "airstrikes",
   },
   rcbomb: {
     id: "rcbomb",
     label: "RC Bomb",
     icon: 17,
-    kind: "homing",
+    kind: "rcbomb",
     cooldown: 55,
     power: 24,
-    ammo: 4,
-    speed: 2400,
+    ammo: 1000, // 1000 fuel frames
+    speed: 600,
+    aimFov: 50,
+    site: 0,
     verb: "RC bombs",
   },
   rcrocket: {
     id: "rcrocket",
     label: "RC Rocket",
     icon: 18,
-    kind: "homing",
+    kind: "rcrocket",
     cooldown: 55,
     power: 22,
-    ammo: 4,
-    speed: 2800,
+    ammo: 1200, // 1200 fuel frames
+    speed: 720,
+    aimFov: 50,
+    site: 0,
     verb: "RC rockets",
   },
   health: {
@@ -319,10 +358,12 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     label: "Health",
     icon: 19,
     kind: "heal",
-    cooldown: 0,
+    cooldown: 20,
     power: 0,
-    ammo: 1,
-    verb: "gets",
+    ammo: 3,
+    aimFov: 50,
+    site: 0,
+    verb: "heals",
   },
   stealth: {
     id: "stealth",
@@ -331,7 +372,9 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     kind: "cloak",
     cooldown: 0,
     power: 0,
-    ammo: 1,
+    ammo: 250, // 250 fuel frames
+    aimFov: 50,
+    site: 0,
     verb: "gets",
   },
 }

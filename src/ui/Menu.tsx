@@ -90,8 +90,10 @@ function MapCard({
 
 const CONTROLS: [string, string][] = [
   ["W A S D", "Drive / steer"],
-  ["Mouse", "Aim turret"],
-  ["Click", "Fire"],
+  ["Mouse", "Aim turret (Pro) / Steer RC"],
+  ["Left Click", "Fire"],
+  ["Right Click", "Aim zoom (Pro) / Detonate RC"],
+  ["V", "Toggle Casual / Pro camera"],
   ["Space", "Jump (+W/S flip, +A/D roll)"],
   ["R", "Respawn"],
   ["Tab", "Scores"],
@@ -249,6 +251,15 @@ export default function Menu({ initial, onStart }: Props) {
                 { value: 3, label: "3 min" },
                 { value: 5, label: "5 min" },
                 { value: 10, label: "10 min" },
+              ]}
+            />
+            <Segmented<boolean>
+              label="Camera & Turret Mode"
+              value={o.proMode ?? true}
+              onChange={(v) => set("proMode", v)}
+              options={[
+                { value: true, label: "Pro (Mouse Aim + Zoom)" },
+                { value: false, label: "Casual (Auto-Aim + Chase)" },
               ]}
             />
           </section>
