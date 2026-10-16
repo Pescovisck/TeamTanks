@@ -819,6 +819,7 @@ export class Game {
     this.disposers.forEach((d) => d())
     this.mp?.dispose()
     if (document.pointerLockElement === this.canvas) document.exitPointerLock()
+    this.audio.stopLoop("engine")
     void this.audio.ctx.close()
     this.renderer?.dispose()
   }
@@ -923,6 +924,17 @@ export class Game {
       }
     }
 
+    // Authentic tank engine audio loop (vloop.wav)
+    if (!p.dead && !this.over) {
+      const sp = Math.hypot(p.vel.x, p.vel.z)
+      const isDriving = p.input.throttle !== 0
+      const pitch = 0.85 + Math.min(0.65, (sp / 820) * 0.45 + (isDriving ? 0.15 : 0))
+      const vol = 0.35 + Math.min(0.4, (sp / 820) * 0.3 + (isDriving ? 0.1 : 0))
+      this.audio.loop("engine", "vloop", vol, pitch)
+    } else {
+      this.audio.stopLoop("engine")
+    }
+
     // Broadcast local player state to P2P room every 3 frames (20 Hz)
     if (this.mp && this.frame % 3 === 0) {
       this.mp.send({
@@ -965,26 +977,51 @@ export class Game {
     rc.fuel--
 
     if (rc.kind === "rcbomb") {
-      // Ground movement
-      const n = new THREE.Vector3()
+      // Ground movement & physics adhering to terrain and ramps
+      const n = new THREE.Vector3(0, 1, 0)
       const gh = this.groundAt(rc.pos.x, rc.pos.z, rc.pos.y, n)
-      rc.pos.y = Math.max(rc.pos.y, gh + 10)
-      if (this.keys.has("KeyA") || this.keys.has("ArrowLeft")) rc.rot.z += 0.04
-      if (this.keys.has("KeyD") || this.keys.has("ArrowRight")) rc.rot.z -= 0.04
-      if (this.mouseDown || this.keys.has("KeyW") || this.keys.has("ArrowUp")) {
-        const fwd = new THREE.Vector3(-Math.sin(rc.rot.z), 0, -Math.cos(rc.rot.z))
-        rc.vel.copy(fwd).multiplyScalar(rc.push * 25)
+      if (this.keys.has("KeyA") || this.keys.has("ArrowLeft")) rc.rot.z += 0.05
+      if (this.keys.has("KeyD") || this.keys.has("ArrowRight")) rc.rot.z -= 0.05
+      const isDriving = this.mouseDown || this.keys.has("KeyW") || this.keys.has("ArrowUp")
+      const fwd = new THREE.Vector3(-Math.sin(rc.rot.z), 0, -Math.cos(rc.rot.z))
+
+      const onFloor = rc.pos.y <= gh + 14
+      if (onFloor) {
+        rc.pos.y = gh + 8
+        rc.vel.y = 0
+        if (isDriving) {
+          fwd.addScaledVector(n, -fwd.dot(n)).normalize()
+          rc.vel.copy(fwd).multiplyScalar(rc.push * 26)
+        } else {
+          rc.vel.multiplyScalar(0.92)
+        }
+        const right = new THREE.Vector3().crossVectors(fwd, n).normalize()
+        tmpM.makeBasis(right, n, fwd.clone().negate())
+        rc.mesh.quaternion.setFromRotationMatrix(tmpM)
       } else {
-        rc.vel.multiplyScalar(0.92)
+        rc.vel.y -= GRAVITY * DT
+        rc.mesh.rotation.y = rc.rot.z
       }
       rc.pos.addScaledVector(rc.vel, DT)
+      if (rc.pos.y < gh + 8) {
+        rc.pos.y = gh + 8
+        rc.vel.y = 0
+      }
       rc.mesh.position.copy(rc.pos)
-      rc.mesh.rotation.y = rc.rot.z
 
       if (this.frame % 30 === 0)
         this.audio.play("rcbeep", rc.pos, 0.4)
 
+      let hitEnemy = false
+      for (const t of this.tanks) {
+        if (!t.dead && t.team !== p.team && t.pos.distanceTo(rc.pos) < BSP * 1.2) {
+          hitEnemy = true
+          break
+        }
+      }
+
       const shouldDetonate =
+        hitEnemy ||
         this.rightMouseDown ||
         (this.keys.has("ControlLeft") && rc.life > 60) ||
         rc.fuel <= 0 ||
@@ -1030,8 +1067,17 @@ export class Game {
       const gh = terrainAt(this.level, rc.pos.x, rc.pos.z)
       const hitGround = rc.pos.y <= gh + 5
 
+      let hitEnemy = false
+      for (const t of this.tanks) {
+        if (!t.dead && t.team !== p.team && t.pos.distanceTo(rc.pos) < BSP * 1.2) {
+          hitEnemy = true
+          break
+        }
+      }
+
       const shouldDetonate =
         hitGround ||
+        hitEnemy ||
         this.rightMouseDown ||
         (this.keys.has("ControlLeft") && rc.life > 60) ||
         rc.fuel <= 0 ||
@@ -1600,7 +1646,8 @@ export class Game {
         break
       }
       case "rcbomb": {
-        const spawnPos = pos.clone().addScaledVector(dir, 100)
+        const spawnPos = pos.clone().addScaledVector(dir, 80)
+        spawnPos.y = terrainAt(this.level, spawnPos.x, spawnPos.z) + 10
         if (t.isPlayer) {
           if (!this.rcPawn) {
             const obj = buildProjectileMesh("rcbomb", "rcbomb", t.team)
@@ -1609,7 +1656,7 @@ export class Game {
             this.rcPawn = {
               kind: "rcbomb",
               pos: spawnPos,
-              vel: dir.clone().multiplyScalar(400),
+              vel: new THREE.Vector3(-Math.sin(t.aimYaw), 0, -Math.cos(t.aimYaw)).multiplyScalar(350),
               rot: new THREE.Vector3(0, 0, t.aimYaw),
               mesh: obj,
               life: 0,
@@ -2166,6 +2213,7 @@ export class Game {
 
   /** endgame.ls: sum of the blue channel vs 127 * count decides the round. */
   endRound() {
+    this.audio.stopLoop("engine")
     const total = this.caps.reduce((s, c) => s + c.v, 0)
     const mid = 127 * this.caps.length
     const winner: Team | "draw" =
@@ -2353,12 +2401,7 @@ export class Game {
       r.root.position.copy(t.renderPos)
       r.root.quaternion.copy(t.renderQ)
 
-      // Hide local tank when zoomed so it doesn't clip into camera / screen
-      if (t.isPlayer && isZoomed) {
-        r.root.visible = false
-      } else {
-        r.root.visible = true
-      }
+      r.root.visible = !t.dead
 
       const fwd = tmpV.set(0, 0, -1).applyQuaternion(t.renderQ)
       const hullYaw = Math.atan2(-fwd.x, -fwd.z)
@@ -2426,9 +2469,9 @@ export class Game {
         let look: THREE.Vector3
 
         if (isZoomed) {
-          // Pro zoom: camera placed directly at breech/sight position looking along barrel, tank mesh hidden
-          want = p.renderPos.clone().add(new THREE.Vector3(0, 26, 0)).addScaledVector(fwd, 15)
-          look = want.clone().addScaledVector(fwd, 2000).add(new THREE.Vector3(0, p.aimPitch * 2000, 0))
+          // Authentic Shockwave zoom (ParentScript 5 - goody.ls lines 559-565: 20-25 units back, 32 units up)
+          want = p.renderPos.clone().addScaledVector(back, 22).add(new THREE.Vector3(0, 32, 0))
+          look = p.renderPos.clone().addScaledVector(fwd, 2000).add(new THREE.Vector3(0, 32 + p.aimPitch * 2000, 0))
         } else {
           // Authentic Shockwave distance: 200 units back, 65 units up (tracking smoothly interpolated renderPos)
           want = p.renderPos.clone().addScaledVector(back, 200).add(new THREE.Vector3(0, 65 - p.aimPitch * 100, 0))

@@ -40,6 +40,7 @@ const FILES: Record<string, string> = {
   missilebang: "missile_bang.mp3",
   powerdown: "superpowerdown.mp3",
   impulse: "impulsesnd.wav",
+  vloop: "vloop.wav",
 }
 
 /** Web Audio player for the extracted clips; positional volume mimics playsound(pos, ...). */

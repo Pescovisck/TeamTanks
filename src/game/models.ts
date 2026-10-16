@@ -611,6 +611,9 @@ export function buildProjectileMesh(
   const texName =
     weapon === "rcrocket" ? `${team}rcrocket` : `${team}rocket`
   const body = new THREE.Mesh(getModelGeometry(modelName), shadyMat(texName))
+  if (weapon === "rcrocket") {
+    body.rotation.y = Math.PI
+  }
   const scale =
     weapon === "rocketx4" ? 4 : weapon === "guidedmissile" ? 1.5 : weapon === "rcrocket" ? 1.5 : 2
   body.scale.setScalar(scale)
