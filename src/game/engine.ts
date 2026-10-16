@@ -476,8 +476,23 @@ export class Game {
       const remoteName = s.name === this.player.name ? `${s.name}_remote` : s.name
       let rt = this.tanks.find((t) => t.isRemote && t.name === remoteName)
       if (!rt) {
+        // A player joining takes the place of a bot on their team to keep both sides balanced
+        let botToReplace = this.tanks.find(
+          (t) => !t.isPlayer && !t.isRemote && t.team === s.team,
+        )
+        if (!botToReplace) {
+          botToReplace = this.tanks.find((t) => !t.isPlayer && !t.isRemote)
+        }
+
+        if (botToReplace) {
+          const oldName = botToReplace.name
+          this.removeTank(botToReplace)
+          this.pushFeed(`${remoteName} replaced ${oldName}`, s.team)
+        } else {
+          this.pushFeed(`${remoteName} joined the battle`, s.team)
+        }
+
         rt = this.addTank(remoteName, s.team, false, true)
-        this.pushFeed(`${remoteName} joined the battle`, s.team)
       }
       rt.lastNetSeen = this.frame
       rt.team = s.team
@@ -573,9 +588,21 @@ export class Game {
       )
       if (idx >= 0) {
         const rt = this.tanks[idx]
-        this.scene.remove(rt.rig.root)
-        this.tanks.splice(idx, 1)
-        this.pushFeed(`${rt.name} left the room`, rt.team)
+        const team = rt.team
+        const name = rt.name
+        this.removeTank(rt)
+        this.pushFeed(`${name} left the room`, team)
+
+        // Spawn a replacement bot so both sides maintain the same number of tanks
+        const unusedNames = BOT_NAMES.filter(
+          (bn) => !this.tanks.some((t) => t.name === bn),
+        )
+        const botName =
+          unusedNames[Math.floor(Math.random() * unusedNames.length)] ??
+          `bot_${Math.floor(Math.random() * 100)}`
+        const newBot = this.addTank(botName, team, false, false)
+        this.respawn(newBot, true)
+        this.pushFeed(`${botName} joined to replace ${name}`, team)
       }
     }
   }
@@ -667,6 +694,17 @@ export class Game {
     }
     this.tanks.push(t)
     return t
+  }
+
+  removeTank(tank: Tank) {
+    this.scene.remove(tank.rig.root)
+    this.audio.stopLoop(`engine_${tank.id}`)
+    for (const m of tank.mines) this.scene.remove(m.obj)
+    for (const other of this.tanks) {
+      if (other.ai?.target === tank) other.ai.target = null
+    }
+    const idx = this.tanks.indexOf(tank)
+    if (idx >= 0) this.tanks.splice(idx, 1)
   }
 
   /** goody.repos: drop onto a random team spawn, facing the map centre, with spawn protection. */

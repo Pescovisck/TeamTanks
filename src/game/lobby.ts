@@ -6,6 +6,7 @@ export interface LobbyInfo {
   mapId: string;
   mapName: string;
   hostName: string;
+  hostTeam?: 'red' | 'blue';
   hostPeerId: string;
   players: number;
   maxPlayers: number;

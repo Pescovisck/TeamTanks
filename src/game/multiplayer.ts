@@ -168,6 +168,7 @@ export class MultiplayerSession {
             mapId: this.meta.mapId,
             mapName: this.meta.mapName,
             hostName: this.playerName,
+            hostTeam: this.team,
             hostPeerId,
             players: 1,
             maxPlayers: 8,

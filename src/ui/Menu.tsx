@@ -123,9 +123,11 @@ export default function Menu({ initial, onStart }: Props) {
 
   const handleJoinLobby = (lobby: LobbyInfo) => {
     const targetMap = MAPS.find((m) => m.id === lobby.mapId) ?? o.map
+    const autoTeam: Team = lobby.hostTeam === "red" ? "blue" : lobby.hostTeam === "blue" ? "red" : o.playerTeam
     const nextOpts: GameOptions = {
       ...o,
       map: targetMap,
+      playerTeam: autoTeam,
       roomCode: lobby.roomCode,
       joinAsClient: true,
     }
