@@ -1,0 +1,291 @@
+property pos, speed, poldspeed, pmod, pdummy, hit, plifetime, pname, pteam
+global gmem, ghvk, nom, goody, grockmods, gmodinc, gplayers
+
+on new me, npos, nrot, nam, nteam, nid
+  [  0] getparam 4 .............................. <nteam>
+  [  2] setprop 300 ............................. pteam = nteam
+  [  5] getparam 3 .............................. <nam>
+  [  7] setprop 301 ............................. pname = nam
+  [ 10] pushzero ................................ <0>
+  [ 11] setprop 879 ............................. hit = 0
+  [ 14] getparam 2 .............................. <nrot>
+  [ 16] setlocal 0 .............................. rot = nrot
+  [ 18] getparam 1 .............................. <npos>
+  [ 20] setprop 105 ............................. pos = npos
+  [ 22] getprop 105 ............................. <pos>
+  [ 24] pushcons 0 .............................. <"remortar">
+  [ 26] pushint8 7 .............................. <7>
+  [ 28] pusharglistnoret 3 ...................... <pos, "remortar", 7>
+  [ 30] extcall 10 .............................. playsound(pos, "remortar", 7)
+  [ 32] getlocal 0 .............................. <rot>
+  [ 34] pusharglist 1 ........................... <rot>
+  [ 36] extcall 22 .............................. <angtovec(rot)>
+  [ 38] setprop 340 ............................. speed = angtovec(rot)
+  [ 41] getprop 105 ............................. <pos>
+  [ 43] getprop 340 ............................. <speed>
+  [ 46] getglobal 83 ............................ <goody>
+  [ 48] getobjprop 160 .......................... <goody.bsp>
+  [ 50] mul ..................................... <speed * goody.bsp>
+  [ 51] add ..................................... <pos + (speed * goody.bsp)>
+  [ 52] setprop 105 ............................. pos = pos + (speed * goody.bsp)
+  [ 54] getprop 340 ............................. <speed>
+  [ 57] pushint8 100 ............................ <100>
+  [ 59] mul ..................................... <speed * 100>
+  [ 60] setprop 340 ............................. speed = speed * 100
+  [ 63] pushsymb 211 ............................ <#mortar>
+  [ 65] pusharglist 1 ........................... <#mortar>
+  [ 67] extcall 30 .............................. <recyclemodel(#mortar)>
+  [ 69] setprop 472 ............................. pmod = recyclemodel(#mortar)
+  [ 72] getprop 472 ............................. <pmod>
+  [ 75] pushzero ................................ <0>
+  [ 76] eq ...................................... <pmod = 0>
+  [ 77] jmpifz [302] ............................ if pmod = 0 then / else
+  [ 80] getglobal 77 ............................ <gmodinc>
+  [ 82] pushint8 1 .............................. <1>
+  [ 84] add ..................................... <gmodinc + 1>
+  [ 85] setglobal 77 ............................ gmodinc = gmodinc + 1
+  [ 87] getglobal 56 ............................ <gmem>
+  [ 89] pushcons 1 .............................. <"mortar">
+  [ 91] pusharglist 2 ........................... <gmem, "mortar">
+  [ 93] objcall 225 ............................. <gmem.model("mortar")>
+  [ 95] pushcons 1 .............................. <"mortar">
+  [ 97] getglobal 77 ............................ <gmodinc>
+  [ 99] joinstr ................................. <"mortar" & gmodinc>
+  [100] pusharglist 2 ........................... <gmem.model("mortar"), "mortar" & gmodinc>
+  [102] objcall 872 ............................. <gmem.model("mortar").clone("mortar" & gmodinc)>
+  [105] setprop 472 ............................. pmod = gmem.model("mortar").clone("mortar" & gmodinc)
+  [108] getprop 472 ............................. <pmod>
+  [111] pusharglistnoret 1 ...................... <pmod>
+  [113] objcall 200 ............................. pmod.removeFromWorld()
+  [115] getprop 472 ............................. <pmod>
+  [118] getchainedprop 38 ....................... <pmod.transform>
+  [120] getprop 105 ............................. <pos>
+  [122] setobjprop 48 ........................... pmod.transform.position = pos
+  [124] getprop 472 ............................. <pmod>
+  [127] getchainedprop 38 ....................... <pmod.transform>
+  [129] getlocal 0 .............................. <rot>
+  [131] setobjprop 39 ........................... pmod.transform.rotation = rot
+  [133] getprop 472 ............................. <pmod>
+  [136] getchainedprop 38 ....................... <pmod.transform>
+  [138] pushint8 1 .............................. <1>
+  [140] pushint8 1 .............................. <1>
+  [142] pushint8 1 .............................. <1>
+  [144] pusharglist 3 ........................... <1, 1, 1>
+  [146] extcall 46 .............................. <vector(1, 1, 1)>
+  [148] pushint8 2 .............................. <2>
+  [150] mul ..................................... <vector(1, 1, 1) * 2>
+  [151] setobjprop 47 ........................... pmod.transform.scale = vector(1, 1, 1) * 2
+  [153] getglobal 612 ........................... <ghvk>
+  [156] getprop 472 ............................. <pmod>
+  [159] pushsymb 473 ............................ <#convexshape>
+  [162] pushsymb 474 ............................ <#dynamic>
+  [165] pusharglist 4 ........................... <ghvk, pmod, #convexshape, #dynamic>
+  [167] objcall 439 ............................. <ghvk.make_rb(pmod, #convexshape, #dynamic)>
+  [170] setprop 611 ............................. pdummy = ghvk.make_rb(pmod, #convexshape, #dynamic)
+  [173] getglobal 83 ............................ <goody>
+  [175] getobjprop 611 .......................... <goody.pdummy>
+  [178] pusharglist 1 ........................... <goody.pdummy>
+  [180] extcall 55 .............................. <voidp(goody.pdummy)>
+  [182] not ..................................... <not voidp(goody.pdummy)>
+  [183] jmpifz [276] ............................ if not voidp(goody.pdummy) then
+  [186] getglobal 83 ............................ <goody>
+  [188] getchainedprop 443 ...................... <goody.pphysx>
+  [191] getglobal 83 ............................ <goody>
+  [193] getobjprop 611 .......................... <goody.pdummy>
+  [196] getprop 611 ............................. <pdummy>
+  [199] pusharglistnoret 3 ...................... <goody.pphysx, goody.pdummy, pdummy>
+  [201] objcall 615 ............................. goody.pphysx.DisableCollision(goody.pdummy, pdummy)
+  [204] getglobal 83 ............................ <goody>
+  [206] getchainedprop 443 ...................... <goody.pphysx>
+  [209] getglobal 83 ............................ <goody>
+  [211] getobjprop 616 .......................... <goody.pwfl>
+  [214] getprop 611 ............................. <pdummy>
+  [217] pusharglistnoret 3 ...................... <goody.pphysx, goody.pwfl, pdummy>
+  [219] objcall 615 ............................. goody.pphysx.DisableCollision(goody.pwfl, pdummy)
+  [222] getglobal 83 ............................ <goody>
+  [224] getchainedprop 443 ...................... <goody.pphysx>
+  [227] getglobal 83 ............................ <goody>
+  [229] getobjprop 617 .......................... <goody.pwfr>
+  [232] getprop 611 ............................. <pdummy>
+  [235] pusharglistnoret 3 ...................... <goody.pphysx, goody.pwfr, pdummy>
+  [237] objcall 615 ............................. goody.pphysx.DisableCollision(goody.pwfr, pdummy)
+  [240] getglobal 83 ............................ <goody>
+  [242] getchainedprop 443 ...................... <goody.pphysx>
+  [245] getglobal 83 ............................ <goody>
+  [247] getobjprop 618 .......................... <goody.pwbl>
+  [250] getprop 611 ............................. <pdummy>
+  [253] pusharglistnoret 3 ...................... <goody.pphysx, goody.pwbl, pdummy>
+  [255] objcall 615 ............................. goody.pphysx.DisableCollision(goody.pwbl, pdummy)
+  [258] getglobal 83 ............................ <goody>
+  [260] getchainedprop 443 ...................... <goody.pphysx>
+  [263] getglobal 83 ............................ <goody>
+  [265] getobjprop 619 .......................... <goody.pwbr>
+  [268] getprop 611 ............................. <pdummy>
+  [271] pusharglistnoret 3 ...................... <goody.pphysx, goody.pwbr, pdummy>
+  [273] objcall 615 ............................. goody.pphysx.DisableCollision(goody.pwbr, pdummy)
+  [276] getprop 611 ............................. <pdummy>
+  [279] pushint8 1 .............................. <1>
+  [281] setobjprop 465 .......................... pdummy.mass = 1
+  [284] getprop 611 ............................. <pdummy>
+  [287] pushcons 2 .............................. <0.40000000000000002>
+  [289] setobjprop 419 .......................... pdummy.friction = 0.40000000000000002
+  [292] getprop 611 ............................. <pdummy>
+  [295] pushzero ................................ <0>
+  [296] setobjprop 450 .......................... pdummy.restitution = 0
+  [299] jmp [360]
+  [302] getglobal 612 ........................... <ghvk>
+  [305] getchainedprop 443 ...................... <ghvk.pphysx>
+  [308] getprop 472 ............................. <pmod>
+  [311] getobjprop 416 .......................... <pmod.name>
+  [314] pusharglist 2 ........................... <ghvk.pphysx, pmod.name>
+  [316] objcall 459 ............................. <ghvk.pphysx.getRigidBody(pmod.name)>
+  [319] setprop 611 ............................. pdummy = ghvk.pphysx.getRigidBody(pmod.name)
+  [322] getprop 611 ............................. <pdummy>
+  [325] pushzero ................................ <0>
+  [326] setobjprop 629 .......................... pdummy.isPinned = 0
+  [329] getprop 472 ............................. <pmod>
+  [332] getchainedprop 38 ....................... <pmod.transform>
+  [334] getprop 105 ............................. <pos>
+  [336] setobjprop 48 ........................... pmod.transform.position = pos
+  [338] getprop 472 ............................. <pmod>
+  [341] getchainedprop 38 ....................... <pmod.transform>
+  [343] getlocal 0 .............................. <rot>
+  [345] setobjprop 39 ........................... pmod.transform.rotation = rot
+  [347] getprop 611 ............................. <pdummy>
+  [350] getprop 472 ............................. <pmod>
+  [353] getchainedprop 38 ....................... <pmod.transform>
+  [355] getobjprop 51 ........................... <pmod.transform.axisAngle>
+  [357] setobjprop 719 .......................... pdummy.orientation = pmod.transform.axisAngle
+  [360] getprop 472 ............................. <pmod>
+  [363] getprop 300 ............................. <pteam>
+  [366] pushcons 3 .............................. <"rocket">
+  [368] joinstr ................................. <pteam & "rocket">
+  [369] pusharglist 1 ........................... <pteam & "rocket">
+  [371] extcall 12 .............................. <shady(pteam & "rocket")>
+  [373] setobjprop 562 .......................... pmod.shaderList = shady(pteam & "rocket")
+  [376] getprop 472 ............................. <pmod>
+  [379] pusharglistnoret 1 ...................... <pmod>
+  [381] objcall 228 ............................. pmod.addToWorld()
+  [383] getprop 611 ............................. <pdummy>
+  [386] getprop 105 ............................. <pos>
+  [388] setobjprop 48 ........................... pdummy.position = pos
+  [390] getprop 611 ............................. <pdummy>
+  [393] pushzero ................................ <0>
+  [394] pushzero ................................ <0>
+  [395] pushzero ................................ <0>
+  [396] pusharglist 3 ........................... <0, 0, 0>
+  [398] extcall 46 .............................. <vector(0, 0, 0)>
+  [400] setobjprop 728 .......................... pdummy.angularVelocity = vector(0, 0, 0)
+  [403] pushint16 1000 .......................... <1000>
+  [406] setprop 1060 ............................ plifetime = 1000
+  [409] getprop 611 ............................. <pdummy>
+  [412] getprop 340 ............................. <speed>
+  [415] pushint8 1 .............................. <1>
+  [417] mul ..................................... <speed * 1>
+  [418] pusharglistnoret 2 ...................... <pdummy, speed * 1>
+  [420] objcall 729 ............................. pdummy.applyLinearImpulse(speed * 1)
+  [423] getprop 611 ............................. <pdummy>
+  [426] getobjprop 621 .......................... <pdummy.linearVelocity>
+  [429] setprop 1314 ............................ poldspeed = pdummy.linearVelocity
+  [432] getprop 611 ............................. <pdummy>
+  [435] pushint8 5 .............................. <5>
+  [437] pushint8 20 ............................. <20>
+  [439] pushzero ................................ <0>
+  [440] pusharglist 3 ........................... <5, 20, 0>
+  [442] extcall 46 .............................. <vector(5, 20, 0)>
+  [444] setobjprop 620 .......................... pdummy.centerOfMass = vector(5, 20, 0)
+  [447] getmovieprop 71 ......................... <the actorList>
+  [449] getparam 0 .............................. <me>
+  [451] pusharglistnoret 2 ...................... <the actorList, me>
+  [453] objcall 154 ............................. (the actorList).add(me)
+  [455] getparam 0 .............................. <me>
+  [457] pusharglistnoret 1 ...................... <me>
+  [459] extcall 40 .............................. return me
+  [461] ret
+end
+
+on stepFrame me
+  [  0] getglobal 83 ............................ <goody>
+  [  2] pusharglist 1 ........................... <goody>
+  [  4] extcall 55 .............................. <voidp(goody)>
+  [  6] not ..................................... <not voidp(goody)>
+  [  7] jmpifz [ 90] ............................ if not voidp(goody) then
+  [ 10] getprop 1060 ............................ <plifetime>
+  [ 13] pushint8 1 .............................. <1>
+  [ 15] sub ..................................... <plifetime - 1>
+  [ 16] setprop 1060 ............................ plifetime = plifetime - 1
+  [ 19] getprop 1060 ............................ <plifetime>
+  [ 22] pushint16 997 ........................... <997>
+  [ 25] lt ...................................... <plifetime < 997>
+  [ 26] jmpifz [ 53] ............................ if plifetime < 997 then
+  [ 29] getprop 611 ............................. <pdummy>
+  [ 32] getchainedprop 621 ...................... <pdummy.linearVelocity>
+  [ 35] getprop 1314 ............................ <poldspeed>
+  [ 38] pusharglist 2 ........................... <pdummy.linearVelocity, poldspeed>
+  [ 40] objcall 98 .............................. <pdummy.linearVelocity.distanceTo(poldspeed)>
+  [ 42] pushint8 5 .............................. <5>
+  [ 44] gt ...................................... <pdummy.linearVelocity.distanceTo(poldspeed) > 5>
+  [ 45] jmpifz [ 53] ............................ if pdummy.linearVelocity.distanceTo(poldspeed) > 5 then
+  [ 48] pushint8 1 .............................. <1>
+  [ 50] setprop 879 ............................. hit = 1
+  [ 53] getprop 611 ............................. <pdummy>
+  [ 56] getobjprop 48 ........................... <pdummy.position>
+  [ 58] setprop 105 ............................. pos = pdummy.position
+  [ 60] getprop 879 ............................. <hit>
+  [ 63] pushint8 1 .............................. <1>
+  [ 65] eq ...................................... <hit = 1>
+  [ 66] getprop 1060 ............................ <plifetime>
+  [ 69] pushzero ................................ <0>
+  [ 70] eq ...................................... <plifetime = 0>
+  [ 71] or ...................................... <(hit = 1) or (plifetime = 0)>
+  [ 72] jmpifz [ 81] ............................ if (hit = 1) or (plifetime = 0) then
+  [ 75] getparam 0 .............................. <me>
+  [ 77] pusharglistnoret 1 ...................... <me>
+  [ 79] localcall 2 ............................. hurt(me)
+  [ 81] getprop 611 ............................. <pdummy>
+  [ 84] getobjprop 621 .......................... <pdummy.linearVelocity>
+  [ 87] setprop 1314 ............................ poldspeed = pdummy.linearVelocity
+  [ 90] ret
+end
+
+on hurt me
+  [  0] pushcons 4 .............................. <"bangs">
+  [  2] pusharglist 1 ........................... <"bangs">
+  [  4] extcall 303 ............................. <script("bangs")>
+  [  7] getprop 105 ............................. <pos>
+  [  9] pushcons 1 .............................. <"mortar">
+  [ 11] getprop 301 ............................. <pname>
+  [ 14] pusharglist 4 ........................... <script("bangs"), pos, "mortar", pname>
+  [ 16] objcall 265 ............................. <script("bangs").new(pos, "mortar", pname)>
+  [ 19] setlocal 0 .............................. bang = script("bangs").new(pos, "mortar", pname)
+  [ 21] pushsymb 211 ............................ <#mortar>
+  [ 23] getprop 472 ............................. <pmod>
+  [ 26] pusharglistnoret 2 ...................... <#mortar, pmod>
+  [ 28] extcall 29 .............................. storemodel(#mortar, pmod)
+  [ 30] getprop 611 ............................. <pdummy>
+  [ 33] pushzero ................................ <0>
+  [ 34] pushzero ................................ <0>
+  [ 35] pushint16 1000 .......................... <1000>
+  [ 38] inv ..................................... <-1000>
+  [ 39] pusharglist 3 ........................... <0, 0, -1000>
+  [ 41] extcall 46 .............................. <vector(0, 0, -1000)>
+  [ 43] setobjprop 48 ........................... pdummy.position = vector(0, 0, -1000)
+  [ 45] getprop 611 ............................. <pdummy>
+  [ 48] pushint8 1 .............................. <1>
+  [ 50] setobjprop 629 .......................... pdummy.isPinned = 1
+  [ 53] getmovieprop 71 ......................... <the actorList>
+  [ 55] getparam 0 .............................. <me>
+  [ 57] pusharglistnoret 2 ...................... <the actorList, me>
+  [ 59] objcall 227 ............................. (the actorList).deleteOne(me)
+  [ 61] ret
+end
+
+on die me
+  [  0] ret
+end
+
+on hitobj me, collisiondetails
+  [  0] pushint8 1 .............................. <1>
+  [  2] setprop 879 ............................. hit = 1
+  [  5] ret
+end

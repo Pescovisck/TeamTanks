@@ -1,0 +1,1340 @@
+property pstarttime, ptimer, pcam, pdiy, pingserver, predtxt, pbluetxt, pwinners, pscoresent
+global gmem, gplayers, gmusmode, gisloggedin, goody, gscore, goldscore, gcappoints, glevel
+
+on beginSprite me
+  [  0] pushint8 1 .............................. <1>
+  [  2] setprop 1275 ............................ pscoresent = 1
+  [  5] getglobal 56 ............................ <gmem>
+  [  7] pushint8 1 .............................. <1>
+  [  9] pusharglist 2 ........................... <gmem, 1>
+  [ 11] objcall 532 ............................. <gmem.camera(1)>
+  [ 14] setprop 95 .............................. pcam = gmem.camera(1)
+  [ 16] pushcons 0 .............................. <"UI_trans">
+  [ 18] pusharglist 1 ........................... <"UI_trans">
+  [ 20] extcall 52 .............................. <member("UI_trans")>
+  [ 22] pushint8 3 .............................. <3>
+  [ 24] setobjprop 132 .......................... member("UI_trans").posterFrame = 3
+  [ 26] getprop 95 .............................. <pcam>
+  [ 28] pushcons 0 .............................. <"UI_trans">
+  [ 30] pusharglist 1 ........................... <"UI_trans">
+  [ 32] extcall 13 .............................. <texy("UI_trans")>
+  [ 34] pushzero ................................ <0>
+  [ 35] pushzero ................................ <0>
+  [ 36] pusharglist 2 ........................... <0, 0>
+  [ 38] extcall 627 ............................. <point(0, 0)>
+  [ 41] pushzero ................................ <0>
+  [ 42] pusharglistnoret 4 ...................... <pcam, texy("UI_trans"), point(0, 0), 0>
+  [ 44] objcall 648 ............................. pcam.addOverlay(texy("UI_trans"), point(0, 0), 0)
+  [ 47] pushzero ................................ <0>
+  [ 48] setprop 661 ............................. pingserver = 0
+  [ 51] pushzero ................................ <0>
+  [ 52] setlocal 0 .............................. vcapscores = 0
+  [ 54] pushint8 1 .............................. <1>
+  [ 56] setlocal 1
+  [ 58] getlocal 1
+  [ 60] getglobal 320 ........................... <gcappoints>
+  [ 63] getobjprop 72 ........................... <gcappoints.count>
+  [ 65] lteq
+  [ 66] jmpifz [115] ............................ repeat with i = 1 to gcappoints.count
+  [ 69] getlocal 0 .............................. <vcapscores>
+  [ 71] getglobal 320 ........................... <gcappoints>
+  [ 74] getlocal 1 .............................. <i>
+  [ 76] pusharglist 2 ........................... <gcappoints, i>
+  [ 78] objcall 73 .............................. <gcappoints[i]>
+  [ 80] pushsymb 1259 ........................... <#pglow>
+  [ 83] pushint8 3 .............................. <3>
+  [ 85] pusharglist 3 ........................... <gcappoints[i], #pglow, 3>
+  [ 87] objcall 122 ............................. <gcappoints[i].pglow[3]>
+  [ 89] add ..................................... <vcapscores + gcappoints[i].pglow[3]>
+  [ 90] setlocal 0 .............................. vcapscores = vcapscores + gcappoints[i].pglow[3]
+  [ 92] getglobal 320 ........................... <gcappoints>
+  [ 95] getlocal 1 .............................. <i>
+  [ 97] pusharglist 2 ........................... <gcappoints, i>
+  [ 99] objcall 73 .............................. <gcappoints[i]>
+  [101] pusharglistnoret 1 ...................... <gcappoints[i]>
+  [103] objcall 656 ............................. gcappoints[i].resetglows()
+  [106] pushint8 1
+  [108] getlocal 1
+  [110] add
+  [111] setlocal 1
+  [113] endrepeat [ 58]
+  [115] pushint8 127 ............................ <127>
+  [117] getglobal 320 ........................... <gcappoints>
+  [120] getobjprop 72 ........................... <gcappoints.count>
+  [122] mul ..................................... <127 * gcappoints.count>
+  [123] pusharglist 1 ........................... <127 * gcappoints.count>
+  [125] extcall 96 .............................. <integer(127 * gcappoints.count)>
+  [127] setlocal 2 .............................. vcps = integer(127 * gcappoints.count)
+  [129] getlocal 0 .............................. <vcapscores>
+  [131] getlocal 2 .............................. <vcps>
+  [133] gt ...................................... <vcapscores > vcps>
+  [134] jmpifz [182] ............................ if vcapscores > vcps then / else
+  [137] pushcons 1 .............................. <"Blue Win">
+  [139] setlocal 3 .............................. vwinners = "Blue Win"
+  [141] pushcons 2 .............................. <"winners">
+  [143] pusharglist 1 ........................... <"winners">
+  [145] extcall 52 .............................. <member("winners")>
+  [147] pushzero ................................ <0>
+  [148] pushint8 1 .............................. <1>
+  [150] pushint16 217 ........................... <217>
+  [153] pusharglist 3 ........................... <0, 1, 217>
+  [155] extcall 115 ............................. <rgb(0, 1, 217)>
+  [157] setobjprop 409 .......................... member("winners").color = rgb(0, 1, 217)
+  [160] pushcons 2 .............................. <"winners">
+  [162] pusharglist 1 ........................... <"winners">
+  [164] extcall 52 .............................. <member("winners")>
+  [166] pushzero ................................ <0>
+  [167] pushint8 1 .............................. <1>
+  [169] pushint16 217 ........................... <217>
+  [172] pusharglist 3 ........................... <0, 1, 217>
+  [174] extcall 115 ............................. <rgb(0, 1, 217)>
+  [176] setobjprop 1004 ......................... member("winners").bgColor = rgb(0, 1, 217)
+  [179] jmp [279]
+  [182] getlocal 0 .............................. <vcapscores>
+  [184] getlocal 2 .............................. <vcps>
+  [186] lt ...................................... <vcapscores < vcps>
+  [187] jmpifz [235] ............................ if vcapscores < vcps then / else
+  [190] pushcons 3 .............................. <"Red Win">
+  [192] setlocal 3 .............................. vwinners = "Red Win"
+  [194] pushcons 2 .............................. <"winners">
+  [196] pusharglist 1 ........................... <"winners">
+  [198] extcall 52 .............................. <member("winners")>
+  [200] pushint16 217 ........................... <217>
+  [203] pushint8 1 .............................. <1>
+  [205] pushzero ................................ <0>
+  [206] pusharglist 3 ........................... <217, 1, 0>
+  [208] extcall 115 ............................. <rgb(217, 1, 0)>
+  [210] setobjprop 409 .......................... member("winners").color = rgb(217, 1, 0)
+  [213] pushcons 2 .............................. <"winners">
+  [215] pusharglist 1 ........................... <"winners">
+  [217] extcall 52 .............................. <member("winners")>
+  [219] pushint16 217 ........................... <217>
+  [222] pushint8 1 .............................. <1>
+  [224] pushzero ................................ <0>
+  [225] pusharglist 3 ........................... <217, 1, 0>
+  [227] extcall 115 ............................. <rgb(217, 1, 0)>
+  [229] setobjprop 1004 ......................... member("winners").bgColor = rgb(217, 1, 0)
+  [232] jmp [279]
+  [235] pushcons 4 .............................. <"Draw">
+  [237] setlocal 3 .............................. vwinners = "Draw"
+  [239] pushcons 2 .............................. <"winners">
+  [241] pusharglist 1 ........................... <"winners">
+  [243] extcall 52 .............................. <member("winners")>
+  [245] pushint16 255 ........................... <255>
+  [248] pushint16 215 ........................... <215>
+  [251] pushzero ................................ <0>
+  [252] pusharglist 3 ........................... <255, 215, 0>
+  [254] extcall 115 ............................. <rgb(255, 215, 0)>
+  [256] setobjprop 409 .......................... member("winners").color = rgb(255, 215, 0)
+  [259] pushcons 2 .............................. <"winners">
+  [261] pusharglist 1 ........................... <"winners">
+  [263] extcall 52 .............................. <member("winners")>
+  [265] pushint16 255 ........................... <255>
+  [268] pushint16 215 ........................... <215>
+  [271] pushzero ................................ <0>
+  [272] pusharglist 3 ........................... <255, 215, 0>
+  [274] extcall 115 ............................. <rgb(255, 215, 0)>
+  [276] setobjprop 1004 ......................... member("winners").bgColor = rgb(255, 215, 0)
+  [279] pushcons 2 .............................. <"winners">
+  [281] pusharglist 1 ........................... <"winners">
+  [283] extcall 52 .............................. <member("winners")>
+  [285] getlocal 3 .............................. <vwinners>
+  [287] setobjprop 54 ........................... member("winners").text = vwinners
+  [289] pushcons 5 .............................. <EMPTY>
+  [291] setprop 1276 ............................ pwinners = EMPTY
+  [294] getlocal 3 .............................. <vwinners>
+  [296] pushcons 1 .............................. <"Blue Win">
+  [298] eq ...................................... <vwinners = "Blue Win">
+  [299] jmpifz [310] ............................ if vwinners = "Blue Win" then / else
+  [302] pushcons 6 .............................. <"blue">
+  [304] setprop 1276 ............................ pwinners = "blue"
+  [307] jmp [323]
+  [310] getlocal 3 .............................. <vwinners>
+  [312] pushcons 3 .............................. <"Red Win">
+  [314] eq ...................................... <vwinners = "Red Win">
+  [315] jmpifz [323] ............................ if vwinners = "Red Win" then
+  [318] pushcons 7 .............................. <"red">
+  [320] setprop 1276 ............................ pwinners = "red"
+  [323] getglobal 56 ............................ <gmem>
+  [325] pushint8 1 .............................. <1>
+  [327] pusharglist 2 ........................... <gmem, 1>
+  [329] objcall 532 ............................. <gmem.camera(1)>
+  [332] pushcons 2 .............................. <"winners">
+  [334] pushzero ................................ <0>
+  [335] pusharglist 2 ........................... <"winners", 0>
+  [337] extcall 13 .............................. <texy("winners", 0)>
+  [339] pushint8 20 ............................. <20>
+  [341] pushint8 14 ............................. <14>
+  [343] pusharglist 2 ........................... <20, 14>
+  [345] extcall 627 ............................. <point(20, 14)>
+  [348] pushzero ................................ <0>
+  [349] pusharglistnoret 4 ...................... <gmem.camera(1), texy("winners", 0), point(20, 14), 0>
+  [351] objcall 648 ............................. gmem.camera(1).addOverlay(texy("winners", 0), point(20, 14), 0)
+  [354] getglobal 56 ............................ <gmem>
+  [356] pushint8 1 .............................. <1>
+  [358] pusharglist 2 ........................... <gmem, 1>
+  [360] objcall 532 ............................. <gmem.camera(1)>
+  [363] pushcons 8 .............................. <"scoretimer">
+  [365] pushzero ................................ <0>
+  [366] pusharglist 2 ........................... <"scoretimer", 0>
+  [368] extcall 13 .............................. <texy("scoretimer", 0)>
+  [370] pushint16 300 ........................... <300>
+  [373] pushint16 500 ........................... <500>
+  [376] pusharglist 2 ........................... <300, 500>
+  [378] extcall 627 ............................. <point(300, 500)>
+  [381] pushzero ................................ <0>
+  [382] pusharglistnoret 4 ...................... <gmem.camera(1), texy("scoretimer", 0), point(300, 500), 0>
+  [384] objcall 648 ............................. gmem.camera(1).addOverlay(texy("scoretimer", 0), point(300, 500), 0)
+  [387] pushcons 9 .............................. <"scoresubmitted">
+  [389] pusharglist 1 ........................... <"scoresubmitted">
+  [391] extcall 52 .............................. <member("scoresubmitted")>
+  [393] pushcons 5 .............................. <EMPTY>
+  [395] setobjprop 54 ........................... member("scoresubmitted").text = EMPTY
+  [397] pusharglistnoret 0 ...................... <>
+  [399] extcall 792 ............................. startTimer()
+  [402] pushzero ................................ <0>
+  [403] setprop 1277 ............................ ptimer = 0
+  [406] pushint8 1 .............................. <1>
+  [408] setprop 1278 ............................ pdiy = 1
+  [411] pushint8 8 .............................. <8>
+  [413] pushcons 10 ............................. <"endwav">
+  [415] pusharglistnoret 2 ...................... <8, "endwav">
+  [417] extcall 100 ............................. puppetSound(8, "endwav")
+  [419] gettoplevelprop 195 ..................... <_player>
+  [421] pushint8 1 .............................. <1>
+  [423] inv ..................................... <-1>
+  [424] pusharglistnoret 2 ...................... <_player, -1>
+  [426] objcall 597 ............................. _player.cursor(-1)
+  [429] getparam 0 .............................. <me>
+  [431] pusharglistnoret 1 ...................... <me>
+  [433] localcall 1 ............................. dostats(me)
+  [435] pushcons 11 ............................. <"http://www.gamevial.com/data/gamecomms.php">
+  [437] setlocal 4 .............................. vurl = "http://www.gamevial.com/data/gamecomms.php"
+  [439] pushcons 12 ............................. <"action">
+  [441] pushcons 13 ............................. <"stats">
+  [443] pushcons 14 ............................. <"kills">
+  [445] getglobal 83 ............................ <goody>
+  [447] getchainedprop 350 ...................... <goody.pstats>
+  [450] getobjprop 351 .......................... <goody.pstats.pkills>
+  [453] pusharglist 4 ........................... <["action": "stats", "kills": goody.pstats.pkills]>
+  [455] pushproplist ............................ <["action": "stats", "kills": goody.pstats.pkills]>
+  [456] setlocal 5 .............................. vdata = ["action": "stats", "kills": goody.pstats.pkills]
+  [458] getlocal 4 .............................. <vurl>
+  [460] getlocal 5 .............................. <vdata>
+  [462] pusharglistnoret 2 ...................... <vurl, vdata>
+  [464] extcall 1053 ............................ postNetText(vurl, vdata)
+  [467] pushcons 5 .............................. <EMPTY>
+  [469] getlocal 5 .............................. <vdata>
+  [471] joinstr ................................. <EMPTY & vdata>
+  [472] pusharglistnoret 1 ...................... <EMPTY & vdata>
+  [474] extcall 1279 ............................ put EMPTY & vdata
+  [477] ret
+end
+
+on dostats me
+  [  0] pushcons 15 ............................. <"redscores">
+  [  2] pusharglist 1 ........................... <"redscores">
+  [  4] extcall 52 .............................. <member("redscores")>
+  [  6] pushcons 5 .............................. <EMPTY>
+  [  8] setobjprop 54 ........................... member("redscores").text = EMPTY
+  [ 10] pushcons 16 ............................. <"bluescores">
+  [ 12] pusharglist 1 ........................... <"bluescores">
+  [ 14] extcall 52 .............................. <member("bluescores")>
+  [ 16] pushcons 5 .............................. <EMPTY>
+  [ 18] setobjprop 54 ........................... member("bluescores").text = EMPTY
+  [ 20] gettoplevelprop 195 ..................... <_player>
+  [ 22] pushcons 17 ............................. <"teamtanks_data">
+  [ 24] pusharglist 2 ........................... <_player, "teamtanks_data">
+  [ 26] objcall 594 ............................. <_player.getPref("teamtanks_data")>
+  [ 29] pusharglist 1 ........................... <_player.getPref("teamtanks_data")>
+  [ 31] extcall 55 .............................. <voidp(_player.getPref("teamtanks_data"))>
+  [ 33] not ..................................... <not voidp(_player.getPref("teamtanks_data"))>
+  [ 34] jmpifz [376] ............................ if not voidp(_player.getPref("teamtanks_data")) then / else
+  [ 37] gettoplevelprop 195 ..................... <_player>
+  [ 39] pushcons 17 ............................. <"teamtanks_data">
+  [ 41] pusharglist 2 ........................... <_player, "teamtanks_data">
+  [ 43] objcall 594 ............................. <_player.getPref("teamtanks_data")>
+  [ 46] pusharglist 1 ........................... <_player.getPref("teamtanks_data")>
+  [ 48] extcall 62 .............................. <value(_player.getPref("teamtanks_data"))>
+  [ 50] setlocal 0 .............................. vprefs = value(_player.getPref("teamtanks_data"))
+  [ 52] getlocal 0 .............................. <vprefs>
+  [ 54] getobjprop 60 ........................... <vprefs.date>
+  [ 56] pusharglist 1 ........................... <vprefs.date>
+  [ 58] extcall 59 .............................. <string(vprefs.date)>
+  [ 60] pusharglist 0 ........................... <>
+  [ 62] extcall 5 ............................... <getsafedate()>
+  [ 64] nteq .................................... <string(vprefs.date) <> getsafedate()>
+  [ 65] jmpifz [194] ............................ if string(vprefs.date) <> getsafedate() then / else
+  [ 68] getglobal 83 ............................ <goody>
+  [ 70] getchainedprop 350 ...................... <goody.pstats>
+  [ 73] getobjprop 351 .......................... <goody.pstats.pkills>
+  [ 76] setlocal 1 .............................. vkillstoday = goody.pstats.pkills
+  [ 78] getglobal 83 ............................ <goody>
+  [ 80] getchainedprop 350 ...................... <goody.pstats>
+  [ 83] getobjprop 318 .......................... <goody.pstats.pscore>
+  [ 86] setlocal 2 .............................. vmaxpoints = goody.pstats.pscore
+  [ 88] getparam 0 .............................. <me>
+  [ 90] pusharglist 1 ........................... <me>
+  [ 92] localcall 2 ............................. <getaccuracy(me)>
+  [ 94] setlocal 3 .............................. vaccuracy = getaccuracy(me)
+  [ 96] getparam 0 .............................. <me>
+  [ 98] pusharglist 1 ........................... <me>
+  [100] localcall 4 ............................. <getrating(me)>
+  [102] setlocal 4 .............................. vrating = getrating(me)
+  [104] getparam 0 .............................. <me>
+  [106] pusharglist 1 ........................... <me>
+  [108] localcall 3 ............................. <checkwins(me)>
+  [110] setlocal 5 .............................. vgamewins = checkwins(me)
+  [112] pushint8 1 .............................. <1>
+  [114] setlocal 6 .............................. vgametotal = 1
+  [116] pusharglist 0 ........................... <>
+  [118] extcall 5 ............................... <getsafedate()>
+  [120] setlocal 7 .............................. vdate = getsafedate()
+  [122] gettoplevelprop 195 ..................... <_player>
+  [124] pushcons 17 ............................. <"teamtanks_data">
+  [126] pushcons 18 ............................. <"[#date:">
+  [128] getlocal 7 .............................. <vdate>
+  [130] joinstr ................................. <"[#date:" & vdate>
+  [131] pushcons 19 ............................. <", #max_points:">
+  [133] joinstr ................................. <"[#date:" & vdate & ", #max_points:">
+  [134] getlocal 2 .............................. <vmaxpoints>
+  [136] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints>
+  [137] pushcons 20 ............................. <", #kills:">
+  [139] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:">
+  [140] getglobal 83 ............................ <goody>
+  [142] getchainedprop 350 ...................... <goody.pstats>
+  [145] getobjprop 351 .......................... <goody.pstats.pkills>
+  [148] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills>
+  [149] pushcons 21 ............................. <", #kills_today:">
+  [151] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:">
+  [152] getlocal 1 .............................. <vkillstoday>
+  [154] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday>
+  [155] pushcons 22 ............................. <", #accuracy:">
+  [157] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:">
+  [158] getlocal 3 .............................. <vaccuracy>
+  [160] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy>
+  [161] pushcons 23 ............................. <", #rating:">
+  [163] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:">
+  [164] getlocal 4 .............................. <vrating>
+  [166] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating>
+  [167] pushcons 24 ............................. <", #game_wins:">
+  [169] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:">
+  [170] getlocal 5 .............................. <vgamewins>
+  [172] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins>
+  [173] pushcons 25 ............................. <", #games_total:">
+  [175] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:">
+  [176] getlocal 6 .............................. <vgametotal>
+  [178] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal>
+  [179] pushcons 26 ............................. <"]">
+  [181] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]">
+  [182] pusharglist 1 ........................... <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]">
+  [184] extcall 59 .............................. <string("[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]")>
+  [186] pusharglistnoret 3 ...................... <_player, "teamtanks_data", string("[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]")>
+  [188] objcall 1127 ............................ _player.setPref("teamtanks_data", string("[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]"))
+  [191] jmp [373]
+  [194] getglobal 83 ............................ <goody>
+  [196] getchainedprop 350 ...................... <goody.pstats>
+  [199] getobjprop 318 .......................... <goody.pstats.pscore>
+  [202] getlocal 0 .............................. <vprefs>
+  [204] getobjprop 1028 ......................... <vprefs.max_points>
+  [207] gt ...................................... <goody.pstats.pscore > vprefs.max_points>
+  [208] jmpifz [224] ............................ if goody.pstats.pscore > vprefs.max_points then / else
+  [211] getglobal 83 ............................ <goody>
+  [213] getchainedprop 350 ...................... <goody.pstats>
+  [216] getobjprop 318 .......................... <goody.pstats.pscore>
+  [219] setlocal 2 .............................. vmaxpoints = goody.pstats.pscore
+  [221] jmp [231]
+  [224] getlocal 0 .............................. <vprefs>
+  [226] getobjprop 1028 ......................... <vprefs.max_points>
+  [229] setlocal 2 .............................. vmaxpoints = vprefs.max_points
+  [231] getglobal 83 ............................ <goody>
+  [233] getchainedprop 350 ...................... <goody.pstats>
+  [236] getobjprop 351 .......................... <goody.pstats.pkills>
+  [239] getlocal 0 .............................. <vprefs>
+  [241] getobjprop 595 .......................... <vprefs.kills_today>
+  [244] add ..................................... <goody.pstats.pkills + vprefs.kills_today>
+  [245] setlocal 1 .............................. vkillstoday = goody.pstats.pkills + vprefs.kills_today
+  [247] getparam 0 .............................. <me>
+  [249] pusharglist 1 ........................... <me>
+  [251] localcall 2 ............................. <getaccuracy(me)>
+  [253] setlocal 3 .............................. vaccuracy = getaccuracy(me)
+  [255] getparam 0 .............................. <me>
+  [257] pusharglist 1 ........................... <me>
+  [259] localcall 4 ............................. <getrating(me)>
+  [261] setlocal 4 .............................. vrating = getrating(me)
+  [263] getlocal 0 .............................. <vprefs>
+  [265] getobjprop 1284 ......................... <vprefs.game_wins>
+  [268] pusharglist 1 ........................... <vprefs.game_wins>
+  [270] extcall 96 .............................. <integer(vprefs.game_wins)>
+  [272] getparam 0 .............................. <me>
+  [274] pusharglist 1 ........................... <me>
+  [276] localcall 3 ............................. <checkwins(me)>
+  [278] add ..................................... <integer(vprefs.game_wins) + checkwins(me)>
+  [279] setlocal 5 .............................. vgamewins = integer(vprefs.game_wins) + checkwins(me)
+  [281] getlocal 0 .............................. <vprefs>
+  [283] getobjprop 1285 ......................... <vprefs.games_total>
+  [286] pusharglist 1 ........................... <vprefs.games_total>
+  [288] extcall 96 .............................. <integer(vprefs.games_total)>
+  [290] pushint8 1 .............................. <1>
+  [292] add ..................................... <integer(vprefs.games_total) + 1>
+  [293] setlocal 6 .............................. vgametotal = integer(vprefs.games_total) + 1
+  [295] pusharglist 0 ........................... <>
+  [297] extcall 5 ............................... <getsafedate()>
+  [299] setlocal 7 .............................. vdate = getsafedate()
+  [301] gettoplevelprop 195 ..................... <_player>
+  [303] pushcons 17 ............................. <"teamtanks_data">
+  [305] pushcons 27 ............................. <"[">
+  [307] pushcons 28 ............................. <"#date:">
+  [309] joinstr ................................. <"[" & "#date:">
+  [310] getlocal 7 .............................. <vdate>
+  [312] joinstr ................................. <"[" & "#date:" & vdate>
+  [313] pushcons 19 ............................. <", #max_points:">
+  [315] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:">
+  [316] getlocal 2 .............................. <vmaxpoints>
+  [318] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints>
+  [319] pushcons 20 ............................. <", #kills:">
+  [321] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:">
+  [322] getglobal 83 ............................ <goody>
+  [324] getchainedprop 350 ...................... <goody.pstats>
+  [327] getobjprop 351 .......................... <goody.pstats.pkills>
+  [330] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills>
+  [331] pushcons 21 ............................. <", #kills_today:">
+  [333] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:">
+  [334] getlocal 1 .............................. <vkillstoday>
+  [336] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday>
+  [337] pushcons 22 ............................. <", #accuracy:">
+  [339] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:">
+  [340] getlocal 3 .............................. <vaccuracy>
+  [342] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy>
+  [343] pushcons 23 ............................. <", #rating:">
+  [345] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:">
+  [346] getlocal 4 .............................. <vrating>
+  [348] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating>
+  [349] pushcons 24 ............................. <", #game_wins:">
+  [351] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:">
+  [352] getlocal 5 .............................. <vgamewins>
+  [354] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins>
+  [355] pushcons 25 ............................. <", #games_total:">
+  [357] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:">
+  [358] getlocal 6 .............................. <vgametotal>
+  [360] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal>
+  [361] pushcons 26 ............................. <"]">
+  [363] joinstr ................................. <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]">
+  [364] pusharglist 1 ........................... <"[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]">
+  [366] extcall 59 .............................. <string("[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]")>
+  [368] pusharglistnoret 3 ...................... <_player, "teamtanks_data", string("[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]")>
+  [370] objcall 1127 ............................ _player.setPref("teamtanks_data", string("[" & "#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & goody.pstats.pkills & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:" & vgametotal & "]"))
+  [373] jmp [487]
+  [376] getglobal 83 ............................ <goody>
+  [378] getchainedprop 350 ...................... <goody.pstats>
+  [381] getobjprop 351 .......................... <goody.pstats.pkills>
+  [384] setlocal 1 .............................. vkillstoday = goody.pstats.pkills
+  [386] getglobal 83 ............................ <goody>
+  [388] getchainedprop 350 ...................... <goody.pstats>
+  [391] getobjprop 318 .......................... <goody.pstats.pscore>
+  [394] setlocal 2 .............................. vmaxpoints = goody.pstats.pscore
+  [396] getparam 0 .............................. <me>
+  [398] pusharglist 1 ........................... <me>
+  [400] localcall 2 ............................. <getaccuracy(me)>
+  [402] setlocal 3 .............................. vaccuracy = getaccuracy(me)
+  [404] getparam 0 .............................. <me>
+  [406] pusharglist 1 ........................... <me>
+  [408] localcall 4 ............................. <getrating(me)>
+  [410] setlocal 4 .............................. vrating = getrating(me)
+  [412] getparam 0 .............................. <me>
+  [414] pusharglist 1 ........................... <me>
+  [416] localcall 3 ............................. <checkwins(me)>
+  [418] setlocal 5 .............................. vgamewins = checkwins(me)
+  [420] pusharglist 0 ........................... <>
+  [422] extcall 5 ............................... <getsafedate()>
+  [424] setlocal 7 .............................. vdate = getsafedate()
+  [426] pushcons 18 ............................. <"[#date:">
+  [428] getlocal 7 .............................. <vdate>
+  [430] joinstr ................................. <"[#date:" & vdate>
+  [431] pushcons 19 ............................. <", #max_points:">
+  [433] joinstr ................................. <"[#date:" & vdate & ", #max_points:">
+  [434] getlocal 2 .............................. <vmaxpoints>
+  [436] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints>
+  [437] pushcons 20 ............................. <", #kills:">
+  [439] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:">
+  [440] getlocal 1 .............................. <vkillstoday>
+  [442] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday>
+  [443] pushcons 21 ............................. <", #kills_today:">
+  [445] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:">
+  [446] getlocal 1 .............................. <vkillstoday>
+  [448] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday>
+  [449] pushcons 22 ............................. <", #accuracy:">
+  [451] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:">
+  [452] getlocal 3 .............................. <vaccuracy>
+  [454] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy>
+  [455] pushcons 23 ............................. <", #rating:">
+  [457] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:">
+  [458] getlocal 4 .............................. <vrating>
+  [460] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating>
+  [461] pushcons 24 ............................. <", #game_wins:">
+  [463] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:">
+  [464] getlocal 5 .............................. <vgamewins>
+  [466] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins>
+  [467] pushcons 29 ............................. <", #games_total:1]">
+  [469] joinstr ................................. <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:1]">
+  [470] pusharglist 1 ........................... <"[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:1]">
+  [472] extcall 59 .............................. <string("[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:1]")>
+  [474] setlocal 8 .............................. vchav = string("[#date:" & vdate & ", #max_points:" & vmaxpoints & ", #kills:" & vkillstoday & ", #kills_today:" & vkillstoday & ", #accuracy:" & vaccuracy & ", #rating:" & vrating & ", #game_wins:" & vgamewins & ", #games_total:1]")
+  [476] gettoplevelprop 195 ..................... <_player>
+  [478] pushcons 17 ............................. <"teamtanks_data">
+  [480] getlocal 8 .............................. <vchav>
+  [482] pusharglistnoret 3 ...................... <_player, "teamtanks_data", vchav>
+  [484] objcall 1127 ............................ _player.setPref("teamtanks_data", vchav)
+  [487] pushcons 15 ............................. <"redscores">
+  [489] pusharglist 1 ........................... <"redscores">
+  [491] extcall 52 .............................. <member("redscores")>
+  [493] getglobal 83 ............................ <goody>
+  [495] getchainedprop 350 ...................... <goody.pstats>
+  [498] getobjprop 318 .......................... <goody.pstats.pscore>
+  [501] pushcons 30 ............................. <RETURN>
+  [503] joinstr ................................. <goody.pstats.pscore & RETURN>
+  [504] getglobal 83 ............................ <goody>
+  [506] getchainedprop 350 ...................... <goody.pstats>
+  [509] getobjprop 351 .......................... <goody.pstats.pkills>
+  [512] joinstr ................................. <goody.pstats.pscore & RETURN & goody.pstats.pkills>
+  [513] pushcons 30 ............................. <RETURN>
+  [515] joinstr ................................. <goody.pstats.pscore & RETURN & goody.pstats.pkills & RETURN>
+  [516] getlocal 3 .............................. <vaccuracy>
+  [518] joinstr ................................. <goody.pstats.pscore & RETURN & goody.pstats.pkills & RETURN & vaccuracy>
+  [519] pushcons 30 ............................. <RETURN>
+  [521] joinstr ................................. <goody.pstats.pscore & RETURN & goody.pstats.pkills & RETURN & vaccuracy & RETURN>
+  [522] getlocal 4 .............................. <vrating>
+  [524] joinstr ................................. <goody.pstats.pscore & RETURN & goody.pstats.pkills & RETURN & vaccuracy & RETURN & vrating>
+  [525] setobjprop 54 ........................... member("redscores").text = goody.pstats.pscore & RETURN & goody.pstats.pkills & RETURN & vaccuracy & RETURN & vrating
+  [527] pushcons 16 ............................. <"bluescores">
+  [529] pusharglist 1 ........................... <"bluescores">
+  [531] extcall 52 .............................. <member("bluescores")>
+  [533] getlocal 2 .............................. <vmaxpoints>
+  [535] pushcons 30 ............................. <RETURN>
+  [537] joinstr ................................. <vmaxpoints & RETURN>
+  [538] pushcons 30 ............................. <RETURN>
+  [540] joinstr ................................. <vmaxpoints & RETURN & RETURN>
+  [541] getlocal 1 .............................. <vkillstoday>
+  [543] joinstr ................................. <vmaxpoints & RETURN & RETURN & vkillstoday>
+  [544] pushcons 30 ............................. <RETURN>
+  [546] joinstr ................................. <vmaxpoints & RETURN & RETURN & vkillstoday & RETURN>
+  [547] getlocal 5 .............................. <vgamewins>
+  [549] joinstr ................................. <vmaxpoints & RETURN & RETURN & vkillstoday & RETURN & vgamewins>
+  [550] pushcons 30 ............................. <RETURN>
+  [552] joinstr ................................. <vmaxpoints & RETURN & RETURN & vkillstoday & RETURN & vgamewins & RETURN>
+  [553] getlocal 6 .............................. <vgametotal>
+  [555] joinstr ................................. <vmaxpoints & RETURN & RETURN & vkillstoday & RETURN & vgamewins & RETURN & vgametotal>
+  [556] setobjprop 54 ........................... member("bluescores").text = vmaxpoints & RETURN & RETURN & vkillstoday & RETURN & vgamewins & RETURN & vgametotal
+  [558] getglobal 56 ............................ <gmem>
+  [560] pushint8 1 .............................. <1>
+  [562] pusharglist 2 ........................... <gmem, 1>
+  [564] objcall 532 ............................. <gmem.camera(1)>
+  [567] pushcons 15 ............................. <"redscores">
+  [569] pusharglist 1 ........................... <"redscores">
+  [571] extcall 13 .............................. <texy("redscores")>
+  [573] pushint8 83 ............................. <83>
+  [575] pushint16 200 ........................... <200>
+  [578] add ..................................... <83 + 200>
+  [579] pushint16 279 ........................... <279>
+  [582] pusharglist 2 ........................... <83 + 200, 279>
+  [584] extcall 627 ............................. <point(83 + 200, 279)>
+  [587] pushzero ................................ <0>
+  [588] pusharglist 4 ........................... <gmem.camera(1), texy("redscores"), point(83 + 200, 279), 0>
+  [590] objcall 648 ............................. <gmem.camera(1).addOverlay(texy("redscores"), point(83 + 200, 279), 0)>
+  [593] setlocal 9 .............................. vredtxt = gmem.camera(1).addOverlay(texy("redscores"), point(83 + 200, 279), 0)
+  [595] getglobal 56 ............................ <gmem>
+  [597] pushint8 1 .............................. <1>
+  [599] pusharglist 2 ........................... <gmem, 1>
+  [601] objcall 532 ............................. <gmem.camera(1)>
+  [604] pushsymb 649 ............................ <#overlay>
+  [607] pusharglist 2 ........................... <gmem.camera(1), #overlay>
+  [609] objcall 72 .............................. <gmem.camera(1).overlay.count>
+  [611] setprop 1286 ............................ predtxt = gmem.camera(1).overlay.count
+  [614] getglobal 56 ............................ <gmem>
+  [616] pushint8 1 .............................. <1>
+  [618] pusharglist 2 ........................... <gmem, 1>
+  [620] objcall 532 ............................. <gmem.camera(1)>
+  [623] pushcons 16 ............................. <"bluescores">
+  [625] pusharglist 1 ........................... <"bluescores">
+  [627] extcall 13 .............................. <texy("bluescores")>
+  [629] pushint16 393 ........................... <393>
+  [632] pushint16 200 ........................... <200>
+  [635] add ..................................... <393 + 200>
+  [636] pushint16 238 ........................... <238>
+  [639] pusharglist 2 ........................... <393 + 200, 238>
+  [641] extcall 627 ............................. <point(393 + 200, 238)>
+  [644] pushzero ................................ <0>
+  [645] pusharglist 4 ........................... <gmem.camera(1), texy("bluescores"), point(393 + 200, 238), 0>
+  [647] objcall 648 ............................. <gmem.camera(1).addOverlay(texy("bluescores"), point(393 + 200, 238), 0)>
+  [650] setlocal 10 ............................. vbluetxt = gmem.camera(1).addOverlay(texy("bluescores"), point(393 + 200, 238), 0)
+  [652] getglobal 56 ............................ <gmem>
+  [654] pushint8 1 .............................. <1>
+  [656] pusharglist 2 ........................... <gmem, 1>
+  [658] objcall 532 ............................. <gmem.camera(1)>
+  [661] pushsymb 649 ............................ <#overlay>
+  [664] pusharglist 2 ........................... <gmem.camera(1), #overlay>
+  [666] objcall 72 .............................. <gmem.camera(1).overlay.count>
+  [668] setprop 1287 ............................ pbluetxt = gmem.camera(1).overlay.count
+  [671] ret
+end
+
+on getaccuracy me
+  [  0] getglobal 83 ............................ <goody>
+  [  2] getchainedprop 350 ...................... <goody.pstats>
+  [  5] getobjprop 771 .......................... <goody.pstats.pshots_hit>
+  [  8] pushzero ................................ <0>
+  [  9] eq ...................................... <goody.pstats.pshots_hit = 0>
+  [ 10] jmpifz [ 19] ............................ if goody.pstats.pshots_hit = 0 then / else
+  [ 13] pushzero ................................ <0>
+  [ 14] setlocal 0 .............................. vac = 0
+  [ 16] jmp [ 49]
+  [ 19] getglobal 83 ............................ <goody>
+  [ 21] getchainedprop 350 ...................... <goody.pstats>
+  [ 24] getobjprop 771 .......................... <goody.pstats.pshots_hit>
+  [ 27] pusharglist 1 ........................... <goody.pstats.pshots_hit>
+  [ 29] extcall 97 .............................. <float(goody.pstats.pshots_hit)>
+  [ 31] getglobal 83 ............................ <goody>
+  [ 33] getchainedprop 350 ...................... <goody.pstats>
+  [ 36] getobjprop 901 .......................... <goody.pstats.pshots_total>
+  [ 39] div ..................................... <float(goody.pstats.pshots_hit) / goody.pstats.pshots_total>
+  [ 40] pushint8 100 ............................ <100>
+  [ 42] mul ..................................... <float(goody.pstats.pshots_hit) / goody.pstats.pshots_total * 100>
+  [ 43] pusharglist 1 ........................... <float(goody.pstats.pshots_hit) / goody.pstats.pshots_total * 100>
+  [ 45] extcall 96 .............................. <integer(float(goody.pstats.pshots_hit) / goody.pstats.pshots_total * 100)>
+  [ 47] setlocal 0 .............................. vac = integer(float(goody.pstats.pshots_hit) / goody.pstats.pshots_total * 100)
+  [ 49] getlocal 0 .............................. <vac>
+  [ 51] pusharglistnoret 1 ...................... <vac>
+  [ 53] extcall 40 .............................. return vac
+  [ 55] ret
+end
+
+on checkwins me
+  [  0] pushzero ................................ <0>
+  [  1] setlocal 0 .............................. vwins = 0
+  [  3] getprop 1276 ............................ <pwinners>
+  [  6] getglobal 83 ............................ <goody>
+  [  8] getobjprop 300 .......................... <goody.pteam>
+  [ 11] pusharglist 1 ........................... <goody.pteam>
+  [ 13] extcall 59 .............................. <string(goody.pteam)>
+  [ 15] eq ...................................... <pwinners = string(goody.pteam)>
+  [ 16] jmpifz [ 23] ............................ if pwinners = string(goody.pteam) then
+  [ 19] pushint8 1 .............................. <1>
+  [ 21] setlocal 0 .............................. vwins = 1
+  [ 23] getlocal 0 .............................. <vwins>
+  [ 25] pusharglistnoret 1 ...................... <vwins>
+  [ 27] extcall 40 .............................. return vwins
+  [ 29] ret
+end
+
+on getrating me
+  [  0] getglobal 83 ............................ <goody>
+  [  2] getchainedprop 350 ...................... <goody.pstats>
+  [  5] getobjprop 318 .......................... <goody.pstats.pscore>
+  [  8] pushint8 10 ............................. <10>
+  [ 10] lt ...................................... <goody.pstats.pscore < 10>
+  [ 11] jmpifz [ 21] ............................ if goody.pstats.pscore < 10 then / else
+  [ 14] pushcons 31 ............................. <"1/10">
+  [ 16] setlocal 0 .............................. vrating = "1/10"
+  [ 18] jmp [134]
+  [ 21] getglobal 83 ............................ <goody>
+  [ 23] getchainedprop 350 ...................... <goody.pstats>
+  [ 26] getobjprop 318 .......................... <goody.pstats.pscore>
+  [ 29] pushint8 100 ............................ <100>
+  [ 31] lt ...................................... <goody.pstats.pscore < 100>
+  [ 32] jmpifz [ 42] ............................ if goody.pstats.pscore < 100 then / else
+  [ 35] pushcons 32 ............................. <"2/10">
+  [ 37] setlocal 0 .............................. vrating = "2/10"
+  [ 39] jmp [134]
+  [ 42] getglobal 83 ............................ <goody>
+  [ 44] getchainedprop 350 ...................... <goody.pstats>
+  [ 47] getobjprop 318 .......................... <goody.pstats.pscore>
+  [ 50] pushint16 500 ........................... <500>
+  [ 53] lt ...................................... <goody.pstats.pscore < 500>
+  [ 54] jmpifz [ 64] ............................ if goody.pstats.pscore < 500 then / else
+  [ 57] pushcons 33 ............................. <"4/10">
+  [ 59] setlocal 0 .............................. vrating = "4/10"
+  [ 61] jmp [134]
+  [ 64] getglobal 83 ............................ <goody>
+  [ 66] getchainedprop 350 ...................... <goody.pstats>
+  [ 69] getobjprop 318 .......................... <goody.pstats.pscore>
+  [ 72] pushint16 2000 .......................... <2000>
+  [ 75] lt ...................................... <goody.pstats.pscore < 2000>
+  [ 76] jmpifz [ 86] ............................ if goody.pstats.pscore < 2000 then / else
+  [ 79] pushcons 34 ............................. <"6/10">
+  [ 81] setlocal 0 .............................. vrating = "6/10"
+  [ 83] jmp [134]
+  [ 86] getglobal 83 ............................ <goody>
+  [ 88] getchainedprop 350 ...................... <goody.pstats>
+  [ 91] getobjprop 318 .......................... <goody.pstats.pscore>
+  [ 94] pushint16 3500 .......................... <3500>
+  [ 97] lt ...................................... <goody.pstats.pscore < 3500>
+  [ 98] jmpifz [108] ............................ if goody.pstats.pscore < 3500 then / else
+  [101] pushcons 35 ............................. <"7/10">
+  [103] setlocal 0 .............................. vrating = "7/10"
+  [105] jmp [134]
+  [108] getglobal 83 ............................ <goody>
+  [110] getchainedprop 350 ...................... <goody.pstats>
+  [113] getobjprop 318 .......................... <goody.pstats.pscore>
+  [116] pushint16 5000 .......................... <5000>
+  [119] lt ...................................... <goody.pstats.pscore < 5000>
+  [120] jmpifz [130] ............................ if goody.pstats.pscore < 5000 then / else
+  [123] pushcons 36 ............................. <"8/10">
+  [125] setlocal 0 .............................. vrating = "8/10"
+  [127] jmp [134]
+  [130] pushcons 37 ............................. <"10/10">
+  [132] setlocal 0 .............................. vrating = "10/10"
+  [134] getlocal 0 .............................. <vrating>
+  [136] pusharglistnoret 1 ...................... <vrating>
+  [138] extcall 40 .............................. return vrating
+  [140] ret
+end
+
+on doscores me
+  [  0] getglobal 56 ............................ <gmem>
+  [  2] pushint8 1 .............................. <1>
+  [  4] pusharglist 2 ........................... <gmem, 1>
+  [  6] objcall 532 ............................. <gmem.camera(1)>
+  [  9] pushsymb 649 ............................ <#overlay>
+  [ 12] pushint8 2 .............................. <2>
+  [ 14] pusharglist 3 ........................... <gmem.camera(1), #overlay, 2>
+  [ 16] objcall 650 ............................. <gmem.camera(1).overlay[2]>
+  [ 19] pushzero ................................ <0>
+  [ 20] setobjprop 151 .......................... gmem.camera(1).overlay[2].blend = 0
+  [ 22] pushcons 0 .............................. <"UI_trans">
+  [ 24] pusharglist 1 ........................... <"UI_trans">
+  [ 26] extcall 52 .............................. <member("UI_trans")>
+  [ 28] pushint8 4 .............................. <4>
+  [ 30] setobjprop 132 .......................... member("UI_trans").posterFrame = 4
+  [ 32] pushcons 0 .............................. <"UI_trans">
+  [ 34] pusharglistnoret 1 ...................... <"UI_trans">
+  [ 36] extcall 13 .............................. texy("UI_trans")
+  [ 38] pushcons 15 ............................. <"redscores">
+  [ 40] pusharglist 1 ........................... <"redscores">
+  [ 42] extcall 52 .............................. <member("redscores")>
+  [ 44] pushcons 5 .............................. <EMPTY>
+  [ 46] setobjprop 54 ........................... member("redscores").text = EMPTY
+  [ 48] pushcons 16 ............................. <"bluescores">
+  [ 50] pusharglist 1 ........................... <"bluescores">
+  [ 52] extcall 52 .............................. <member("bluescores")>
+  [ 54] pushcons 5 .............................. <EMPTY>
+  [ 56] setobjprop 54 ........................... member("bluescores").text = EMPTY
+  [ 58] pusharglist 0 ........................... <[:]>
+  [ 60] pushproplist ............................ <[:]>
+  [ 61] setlocal 0 .............................. vreds = [:]
+  [ 63] pusharglist 0 ........................... <[:]>
+  [ 65] pushproplist ............................ <[:]>
+  [ 66] setlocal 1 .............................. vblues = [:]
+  [ 68] pushint8 1 .............................. <1>
+  [ 70] setlocal 2
+  [ 72] getlocal 2
+  [ 74] getglobal 79 ............................ <gplayers>
+  [ 76] getobjprop 72 ........................... <gplayers.count>
+  [ 78] lteq
+  [ 79] jmpifz [193] ............................ repeat with i = 1 to gplayers.count
+  [ 82] getglobal 79 ............................ <gplayers>
+  [ 84] getlocal 2 .............................. <i>
+  [ 86] pusharglist 2 ........................... <gplayers, i>
+  [ 88] objcall 73 .............................. <gplayers[i]>
+  [ 90] getobjprop 300 .......................... <gplayers[i].pteam>
+  [ 93] pusharglist 1 ........................... <gplayers[i].pteam>
+  [ 95] extcall 59 .............................. <string(gplayers[i].pteam)>
+  [ 97] pushcons 7 .............................. <"red">
+  [ 99] eq ...................................... <string(gplayers[i].pteam) = "red">
+  [100] jmpifz [145] ............................ if string(gplayers[i].pteam) = "red" then
+  [103] getlocal 0 .............................. <vreds>
+  [105] pushcons 38 ............................. <"#">
+  [107] getglobal 79 ............................ <gplayers>
+  [109] getlocal 2 .............................. <i>
+  [111] pusharglist 2 ........................... <gplayers, i>
+  [113] objcall 73 .............................. <gplayers[i]>
+  [115] getobjprop 318 .......................... <gplayers[i].pscore>
+  [118] pusharglist 1 ........................... <gplayers[i].pscore>
+  [120] extcall 59 .............................. <string(gplayers[i].pscore)>
+  [122] joinstr ................................. <"#" & string(gplayers[i].pscore)>
+  [123] pusharglist 1 ........................... <"#" & string(gplayers[i].pscore)>
+  [125] extcall 62 .............................. <value("#" & string(gplayers[i].pscore))>
+  [127] getglobal 79 ............................ <gplayers>
+  [129] getlocal 2 .............................. <i>
+  [131] pusharglist 2 ........................... <gplayers, i>
+  [133] objcall 73 .............................. <gplayers[i]>
+  [135] getobjprop 301 .......................... <gplayers[i].pname>
+  [138] pusharglistnoret 3 ...................... <vreds, value("#" & string(gplayers[i].pscore)), gplayers[i].pname>
+  [140] objcall 198 ............................. vreds.addProp(value("#" & string(gplayers[i].pscore)), gplayers[i].pname)
+  [142] jmp [184] ............................... next repeat
+  [145] getlocal 1 .............................. <vblues>
+  [147] pushcons 38 ............................. <"#">
+  [149] getglobal 79 ............................ <gplayers>
+  [151] getlocal 2 .............................. <i>
+  [153] pusharglist 2 ........................... <gplayers, i>
+  [155] objcall 73 .............................. <gplayers[i]>
+  [157] getobjprop 318 .......................... <gplayers[i].pscore>
+  [160] pusharglist 1 ........................... <gplayers[i].pscore>
+  [162] extcall 59 .............................. <string(gplayers[i].pscore)>
+  [164] joinstr ................................. <"#" & string(gplayers[i].pscore)>
+  [165] pusharglist 1 ........................... <"#" & string(gplayers[i].pscore)>
+  [167] extcall 62 .............................. <value("#" & string(gplayers[i].pscore))>
+  [169] getglobal 79 ............................ <gplayers>
+  [171] getlocal 2 .............................. <i>
+  [173] pusharglist 2 ........................... <gplayers, i>
+  [175] objcall 73 .............................. <gplayers[i]>
+  [177] getobjprop 301 .......................... <gplayers[i].pname>
+  [180] pusharglistnoret 3 ...................... <vblues, value("#" & string(gplayers[i].pscore)), gplayers[i].pname>
+  [182] objcall 198 ............................. vblues.addProp(value("#" & string(gplayers[i].pscore)), gplayers[i].pname)
+  [184] pushint8 1
+  [186] getlocal 2
+  [188] add
+  [189] setlocal 2
+  [191] endrepeat [ 72]
+  [193] getlocal 0 .............................. <vreds>
+  [195] pusharglistnoret 1 ...................... <vreds>
+  [197] objcall 1298 ............................ vreds.sort()
+  [200] getlocal 0 .............................. <vreds>
+  [202] getobjprop 72 ........................... <vreds.count>
+  [204] pushzero ................................ <0>
+  [205] gt ...................................... <vreds.count > 0>
+  [206] jmpifz [257] ............................ if vreds.count > 0 then
+  [209] getlocal 0 .............................. <vreds>
+  [211] getlocal 0 .............................. <vreds>
+  [213] getobjprop 72 ........................... <vreds.count>
+  [215] pusharglist 2 ........................... <vreds, vreds.count>
+  [217] objcall 73 .............................. <vreds[vreds.count]>
+  [219] getglobal 83 ............................ <goody>
+  [221] getobjprop 301 .......................... <goody.pname>
+  [224] eq ...................................... <vreds[vreds.count] = goody.pname>
+  [225] jmpifz [257] ............................ if vreds[vreds.count] = goody.pname then
+  [228] getlocal 0 .............................. <vreds>
+  [230] getglobal 83 ............................ <goody>
+  [232] getobjprop 301 .......................... <goody.pname>
+  [235] pusharglist 2 ........................... <vreds, goody.pname>
+  [237] objcall 111 ............................. <vreds.getOne(goody.pname)>
+  [239] getglobal 83 ............................ <goody>
+  [241] getchainedprop 350 ...................... <goody.pstats>
+  [244] getobjprop 318 .......................... <goody.pstats.pscore>
+  [247] eq ...................................... <vreds.getOne(goody.pname) = goody.pstats.pscore>
+  [248] jmpifz [257] ............................ if vreds.getOne(goody.pname) = goody.pstats.pscore then
+  [251] getparam 0 .............................. <me>
+  [253] pusharglistnoret 1 ...................... <me>
+  [255] localcall 6 ............................. submithighscore(me)
+  [257] pushint8 1 .............................. <1>
+  [259] setlocal 2
+  [261] getlocal 2
+  [263] getlocal 0 .............................. <vreds>
+  [265] getobjprop 72 ........................... <vreds.count>
+  [267] lteq
+  [268] jmpifz [443] ............................ repeat with i = 1 to vreds.count
+  [271] pushcons 15 ............................. <"redscores">
+  [273] pusharglist 1 ........................... <"redscores">
+  [275] extcall 52 .............................. <member("redscores")>
+  [277] pushcons 15 ............................. <"redscores">
+  [279] pusharglist 1 ........................... <"redscores">
+  [281] extcall 52 .............................. <member("redscores")>
+  [283] getobjprop 54 ........................... <member("redscores").text>
+  [285] getlocal 0 .............................. <vreds>
+  [287] getlocal 0 .............................. <vreds>
+  [289] getobjprop 72 ........................... <vreds.count>
+  [291] pushint8 1 .............................. <1>
+  [293] add ..................................... <vreds.count + 1>
+  [294] getlocal 2 .............................. <i>
+  [296] sub ..................................... <vreds.count + 1 - i>
+  [297] pusharglist 2 ........................... <vreds, vreds.count + 1 - i>
+  [299] objcall 73 .............................. <vreds[vreds.count + 1 - i]>
+  [301] joinstr ................................. <member("redscores").text & vreds[vreds.count + 1 - i]>
+  [302] setobjprop 54 ........................... member("redscores").text = member("redscores").text & vreds[vreds.count + 1 - i]
+  [304] getlocal 0 .............................. <vreds>
+  [306] getlocal 0 .............................. <vreds>
+  [308] getobjprop 72 ........................... <vreds.count>
+  [310] pushint8 1 .............................. <1>
+  [312] add ..................................... <vreds.count + 1>
+  [313] getlocal 2 .............................. <i>
+  [315] sub ..................................... <vreds.count + 1 - i>
+  [316] pusharglist 2 ........................... <vreds, vreds.count + 1 - i>
+  [318] objcall 73 .............................. <vreds[vreds.count + 1 - i]>
+  [320] setlocal 3 .............................. qwe = vreds[vreds.count + 1 - i]
+  [322] getlocal 3 .............................. <qwe>
+  [324] pusharglist 1 ........................... <qwe>
+  [326] extcall 59 .............................. <string(qwe)>
+  [328] pushsymb 405 ............................ <#char>
+  [331] pusharglist 2 ........................... <string(qwe), #char>
+  [333] objcall 72 .............................. <string(qwe).char.count>
+  [335] setlocal 3 .............................. qwe = string(qwe).char.count
+  [337] getlocal 3 .............................. <qwe>
+  [339] pusharglist 1 ........................... <qwe>
+  [341] extcall 96 .............................. <integer(qwe)>
+  [343] setlocal 3 .............................. qwe = integer(qwe)
+  [345] pushint8 17 ............................. <17>
+  [347] getlocal 3 .............................. <qwe>
+  [349] sub ..................................... <17 - qwe>
+  [350] setlocal 3 .............................. qwe = 17 - qwe
+  [352] pushint8 1 .............................. <1>
+  [354] setlocal 4
+  [356] getlocal 4
+  [358] getlocal 3 .............................. <qwe>
+  [360] lteq
+  [361] jmpifz [392] ............................ repeat with v = 1 to qwe
+  [364] pushcons 15 ............................. <"redscores">
+  [366] pusharglist 1 ........................... <"redscores">
+  [368] extcall 52 .............................. <member("redscores")>
+  [370] pushcons 15 ............................. <"redscores">
+  [372] pusharglist 1 ........................... <"redscores">
+  [374] extcall 52 .............................. <member("redscores")>
+  [376] getobjprop 54 ........................... <member("redscores").text>
+  [378] pushcons 39 ............................. <"_">
+  [380] joinstr ................................. <member("redscores").text & "_">
+  [381] setobjprop 54 ........................... member("redscores").text = member("redscores").text & "_"
+  [383] pushint8 1
+  [385] getlocal 4
+  [387] add
+  [388] setlocal 4
+  [390] endrepeat [356]
+  [392] pushcons 15 ............................. <"redscores">
+  [394] pusharglist 1 ........................... <"redscores">
+  [396] extcall 52 .............................. <member("redscores")>
+  [398] pushcons 15 ............................. <"redscores">
+  [400] pusharglist 1 ........................... <"redscores">
+  [402] extcall 52 .............................. <member("redscores")>
+  [404] getobjprop 54 ........................... <member("redscores").text>
+  [406] getlocal 0 .............................. <vreds>
+  [408] getlocal 0 .............................. <vreds>
+  [410] getlocal 0 .............................. <vreds>
+  [412] getobjprop 72 ........................... <vreds.count>
+  [414] pushint8 1 .............................. <1>
+  [416] add ..................................... <vreds.count + 1>
+  [417] getlocal 2 .............................. <i>
+  [419] sub ..................................... <vreds.count + 1 - i>
+  [420] pusharglist 2 ........................... <vreds, vreds.count + 1 - i>
+  [422] objcall 73 .............................. <vreds[vreds.count + 1 - i]>
+  [424] pusharglist 2 ........................... <vreds, vreds[vreds.count + 1 - i]>
+  [426] objcall 111 ............................. <vreds.getOne(vreds[vreds.count + 1 - i])>
+  [428] joinstr ................................. <member("redscores").text & vreds.getOne(vreds[vreds.count + 1 - i])>
+  [429] pushcons 30 ............................. <RETURN>
+  [431] joinstr ................................. <member("redscores").text & vreds.getOne(vreds[vreds.count + 1 - i]) & RETURN>
+  [432] setobjprop 54 ........................... member("redscores").text = member("redscores").text & vreds.getOne(vreds[vreds.count + 1 - i]) & RETURN
+  [434] pushint8 1
+  [436] getlocal 2
+  [438] add
+  [439] setlocal 2
+  [441] endrepeat [261]
+  [443] pushcons 15 ............................. <"redscores">
+  [445] pusharglistnoret 1 ...................... <"redscores">
+  [447] extcall 13 .............................. texy("redscores")
+  [449] getlocal 1 .............................. <vblues>
+  [451] pusharglistnoret 1 ...................... <vblues>
+  [453] objcall 1298 ............................ vblues.sort()
+  [456] getlocal 1 .............................. <vblues>
+  [458] getobjprop 72 ........................... <vblues.count>
+  [460] pushzero ................................ <0>
+  [461] gt ...................................... <vblues.count > 0>
+  [462] jmpifz [513] ............................ if vblues.count > 0 then
+  [465] getlocal 1 .............................. <vblues>
+  [467] getlocal 1 .............................. <vblues>
+  [469] getobjprop 72 ........................... <vblues.count>
+  [471] pusharglist 2 ........................... <vblues, vblues.count>
+  [473] objcall 73 .............................. <vblues[vblues.count]>
+  [475] getglobal 83 ............................ <goody>
+  [477] getobjprop 301 .......................... <goody.pname>
+  [480] eq ...................................... <vblues[vblues.count] = goody.pname>
+  [481] jmpifz [513] ............................ if vblues[vblues.count] = goody.pname then
+  [484] getlocal 1 .............................. <vblues>
+  [486] getglobal 83 ............................ <goody>
+  [488] getobjprop 301 .......................... <goody.pname>
+  [491] pusharglist 2 ........................... <vblues, goody.pname>
+  [493] objcall 111 ............................. <vblues.getOne(goody.pname)>
+  [495] getglobal 83 ............................ <goody>
+  [497] getchainedprop 350 ...................... <goody.pstats>
+  [500] getobjprop 318 .......................... <goody.pstats.pscore>
+  [503] eq ...................................... <vblues.getOne(goody.pname) = goody.pstats.pscore>
+  [504] jmpifz [513] ............................ if vblues.getOne(goody.pname) = goody.pstats.pscore then
+  [507] getparam 0 .............................. <me>
+  [509] pusharglistnoret 1 ...................... <me>
+  [511] localcall 6 ............................. submithighscore(me)
+  [513] pushint8 1 .............................. <1>
+  [515] setlocal 2
+  [517] getlocal 2
+  [519] getlocal 1 .............................. <vblues>
+  [521] getobjprop 72 ........................... <vblues.count>
+  [523] lteq
+  [524] jmpifz [699] ............................ repeat with i = 1 to vblues.count
+  [527] pushcons 16 ............................. <"bluescores">
+  [529] pusharglist 1 ........................... <"bluescores">
+  [531] extcall 52 .............................. <member("bluescores")>
+  [533] pushcons 16 ............................. <"bluescores">
+  [535] pusharglist 1 ........................... <"bluescores">
+  [537] extcall 52 .............................. <member("bluescores")>
+  [539] getobjprop 54 ........................... <member("bluescores").text>
+  [541] getlocal 1 .............................. <vblues>
+  [543] getlocal 1 .............................. <vblues>
+  [545] getobjprop 72 ........................... <vblues.count>
+  [547] pushint8 1 .............................. <1>
+  [549] add ..................................... <vblues.count + 1>
+  [550] getlocal 2 .............................. <i>
+  [552] sub ..................................... <vblues.count + 1 - i>
+  [553] pusharglist 2 ........................... <vblues, vblues.count + 1 - i>
+  [555] objcall 73 .............................. <vblues[vblues.count + 1 - i]>
+  [557] joinstr ................................. <member("bluescores").text & vblues[vblues.count + 1 - i]>
+  [558] setobjprop 54 ........................... member("bluescores").text = member("bluescores").text & vblues[vblues.count + 1 - i]
+  [560] getlocal 1 .............................. <vblues>
+  [562] getlocal 1 .............................. <vblues>
+  [564] getobjprop 72 ........................... <vblues.count>
+  [566] pushint8 1 .............................. <1>
+  [568] add ..................................... <vblues.count + 1>
+  [569] getlocal 2 .............................. <i>
+  [571] sub ..................................... <vblues.count + 1 - i>
+  [572] pusharglist 2 ........................... <vblues, vblues.count + 1 - i>
+  [574] objcall 73 .............................. <vblues[vblues.count + 1 - i]>
+  [576] setlocal 3 .............................. qwe = vblues[vblues.count + 1 - i]
+  [578] getlocal 3 .............................. <qwe>
+  [580] pusharglist 1 ........................... <qwe>
+  [582] extcall 59 .............................. <string(qwe)>
+  [584] pushsymb 405 ............................ <#char>
+  [587] pusharglist 2 ........................... <string(qwe), #char>
+  [589] objcall 72 .............................. <string(qwe).char.count>
+  [591] setlocal 3 .............................. qwe = string(qwe).char.count
+  [593] getlocal 3 .............................. <qwe>
+  [595] pusharglist 1 ........................... <qwe>
+  [597] extcall 96 .............................. <integer(qwe)>
+  [599] setlocal 3 .............................. qwe = integer(qwe)
+  [601] pushint8 17 ............................. <17>
+  [603] getlocal 3 .............................. <qwe>
+  [605] sub ..................................... <17 - qwe>
+  [606] setlocal 3 .............................. qwe = 17 - qwe
+  [608] pushint8 1 .............................. <1>
+  [610] setlocal 4
+  [612] getlocal 4
+  [614] getlocal 3 .............................. <qwe>
+  [616] lteq
+  [617] jmpifz [648] ............................ repeat with v = 1 to qwe
+  [620] pushcons 16 ............................. <"bluescores">
+  [622] pusharglist 1 ........................... <"bluescores">
+  [624] extcall 52 .............................. <member("bluescores")>
+  [626] pushcons 16 ............................. <"bluescores">
+  [628] pusharglist 1 ........................... <"bluescores">
+  [630] extcall 52 .............................. <member("bluescores")>
+  [632] getobjprop 54 ........................... <member("bluescores").text>
+  [634] pushcons 39 ............................. <"_">
+  [636] joinstr ................................. <member("bluescores").text & "_">
+  [637] setobjprop 54 ........................... member("bluescores").text = member("bluescores").text & "_"
+  [639] pushint8 1
+  [641] getlocal 4
+  [643] add
+  [644] setlocal 4
+  [646] endrepeat [612]
+  [648] pushcons 16 ............................. <"bluescores">
+  [650] pusharglist 1 ........................... <"bluescores">
+  [652] extcall 52 .............................. <member("bluescores")>
+  [654] pushcons 16 ............................. <"bluescores">
+  [656] pusharglist 1 ........................... <"bluescores">
+  [658] extcall 52 .............................. <member("bluescores")>
+  [660] getobjprop 54 ........................... <member("bluescores").text>
+  [662] getlocal 1 .............................. <vblues>
+  [664] getlocal 1 .............................. <vblues>
+  [666] getlocal 1 .............................. <vblues>
+  [668] getobjprop 72 ........................... <vblues.count>
+  [670] pushint8 1 .............................. <1>
+  [672] add ..................................... <vblues.count + 1>
+  [673] getlocal 2 .............................. <i>
+  [675] sub ..................................... <vblues.count + 1 - i>
+  [676] pusharglist 2 ........................... <vblues, vblues.count + 1 - i>
+  [678] objcall 73 .............................. <vblues[vblues.count + 1 - i]>
+  [680] pusharglist 2 ........................... <vblues, vblues[vblues.count + 1 - i]>
+  [682] objcall 111 ............................. <vblues.getOne(vblues[vblues.count + 1 - i])>
+  [684] joinstr ................................. <member("bluescores").text & vblues.getOne(vblues[vblues.count + 1 - i])>
+  [685] pushcons 30 ............................. <RETURN>
+  [687] joinstr ................................. <member("bluescores").text & vblues.getOne(vblues[vblues.count + 1 - i]) & RETURN>
+  [688] setobjprop 54 ........................... member("bluescores").text = member("bluescores").text & vblues.getOne(vblues[vblues.count + 1 - i]) & RETURN
+  [690] pushint8 1
+  [692] getlocal 2
+  [694] add
+  [695] setlocal 2
+  [697] endrepeat [517]
+  [699] pushcons 16 ............................. <"bluescores">
+  [701] pusharglistnoret 1 ...................... <"bluescores">
+  [703] extcall 13 .............................. texy("bluescores")
+  [705] getglobal 56 ............................ <gmem>
+  [707] pushint8 1 .............................. <1>
+  [709] pusharglist 2 ........................... <gmem, 1>
+  [711] objcall 532 ............................. <gmem.camera(1)>
+  [714] pushsymb 649 ............................ <#overlay>
+  [717] getprop 1286 ............................ <predtxt>
+  [720] pusharglist 3 ........................... <gmem.camera(1), #overlay, predtxt>
+  [722] objcall 650 ............................. <gmem.camera(1).overlay[predtxt]>
+  [725] pushint8 83 ............................. <83>
+  [727] pushint16 279 ........................... <279>
+  [730] pusharglist 2 ........................... <83, 279>
+  [732] extcall 627 ............................. <point(83, 279)>
+  [735] setobjprop 690 .......................... gmem.camera(1).overlay[predtxt].loc = point(83, 279)
+  [738] getglobal 56 ............................ <gmem>
+  [740] pushint8 1 .............................. <1>
+  [742] pusharglist 2 ........................... <gmem, 1>
+  [744] objcall 532 ............................. <gmem.camera(1)>
+  [747] pushsymb 649 ............................ <#overlay>
+  [750] getprop 1287 ............................ <pbluetxt>
+  [753] pusharglist 3 ........................... <gmem.camera(1), #overlay, pbluetxt>
+  [755] objcall 650 ............................. <gmem.camera(1).overlay[pbluetxt]>
+  [758] pushint16 393 ........................... <393>
+  [761] pushint16 238 ........................... <238>
+  [764] pusharglist 2 ........................... <393, 238>
+  [766] extcall 627 ............................. <point(393, 238)>
+  [769] setobjprop 690 .......................... gmem.camera(1).overlay[pbluetxt].loc = point(393, 238)
+  [772] getglobal 191 ........................... <gisloggedin>
+  [774] jmpifz [847] ............................ if gisloggedin then
+  [777] getglobal 83 ............................ <goody>
+  [779] getchainedprop 350 ...................... <goody.pstats>
+  [782] getparam 0 .............................. <me>
+  [784] pusharglist 1 ........................... <me>
+  [786] localcall 3 ............................. <checkwins(me)>
+  [788] setobjprop 1017 ......................... goody.pstats.pwin = checkwins(me)
+  [791] getlocal 0 .............................. <vreds>
+  [793] getlocal 0 .............................. <vreds>
+  [795] getobjprop 72 ........................... <vreds.count>
+  [797] pusharglist 2 ........................... <vreds, vreds.count>
+  [799] objcall 73 .............................. <vreds[vreds.count]>
+  [801] getglobal 83 ............................ <goody>
+  [803] getobjprop 301 .......................... <goody.pname>
+  [806] eq ...................................... <vreds[vreds.count] = goody.pname>
+  [807] getlocal 1 .............................. <vblues>
+  [809] getlocal 1 .............................. <vblues>
+  [811] getobjprop 72 ........................... <vblues.count>
+  [813] pusharglist 2 ........................... <vblues, vblues.count>
+  [815] objcall 73 .............................. <vblues[vblues.count]>
+  [817] getglobal 83 ............................ <goody>
+  [819] getobjprop 301 .......................... <goody.pname>
+  [822] eq ...................................... <vblues[vblues.count] = goody.pname>
+  [823] or ...................................... <(vreds[vreds.count] = goody.pname) or (vblues[vblues.count] = goody.pname)>
+  [824] jmpifz [837] ............................ if (vreds[vreds.count] = goody.pname) or (vblues[vblues.count] = goody.pname) then
+  [827] getglobal 83 ............................ <goody>
+  [829] getchainedprop 350 ...................... <goody.pstats>
+  [832] pushint8 1 .............................. <1>
+  [834] setobjprop 1018 ......................... goody.pstats.ptopscore = 1
+  [837] getglobal 83 ............................ <goody>
+  [839] getchainedprop 350 ...................... <goody.pstats>
+  [842] pusharglistnoret 1 ...................... <goody.pstats>
+  [844] objcall 1009 ............................ goody.pstats.updatestats()
+  [847] ret
+end
+
+on submithighscore me
+  [  0] getprop 1275 ............................ <pscoresent>
+  [  3] jmpifz [176] ............................ if pscoresent then
+  [  6] getglobal 83 ............................ <goody>
+  [  8] getchainedprop 350 ...................... <goody.pstats>
+  [ 11] getobjprop 318 .......................... <goody.pstats.pscore>
+  [ 14] getglobal 581 ........................... <goldscore>
+  [ 17] pushcons 40 ............................. <8.29564210000000024>
+  [ 19] mul ..................................... <goldscore * 8.29564210000000024>
+  [ 20] pusharglist 1 ........................... <goldscore * 8.29564210000000024>
+  [ 22] extcall 96 .............................. <integer(goldscore * 8.29564210000000024)>
+  [ 24] eq ...................................... <goody.pstats.pscore = integer(goldscore * 8.29564210000000024)>
+  [ 25] jmpifz [172] ............................ if goody.pstats.pscore = integer(goldscore * 8.29564210000000024) then
+  [ 28] getglobal 83 ............................ <goody>
+  [ 30] getchainedprop 350 ...................... <goody.pstats>
+  [ 33] getobjprop 318 .......................... <goody.pstats.pscore>
+  [ 36] pushint8 100 ............................ <100>
+  [ 38] gt ...................................... <goody.pstats.pscore > 100>
+  [ 39] jmpifz [172] ............................ if goody.pstats.pscore > 100 then
+  [ 42] pushcons 41 ............................. <"http://www.gamevial.com/scoreboard.php">
+  [ 44] setlocal 0 .............................. vurl = "http://www.gamevial.com/scoreboard.php"
+  [ 46] pushcons 42 ............................. <"game">
+  [ 48] pushcons 43 ............................. <"tt">
+  [ 50] getglobal 422 ........................... <glevel>
+  [ 53] getobjprop 416 .......................... <glevel.name>
+  [ 56] joinstr ................................. <"tt" & glevel.name>
+  [ 57] getglobal 422 ........................... <glevel>
+  [ 60] getobjprop 421 .......................... <glevel.level>
+  [ 63] joinstr ................................. <"tt" & glevel.name & glevel.level>
+  [ 64] pushcons 44 ............................. <"score">
+  [ 66] getglobal 83 ............................ <goody>
+  [ 68] getchainedprop 350 ...................... <goody.pstats>
+  [ 71] getobjprop 318 .......................... <goody.pstats.pscore>
+  [ 74] pushcons 45 ............................. <"nickname">
+  [ 76] getglobal 83 ............................ <goody>
+  [ 78] getobjprop 301 .......................... <goody.pname>
+  [ 81] pusharglist 6 ........................... <["game": "tt" & glevel.name & glevel.level, "score": goody.pstats.pscore, "nickname": goody.pname]>
+  [ 83] pushproplist ............................ <["game": "tt" & glevel.name & glevel.level, "score": goody.pstats.pscore, "nickname": goody.pname]>
+  [ 84] setlocal 1 .............................. vdata = ["game": "tt" & glevel.name & glevel.level, "score": goody.pstats.pscore, "nickname": goody.pname]
+  [ 86] getlocal 0 .............................. <vurl>
+  [ 88] getlocal 1 .............................. <vdata>
+  [ 90] pusharglistnoret 2 ...................... <vurl, vdata>
+  [ 92] extcall 1053 ............................ postNetText(vurl, vdata)
+  [ 95] pushcons 42 ............................. <"game">
+  [ 97] pushcons 46 ............................. <"teamtanks">
+  [ 99] pushcons 44 ............................. <"score">
+  [101] getglobal 83 ............................ <goody>
+  [103] getchainedprop 350 ...................... <goody.pstats>
+  [106] getobjprop 318 .......................... <goody.pstats.pscore>
+  [109] pushcons 45 ............................. <"nickname">
+  [111] getglobal 83 ............................ <goody>
+  [113] getobjprop 301 .......................... <goody.pname>
+  [116] pusharglist 6 ........................... <["game": "teamtanks", "score": goody.pstats.pscore, "nickname": goody.pname]>
+  [118] pushproplist ............................ <["game": "teamtanks", "score": goody.pstats.pscore, "nickname": goody.pname]>
+  [119] setlocal 1 .............................. vdata = ["game": "teamtanks", "score": goody.pstats.pscore, "nickname": goody.pname]
+  [121] pushcons 41 ............................. <"http://www.gamevial.com/scoreboard.php">
+  [123] getlocal 1 .............................. <vdata>
+  [125] pusharglistnoret 2 ...................... <"http://www.gamevial.com/scoreboard.php", vdata>
+  [127] extcall 1053 ............................ postNetText("http://www.gamevial.com/scoreboard.php", vdata)
+  [130] pushcons 9 .............................. <"scoresubmitted">
+  [132] pusharglist 1 ........................... <"scoresubmitted">
+  [134] extcall 52 .............................. <member("scoresubmitted")>
+  [136] pushcons 47 ............................. <"Highscore Added">
+  [138] setobjprop 54 ........................... member("scoresubmitted").text = "Highscore Added"
+  [140] getglobal 56 ............................ <gmem>
+  [142] pushint8 1 .............................. <1>
+  [144] pusharglist 2 ........................... <gmem, 1>
+  [146] objcall 532 ............................. <gmem.camera(1)>
+  [149] pushcons 9 .............................. <"scoresubmitted">
+  [151] pusharglist 1 ........................... <"scoresubmitted">
+  [153] extcall 13 .............................. <texy("scoresubmitted")>
+  [155] pushint16 587 ........................... <587>
+  [158] pushint16 487 ........................... <487>
+  [161] pusharglist 2 ........................... <587, 487>
+  [163] extcall 627 ............................. <point(587, 487)>
+  [166] pushzero ................................ <0>
+  [167] pusharglistnoret 4 ...................... <gmem.camera(1), texy("scoresubmitted"), point(587, 487), 0>
+  [169] objcall 648 ............................. gmem.camera(1).addOverlay(texy("scoresubmitted"), point(587, 487), 0)
+  [172] pushzero ................................ <0>
+  [173] setprop 1275 ............................ pscoresent = 0
+  [176] ret
+end
+
+on exitFrame me
+  [  0] pusharglist 0 ........................... <>
+  [  2] extcall 11 .............................. <checkgoody()>
+  [  4] jmpifz [195] ............................ if checkgoody() then
+  [  7] getprop 1277 ............................ <ptimer>
+  [ 10] pushint8 34 ............................. <34>
+  [ 12] get 7 ................................... <the timer>
+  [ 14] pushint8 60 ............................. <60>
+  [ 16] div ..................................... <the timer / 60>
+  [ 17] nteq .................................... <ptimer <> (the timer / 60)>
+  [ 18] jmpifz [ 91] ............................ if ptimer <> (the timer / 60) then
+  [ 21] pushint8 34 ............................. <34>
+  [ 23] get 7 ................................... <the timer>
+  [ 25] pushint8 60 ............................. <60>
+  [ 27] div ..................................... <the timer / 60>
+  [ 28] setprop 1277 ............................ ptimer = the timer / 60
+  [ 31] pushcons 8 .............................. <"scoretimer">
+  [ 33] pusharglist 1 ........................... <"scoretimer">
+  [ 35] extcall 52 .............................. <member("scoretimer")>
+  [ 37] pushint8 16 ............................. <16>
+  [ 39] getprop 1277 ............................ <ptimer>
+  [ 42] sub ..................................... <16 - ptimer>
+  [ 43] pusharglist 1 ........................... <16 - ptimer>
+  [ 45] extcall 59 .............................. <string(16 - ptimer)>
+  [ 47] setobjprop 54 ........................... member("scoretimer").text = string(16 - ptimer)
+  [ 49] getglobal 56 ............................ <gmem>
+  [ 51] pushcons 8 .............................. <"scoretimer">
+  [ 53] pusharglist 2 ........................... <gmem, "scoretimer">
+  [ 55] objcall 57 .............................. <gmem.texture("scoretimer")>
+  [ 57] pushcons 8 .............................. <"scoretimer">
+  [ 59] pusharglist 1 ........................... <"scoretimer">
+  [ 61] extcall 52 .............................. <member("scoretimer")>
+  [ 63] setobjprop 52 ........................... gmem.texture("scoretimer").member = member("scoretimer")
+  [ 65] getprop 661 ............................. <pingserver>
+  [ 68] pushint8 1 .............................. <1>
+  [ 70] add ..................................... <pingserver + 1>
+  [ 71] setprop 661 ............................. pingserver = pingserver + 1
+  [ 74] getprop 661 ............................. <pingserver>
+  [ 77] pushint8 10 ............................. <10>
+  [ 79] eq ...................................... <pingserver = 10>
+  [ 80] jmpifz [ 91] ............................ if pingserver = 10 then
+  [ 83] pusharglistnoret 0 ...................... <>
+  [ 85] extcall 253 ............................. getmus()
+  [ 87] pushzero ................................ <0>
+  [ 88] setprop 661 ............................. pingserver = 0
+  [ 91] getprop 1277 ............................ <ptimer>
+  [ 94] pushint8 8 .............................. <8>
+  [ 96] eq ...................................... <ptimer = 8>
+  [ 97] jmpifz [122] ............................ if ptimer = 8 then / else
+  [100] getprop 1278 ............................ <pdiy>
+  [103] pushint8 1 .............................. <1>
+  [105] eq ...................................... <pdiy = 1>
+  [106] jmpifz [119] ............................ if pdiy = 1 then
+  [109] getparam 0 .............................. <me>
+  [111] pusharglistnoret 1 ...................... <me>
+  [113] localcall 5 ............................. doscores(me)
+  [115] pushzero ................................ <0>
+  [116] setprop 1278 ............................ pdiy = 0
+  [119] jmp [195]
+  [122] getprop 1277 ............................ <ptimer>
+  [125] pushint8 16 ............................. <16>
+  [127] eq ...................................... <ptimer = 16>
+  [128] jmpifz [195] ............................ if ptimer = 16 then
+  [131] getprop 95 .............................. <pcam>
+  [133] pushsymb 649 ............................ <#overlay>
+  [136] pusharglist 2 ........................... <pcam, #overlay>
+  [138] objcall 72 .............................. <pcam.overlay.count>
+  [140] setlocal 0 .............................. vcount = pcam.overlay.count
+  [142] pushint8 1 .............................. <1>
+  [144] setlocal 1
+  [146] getlocal 1
+  [148] getlocal 0 .............................. <vcount>
+  [150] lteq
+  [151] jmpifz [172] ............................ repeat with i = 1 to vcount
+  [154] getprop 95 .............................. <pcam>
+  [156] pushint8 1 .............................. <1>
+  [158] pusharglistnoret 2 ...................... <pcam, 1>
+  [160] objcall 670 ............................. pcam.removeOverlay(1)
+  [163] pushint8 1
+  [165] getlocal 1
+  [167] add
+  [168] setlocal 1
+  [170] endrepeat [146]
+  [172] pusharglist 0 ........................... <[]>
+  [174] pushlist ................................ <[]>
+  [175] setlocal 2 .............................. govlist = []
+  [177] pusharglist 0 ........................... <[]>
+  [179] pushlist ................................ <[]>
+  [180] setlocal 3 .............................. gtaglist = []
+  [182] getglobal 83 ............................ <goody>
+  [184] pusharglistnoret 1 ...................... <goody>
+  [186] objcall 504 ............................. goody.replay()
+  [189] pushcons 48 ............................. <"play">
+  [191] pusharglistnoret 1 ...................... <"play">
+  [193] extcall 193 ............................. go("play")
+  [195] ret
+end
+
+on showpromotion me, nrank
+  [  0] getparam 1 .............................. <nrank>
+  [  2] pusharglist 1 ........................... <nrank>
+  [  4] extcall 96 .............................. <integer(nrank)>
+  [  6] setlocal 0 .............................. vrankpos = integer(nrank)
+  [  8] pushcons 49 ............................. <"Tank Private">
+  [ 10] pushcons 50 ............................. <"Tank Gunner">
+  [ 12] pushcons 51 ............................. <"Tank Commander">
+  [ 14] pushcons 52 ............................. <"Tank Style Technician">
+  [ 16] pushcons 53 ............................. <"Tank Captain">
+  [ 18] pushcons 54 ............................. <"Chief Style Technician">
+  [ 20] pushcons 55 ............................. <"Corporal">
+  [ 22] pushcons 56 ............................. <"Sergeant">
+  [ 24] pushcons 57 ............................. <"Gunnery Sergeant">
+  [ 26] pushcons 58 ............................. <"Master Sergeant">
+  [ 28] pushcons 59 ............................. <"Master Gunnary Sergeant">
+  [ 30] pushcons 60 ............................. <"Sergeant Major">
+  [ 32] pushcons 61 ............................. <"Veteran">
+  [ 34] pushcons 62 ............................. <"Special Ops">
+  [ 36] pusharglist 14 .......................... <["Tank Private", "Tank Gunner", "Tank Commander", "Tank Style Technician", "Tank Captain", "Chief Style Technician", "Corporal", "Sergeant", "Gunnery Sergeant", "Master Sergeant", "Master Gunnary Sergeant", "Sergeant Major", "Veteran", "Special Ops"]>
+  [ 38] pushlist ................................ <["Tank Private", "Tank Gunner", "Tank Commander", "Tank Style Technician", "Tank Captain", "Chief Style Technician", "Corporal", "Sergeant", "Gunnery Sergeant", "Master Sergeant", "Master Gunnary Sergeant", "Sergeant Major", "Veteran", "Special Ops"]>
+  [ 39] setlocal 1 .............................. vranks = ["Tank Private", "Tank Gunner", "Tank Commander", "Tank Style Technician", "Tank Captain", "Chief Style Technician", "Corporal", "Sergeant", "Gunnery Sergeant", "Master Sergeant", "Master Gunnary Sergeant", "Sergeant Major", "Veteran", "Special Ops"]
+  [ 41] pushcons 63 ............................. <"server confirmed promotion to: ">
+  [ 43] getlocal 1 .............................. <vranks>
+  [ 45] getlocal 0 .............................. <vrankpos>
+  [ 47] pusharglist 2 ........................... <vranks, vrankpos>
+  [ 49] objcall 73 .............................. <vranks[vrankpos]>
+  [ 51] pusharglist 1 ........................... <vranks[vrankpos]>
+  [ 53] extcall 59 .............................. <string(vranks[vrankpos])>
+  [ 55] joinstr ................................. <"server confirmed promotion to: " & string(vranks[vrankpos])>
+  [ 56] pusharglistnoret 1 ...................... <"server confirmed promotion to: " & string(vranks[vrankpos])>
+  [ 58] extcall 121 ............................. alert("server confirmed promotion to: " & string(vranks[vrankpos]))
+  [ 60] ret
+end
+
+on mouseUp me
+  [  0] pushint8 8 .............................. <8>
+  [  2] pusharglist 1 ........................... <8>
+  [  4] extcall 101 ............................. <sound(8)>
+  [  6] pusharglistnoret 1 ...................... <sound(8)>
+  [  8] objcall 1301 ............................ sound(8).stop()
+  [ 11] pusharglistnoret 0 ...................... <>
+  [ 13] extcall 26 .............................. creq()
+  [ 15] ret
+end

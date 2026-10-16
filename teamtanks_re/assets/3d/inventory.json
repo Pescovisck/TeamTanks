@@ -1,0 +1,5656 @@
+{
+ "file": "assets/3d/3d_23561.w3d",
+ "bytes": 631812,
+ "parsed_to": 631812,
+ "block_count": 432,
+ "models": {
+  "wfl": {
+   "node_refs": [
+    "World",
+    "wfl",
+    "wfl",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7612
+  },
+  "wbl": {
+   "node_refs": [
+    "World",
+    "wbl",
+    "wbl",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7612
+  },
+  "wbr": {
+   "node_refs": [
+    "World",
+    "wbr",
+    "wbr",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7658
+  },
+  "wfr": {
+   "node_refs": [
+    "World",
+    "wfr",
+    "wfr",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7405
+  },
+  "ramp2": {
+   "node_refs": [
+    "World",
+    "ramp2",
+    "ramp2",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 2642
+  },
+  "ramp3": {
+   "node_refs": [
+    "World",
+    "ramp3",
+    "ramp3",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 1470
+  },
+  "loop": {
+   "node_refs": [
+    "World",
+    "loop",
+    "loop",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 8949
+  },
+  "twist": {
+   "node_refs": [
+    "World",
+    "twist",
+    "twist",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 5785
+  },
+  "glow": {
+   "node_refs": [
+    "World",
+    "glow",
+    "glow",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 803
+  },
+  "gun": {
+   "node_refs": [
+    "World",
+    "gun",
+    "gun",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 670
+  },
+  "vgun": {
+   "node_refs": [
+    "World",
+    "vgun",
+    "vgun",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 671
+  },
+  "ramp1": {
+   "node_refs": [
+    "World",
+    "ramp1",
+    "ramp1",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 2403
+  },
+  "spawn": {
+   "node_refs": [
+    "World",
+    "spawn",
+    "spawn",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 9083
+  },
+  "brick": {
+   "node_refs": [
+    "World",
+    "brick",
+    "brick",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 643
+  },
+  "ground whitebrick1": {
+   "node_refs": [
+    "World",
+    "ground whitebrick1",
+    "ground whitebrick1",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 14514
+  },
+  "mgunx2": {
+   "node_refs": [
+    "World",
+    "mgunx2",
+    "mgunx2",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 16592
+  },
+  "mfmgunx2": {
+   "node_refs": [
+    "World",
+    "mfmgunx2",
+    "mfmgunx2",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 660
+  },
+  "airship": {
+   "node_refs": [
+    "World",
+    "airship",
+    "airship",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 20385
+  },
+  "bigbomb": {
+   "node_refs": [
+    "World",
+    "bigbomb",
+    "bigbomb",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 4804
+  },
+  "middlebomb": {
+   "node_refs": [
+    "World",
+    "middlebomb",
+    "middlebomb",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 5029
+  },
+  "rocketlauncherx4": {
+   "node_refs": [
+    "World",
+    "rocketlauncherx4",
+    "rocketlauncherx4",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7856
+  },
+  "guidedmissile": {
+   "node_refs": [
+    "World",
+    "guidedmissile",
+    "guidedmissile",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 5098
+  },
+  "thrusters": {
+   "node_refs": [
+    "World",
+    "thrusters",
+    "thrusters",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 8871
+  },
+  "mortar": {
+   "node_refs": [
+    "World",
+    "mortar",
+    "mortar",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 3953
+  },
+  "mortarlauncher": {
+   "node_refs": [
+    "World",
+    "mortarlauncher",
+    "mortarlauncher",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 13307
+  },
+  "oilsplatter": {
+   "node_refs": [
+    "World",
+    "oilsplatter",
+    "oilsplatter",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7576
+  },
+  "remotemine": {
+   "node_refs": [
+    "World",
+    "remotemine",
+    "remotemine",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 4368
+  },
+  "proximitymine": {
+   "node_refs": [
+    "World",
+    "proximitymine",
+    "proximitymine",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 2210
+  },
+  "mgun": {
+   "node_refs": [
+    "World",
+    "mgun",
+    "mgun",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 9640
+  },
+  "turret": {
+   "node_refs": [
+    "World",
+    "turret",
+    "turret",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7490
+  },
+  "mfmgun": {
+   "node_refs": [
+    "World",
+    "mfmgun",
+    "mfmgun",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 435
+  },
+  "nook": {
+   "node_refs": [
+    "World",
+    "nook",
+    "nook",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 2439
+  },
+  "shell": {
+   "node_refs": [
+    "World",
+    "shell",
+    "shell",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 891
+  },
+  "speed": {
+   "node_refs": [
+    "World",
+    "speed",
+    "speed",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 8080
+  },
+  "rocketlauncher": {
+   "node_refs": [
+    "World",
+    "rocketlauncher",
+    "rocketlauncher",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 11429
+  },
+  "nooklauncher": {
+   "node_refs": [
+    "World",
+    "nooklauncher",
+    "nooklauncher",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 4377
+  },
+  "bgun": {
+   "node_refs": [
+    "World",
+    "bgun",
+    "bgun",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 8802
+  },
+  "minelauncher": {
+   "node_refs": [
+    "World",
+    "minelauncher",
+    "minelauncher",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 4703
+  },
+  "rocket": {
+   "node_refs": [
+    "World",
+    "rocket",
+    "rocket",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 3720
+  },
+  "guidedmissilelauncher": {
+   "node_refs": [
+    "World",
+    "guidedmissilelauncher",
+    "guidedmissilelauncher",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 13189
+  },
+  "rcrocketlauncher": {
+   "node_refs": [
+    "World",
+    "rcrocketlauncher",
+    "rcrocketlauncher",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 24207
+  },
+  "sonicgun": {
+   "node_refs": [
+    "World",
+    "sonicgun",
+    "sonicgun",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 18803
+  },
+  "lasergun": {
+   "node_refs": [
+    "World",
+    "lasergun",
+    "lasergun",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 11784
+  },
+  "mflasergun": {
+   "node_refs": [
+    "World",
+    "mflasergun",
+    "mflasergun",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 429
+  },
+  "tank": {
+   "node_refs": [
+    "World",
+    "tank",
+    "tank",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 80591
+  },
+  "stickymine": {
+   "node_refs": [
+    "World",
+    "stickymine",
+    "stickymine",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 2001
+  },
+  "thrust": {
+   "node_refs": [
+    "World",
+    "thrust",
+    "thrust",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 578
+  },
+  "airstrikelauncher": {
+   "node_refs": [
+    "World",
+    "airstrikelauncher",
+    "airstrikelauncher",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 6252
+  },
+  "p6": {
+   "node_refs": [
+    "World",
+    "p6",
+    "p6",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 10388
+  },
+  "p3": {
+   "node_refs": [
+    "World",
+    "p3",
+    "p3",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 9172
+  },
+  "p5": {
+   "node_refs": [
+    "World",
+    "p5",
+    "p5",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 9355
+  },
+  "p9": {
+   "node_refs": [
+    "World",
+    "p9",
+    "p9",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 9735
+  },
+  "p7": {
+   "node_refs": [
+    "World",
+    "p7",
+    "p7",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 20188
+  },
+  "p8": {
+   "node_refs": [
+    "World",
+    "p8",
+    "p8",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7391
+  },
+  "p2": {
+   "node_refs": [
+    "World",
+    "p2",
+    "p2",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 8956
+  },
+  "p1": {
+   "node_refs": [
+    "World",
+    "p1",
+    "p1",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 12091
+  },
+  "p4": {
+   "node_refs": [
+    "World",
+    "p4",
+    "p4",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 13149
+  },
+  "stealth": {
+   "node_refs": [
+    "World",
+    "stealth",
+    "stealth",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7323
+  },
+  "laserturret": {
+   "node_refs": [
+    "World",
+    "laserturret",
+    "laserturret",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 6132
+  },
+  "rcbomblauncher": {
+   "node_refs": [
+    "World",
+    "rcbomblauncher",
+    "rcbomblauncher",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 21585
+  },
+  "rcrocket": {
+   "node_refs": [
+    "World",
+    "rcrocket",
+    "rcrocket",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 16510
+  },
+  "rcbomb": {
+   "node_refs": [
+    "World",
+    "rcbomb",
+    "rcbomb",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 13735
+  },
+  "health": {
+   "node_refs": [
+    "World",
+    "health",
+    "health",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 7171
+  },
+  "rocketx4": {
+   "node_refs": [
+    "World",
+    "rocketx4",
+    "rocketx4",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 3843
+  },
+  "turretround": {
+   "node_refs": [
+    "World",
+    "turretround",
+    "turretround",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 2269
+  },
+  "capturepoint": {
+   "node_refs": [
+    "World",
+    "capturepoint",
+    "capturepoint",
+    "DefaultShader"
+   ],
+   "geometry_bytes": 10382
+  }
+ },
+ "shaders": [
+  "wheels",
+  "rampboard",
+  "floor",
+  "glow",
+  "Default Material0",
+  "Default Material1",
+  "spawnteam",
+  "spawnbase",
+  "spawngrid",
+  "spawnstart",
+  "spawnwarn",
+  "spawnwindows",
+  "brick",
+  "mgun",
+  "mfmachingun",
+  "airship",
+  "bombtex",
+  "rocketlauncher",
+  "rocket",
+  "thruster",
+  "mortarlauncher",
+  "oilsplatter",
+  "redmines",
+  "turret",
+  "nook",
+  "shell",
+  "speed",
+  "bgun",
+  "minelauncher",
+  "rcrocket",
+  "sonicgun",
+  "laser",
+  "mflaser",
+  "tank",
+  "blackshine",
+  "stickymine",
+  "porkchop",
+  "stealthshield",
+  "rcbomb",
+  "health",
+  "baseglow",
+  "Default Layer Material"
+ ],
+ "materials": [
+  "wheels",
+  "rampboard",
+  "floor",
+  "glow",
+  "Default Material0",
+  "Default Material1",
+  "spawnteam",
+  "spawnbase",
+  "spawngrid",
+  "spawnstart",
+  "spawnwarn",
+  "spawnwindows",
+  "brick",
+  "mgun",
+  "mfmachingun",
+  "airship",
+  "bombtex",
+  "rocketlauncher",
+  "rocket",
+  "thruster",
+  "mortarlauncher",
+  "oilsplatter",
+  "redmines",
+  "turret",
+  "nook",
+  "shell",
+  "speed",
+  "bgun",
+  "minelauncher",
+  "rcrocket",
+  "sonicgun",
+  "laser",
+  "mflaser",
+  "tank",
+  "blackshine",
+  "stickymine",
+  "porkchop",
+  "stealthshield",
+  "rcbomb",
+  "health",
+  "baseglow"
+ ],
+ "blocks": [
+  {
+   "offset": 0,
+   "type": "0x584649",
+   "kind": "header",
+   "size": 8,
+   "strings": [
+    ""
+   ]
+  },
+  {
+   "offset": 16,
+   "type": "0xffffff01",
+   "kind": "file_ref/priority",
+   "size": 4,
+   "strings": []
+  },
+  {
+   "offset": 28,
+   "type": "0xffffff02",
+   "kind": "modifier_chain_hdr",
+   "size": 3,
+   "strings": []
+  },
+  {
+   "offset": 40,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 107,
+   "strings": [
+    "wfl",
+    "World",
+    "wfl",
+    "wfl",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 156,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 107,
+   "strings": [
+    "wbl",
+    "World",
+    "wbl",
+    "wbl",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 272,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 107,
+   "strings": [
+    "wbr",
+    "World",
+    "wbr",
+    "wbr",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 388,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 107,
+   "strings": [
+    "wfr",
+    "World",
+    "wfr",
+    "wfr",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 504,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 113,
+   "strings": [
+    "ramp2",
+    "World",
+    "ramp2",
+    "ramp2",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 628,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 113,
+   "strings": [
+    "ramp3",
+    "World",
+    "ramp3",
+    "ramp3",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 752,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 110,
+   "strings": [
+    "loop",
+    "World",
+    "loop",
+    "loop",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 872,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 113,
+   "strings": [
+    "twist",
+    "World",
+    "twist",
+    "twist",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 996,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 110,
+   "strings": [
+    "glow",
+    "World",
+    "glow",
+    "glow",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 1116,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 107,
+   "strings": [
+    "gun",
+    "World",
+    "gun",
+    "gun",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 1232,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 110,
+   "strings": [
+    "vgun",
+    "World",
+    "vgun",
+    "vgun",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 1352,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 113,
+   "strings": [
+    "ramp1",
+    "World",
+    "ramp1",
+    "ramp1",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 1476,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 113,
+   "strings": [
+    "spawn",
+    "World",
+    "spawn",
+    "spawn",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 1600,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 113,
+   "strings": [
+    "brick",
+    "World",
+    "brick",
+    "brick",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 1724,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 152,
+   "strings": [
+    "ground whitebrick1",
+    "World",
+    "ground whitebrick1",
+    "ground whitebrick1",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 1884,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 116,
+   "strings": [
+    "mgunx2",
+    "World",
+    "mgunx2",
+    "mgunx2",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 2008,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 122,
+   "strings": [
+    "mfmgunx2",
+    "World",
+    "mfmgunx2",
+    "mfmgunx2",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 2140,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 119,
+   "strings": [
+    "airship",
+    "World",
+    "airship",
+    "airship",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 2268,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 119,
+   "strings": [
+    "bigbomb",
+    "World",
+    "bigbomb",
+    "bigbomb",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 2396,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 128,
+   "strings": [
+    "middlebomb",
+    "World",
+    "middlebomb",
+    "middlebomb",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 2532,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 146,
+   "strings": [
+    "rocketlauncherx4",
+    "World",
+    "rocketlauncherx4",
+    "rocketlauncherx4",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 2688,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 137,
+   "strings": [
+    "guidedmissile",
+    "World",
+    "guidedmissile",
+    "guidedmissile",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 2836,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 125,
+   "strings": [
+    "thrusters",
+    "World",
+    "thrusters",
+    "thrusters",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 2972,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 116,
+   "strings": [
+    "mortar",
+    "World",
+    "mortar",
+    "mortar",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 3096,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 140,
+   "strings": [
+    "mortarlauncher",
+    "World",
+    "mortarlauncher",
+    "mortarlauncher",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 3244,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 131,
+   "strings": [
+    "oilsplatter",
+    "World",
+    "oilsplatter",
+    "oilsplatter",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 3384,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 128,
+   "strings": [
+    "remotemine",
+    "World",
+    "remotemine",
+    "remotemine",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 3520,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 137,
+   "strings": [
+    "proximitymine",
+    "World",
+    "proximitymine",
+    "proximitymine",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 3668,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 110,
+   "strings": [
+    "mgun",
+    "World",
+    "mgun",
+    "mgun",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 3788,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 116,
+   "strings": [
+    "turret",
+    "World",
+    "turret",
+    "turret",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 3912,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 116,
+   "strings": [
+    "mfmgun",
+    "World",
+    "mfmgun",
+    "mfmgun",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 4036,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 110,
+   "strings": [
+    "nook",
+    "World",
+    "nook",
+    "nook",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 4156,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 113,
+   "strings": [
+    "shell",
+    "World",
+    "shell",
+    "shell",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 4280,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 113,
+   "strings": [
+    "speed",
+    "World",
+    "speed",
+    "speed",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 4404,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 140,
+   "strings": [
+    "rocketlauncher",
+    "World",
+    "rocketlauncher",
+    "rocketlauncher",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 4552,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 134,
+   "strings": [
+    "nooklauncher",
+    "World",
+    "nooklauncher",
+    "nooklauncher",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 4696,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 110,
+   "strings": [
+    "bgun",
+    "World",
+    "bgun",
+    "bgun",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 4816,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 134,
+   "strings": [
+    "minelauncher",
+    "World",
+    "minelauncher",
+    "minelauncher",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 4960,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 116,
+   "strings": [
+    "rocket",
+    "World",
+    "rocket",
+    "rocket",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 5084,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 161,
+   "strings": [
+    "guidedmissilelauncher",
+    "World",
+    "guidedmissilelauncher",
+    "guidedmissilelauncher",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 5256,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 146,
+   "strings": [
+    "rcrocketlauncher",
+    "World",
+    "rcrocketlauncher",
+    "rcrocketlauncher",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 5412,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 122,
+   "strings": [
+    "sonicgun",
+    "World",
+    "sonicgun",
+    "sonicgun",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 5544,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 122,
+   "strings": [
+    "lasergun",
+    "World",
+    "lasergun",
+    "lasergun",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 5676,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 128,
+   "strings": [
+    "mflasergun",
+    "World",
+    "mflasergun",
+    "mflasergun",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 5812,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 110,
+   "strings": [
+    "tank",
+    "World",
+    "tank",
+    "tank",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 5932,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 128,
+   "strings": [
+    "stickymine",
+    "World",
+    "stickymine",
+    "stickymine",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 6068,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 116,
+   "strings": [
+    "thrust",
+    "World",
+    "thrust",
+    "thrust",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 6192,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 149,
+   "strings": [
+    "airstrikelauncher",
+    "World",
+    "airstrikelauncher",
+    "airstrikelauncher",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 6352,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p6",
+    "World",
+    "p6",
+    "p6",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 6464,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p3",
+    "World",
+    "p3",
+    "p3",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 6576,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p5",
+    "World",
+    "p5",
+    "p5",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 6688,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p9",
+    "World",
+    "p9",
+    "p9",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 6800,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p7",
+    "World",
+    "p7",
+    "p7",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 6912,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p8",
+    "World",
+    "p8",
+    "p8",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 7024,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p2",
+    "World",
+    "p2",
+    "p2",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 7136,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p1",
+    "World",
+    "p1",
+    "p1",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 7248,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 104,
+   "strings": [
+    "p4",
+    "World",
+    "p4",
+    "p4",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 7360,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 119,
+   "strings": [
+    "stealth",
+    "World",
+    "stealth",
+    "stealth",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 7488,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 131,
+   "strings": [
+    "laserturret",
+    "World",
+    "laserturret",
+    "laserturret",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 7628,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 140,
+   "strings": [
+    "rcbomblauncher",
+    "World",
+    "rcbomblauncher",
+    "rcbomblauncher",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 7776,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 122,
+   "strings": [
+    "rcrocket",
+    "World",
+    "rcrocket",
+    "rcrocket",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 7908,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 116,
+   "strings": [
+    "rcbomb",
+    "World",
+    "rcbomb",
+    "rcbomb",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 8032,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 116,
+   "strings": [
+    "health",
+    "World",
+    "health",
+    "health",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 8156,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 122,
+   "strings": [
+    "rocketx4",
+    "World",
+    "rocketx4",
+    "rocketx4",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 8288,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 131,
+   "strings": [
+    "turretround",
+    "World",
+    "turretround",
+    "turretround",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 8428,
+   "type": "0xffffff72",
+   "kind": "model_node",
+   "size": 134,
+   "strings": [
+    "capturepoint",
+    "World",
+    "capturepoint",
+    "capturepoint",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 8572,
+   "type": "0xffffff74",
+   "kind": "view_node",
+   "size": 202,
+   "strings": [
+    "defaultview",
+    "World",
+    " ",
+    "World"
+   ]
+  },
+  {
+   "offset": 8784,
+   "type": "0xffffff71",
+   "kind": "light_node",
+   "size": 111,
+   "strings": [
+    "Default MAX Light",
+    "World",
+    "Default MAX Light"
+   ]
+  },
+  {
+   "offset": 8904,
+   "type": "0xffffff50",
+   "kind": "light_resource",
+   "size": 53,
+   "strings": [
+    "Default MAX Light"
+   ]
+  },
+  {
+   "offset": 8968,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 84,
+   "strings": [
+    "wheels"
+   ]
+  },
+  {
+   "offset": 9060,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 87,
+   "strings": [
+    "rampboard"
+   ]
+  },
+  {
+   "offset": 9156,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 83,
+   "strings": [
+    "floor"
+   ]
+  },
+  {
+   "offset": 9248,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 82,
+   "strings": [
+    "glow"
+   ]
+  },
+  {
+   "offset": 9340,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 95,
+   "strings": [
+    "Default Material0"
+   ]
+  },
+  {
+   "offset": 9444,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 95,
+   "strings": [
+    "Default Material1"
+   ]
+  },
+  {
+   "offset": 9548,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 87,
+   "strings": [
+    "spawnteam"
+   ]
+  },
+  {
+   "offset": 9644,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 87,
+   "strings": [
+    "spawnbase"
+   ]
+  },
+  {
+   "offset": 9740,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 87,
+   "strings": [
+    "spawngrid"
+   ]
+  },
+  {
+   "offset": 9836,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 88,
+   "strings": [
+    "spawnstart"
+   ]
+  },
+  {
+   "offset": 9932,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 87,
+   "strings": [
+    "spawnwarn"
+   ]
+  },
+  {
+   "offset": 10028,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 90,
+   "strings": [
+    "spawnwindows"
+   ]
+  },
+  {
+   "offset": 10128,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 83,
+   "strings": [
+    "brick"
+   ]
+  },
+  {
+   "offset": 10220,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 82,
+   "strings": [
+    "mgun"
+   ]
+  },
+  {
+   "offset": 10312,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 89,
+   "strings": [
+    "mfmachingun"
+   ]
+  },
+  {
+   "offset": 10412,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 85,
+   "strings": [
+    "airship"
+   ]
+  },
+  {
+   "offset": 10508,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 85,
+   "strings": [
+    "bombtex"
+   ]
+  },
+  {
+   "offset": 10604,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 92,
+   "strings": [
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 10704,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 84,
+   "strings": [
+    "rocket"
+   ]
+  },
+  {
+   "offset": 10796,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 86,
+   "strings": [
+    "thruster"
+   ]
+  },
+  {
+   "offset": 10892,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 92,
+   "strings": [
+    "mortarlauncher"
+   ]
+  },
+  {
+   "offset": 10992,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 89,
+   "strings": [
+    "oilsplatter"
+   ]
+  },
+  {
+   "offset": 11092,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 86,
+   "strings": [
+    "redmines"
+   ]
+  },
+  {
+   "offset": 11188,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 84,
+   "strings": [
+    "turret"
+   ]
+  },
+  {
+   "offset": 11280,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 82,
+   "strings": [
+    "nook"
+   ]
+  },
+  {
+   "offset": 11372,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 83,
+   "strings": [
+    "shell"
+   ]
+  },
+  {
+   "offset": 11464,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 83,
+   "strings": [
+    "speed"
+   ]
+  },
+  {
+   "offset": 11556,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 82,
+   "strings": [
+    "bgun"
+   ]
+  },
+  {
+   "offset": 11648,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 90,
+   "strings": [
+    "minelauncher"
+   ]
+  },
+  {
+   "offset": 11748,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 86,
+   "strings": [
+    "rcrocket"
+   ]
+  },
+  {
+   "offset": 11844,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 86,
+   "strings": [
+    "sonicgun"
+   ]
+  },
+  {
+   "offset": 11940,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 83,
+   "strings": [
+    "laser"
+   ]
+  },
+  {
+   "offset": 12032,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 85,
+   "strings": [
+    "mflaser"
+   ]
+  },
+  {
+   "offset": 12128,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 82,
+   "strings": [
+    "tank"
+   ]
+  },
+  {
+   "offset": 12220,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 88,
+   "strings": [
+    "blackshine"
+   ]
+  },
+  {
+   "offset": 12316,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 88,
+   "strings": [
+    "stickymine"
+   ]
+  },
+  {
+   "offset": 12412,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 86,
+   "strings": [
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 12508,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 91,
+   "strings": [
+    "stealthshield"
+   ]
+  },
+  {
+   "offset": 12608,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 84,
+   "strings": [
+    "rcbomb"
+   ]
+  },
+  {
+   "offset": 12700,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 84,
+   "strings": [
+    "health"
+   ]
+  },
+  {
+   "offset": 12792,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 86,
+   "strings": [
+    "baseglow"
+   ]
+  },
+  {
+   "offset": 12888,
+   "type": "0xffffff10",
+   "kind": "shader",
+   "size": 100,
+   "strings": [
+    "Default Layer Material"
+   ]
+  },
+  {
+   "offset": 12996,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 172,
+   "strings": [
+    "wheels",
+    "wheels",
+    "wheels"
+   ]
+  },
+  {
+   "offset": 13176,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 181,
+   "strings": [
+    "rampboard",
+    "rampboard",
+    "rampboard"
+   ]
+  },
+  {
+   "offset": 13368,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 22,
+   "strings": [
+    "floor",
+    "floor"
+   ]
+  },
+  {
+   "offset": 13400,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 166,
+   "strings": [
+    "glow",
+    "glow",
+    "glow"
+   ]
+  },
+  {
+   "offset": 13576,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 46,
+   "strings": [
+    "Default Material0",
+    "Default Material0"
+   ]
+  },
+  {
+   "offset": 13632,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 46,
+   "strings": [
+    "Default Material1",
+    "Default Material1"
+   ]
+  },
+  {
+   "offset": 13688,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 30,
+   "strings": [
+    "spawnteam",
+    "spawnteam"
+   ]
+  },
+  {
+   "offset": 13728,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 181,
+   "strings": [
+    "spawnbase",
+    "spawnbase",
+    "spawnbase"
+   ]
+  },
+  {
+   "offset": 13920,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 181,
+   "strings": [
+    "spawngrid",
+    "spawngrid",
+    "spawngrid"
+   ]
+  },
+  {
+   "offset": 14112,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 184,
+   "strings": [
+    "spawnstart",
+    "spawnstart",
+    "spawnstart"
+   ]
+  },
+  {
+   "offset": 14304,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 181,
+   "strings": [
+    "spawnwarn",
+    "spawnwarn",
+    "spawnwarn"
+   ]
+  },
+  {
+   "offset": 14496,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 190,
+   "strings": [
+    "spawnwindows",
+    "spawnwindows",
+    "spawnwindows"
+   ]
+  },
+  {
+   "offset": 14696,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 169,
+   "strings": [
+    "brick",
+    "brick",
+    "brick"
+   ]
+  },
+  {
+   "offset": 14876,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 166,
+   "strings": [
+    "mgun",
+    "mgun",
+    "mgun"
+   ]
+  },
+  {
+   "offset": 15052,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 34,
+   "strings": [
+    "mfmachingun",
+    "mfmachingun"
+   ]
+  },
+  {
+   "offset": 15096,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 175,
+   "strings": [
+    "airship",
+    "airship",
+    "airship"
+   ]
+  },
+  {
+   "offset": 15280,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 175,
+   "strings": [
+    "bombtex",
+    "bombtex",
+    "bombtex"
+   ]
+  },
+  {
+   "offset": 15464,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 196,
+   "strings": [
+    "rocketlauncher",
+    "rocketlauncher",
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 15668,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 172,
+   "strings": [
+    "rocket",
+    "rocket",
+    "rocket"
+   ]
+  },
+  {
+   "offset": 15848,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 178,
+   "strings": [
+    "thruster",
+    "thruster",
+    "thruster"
+   ]
+  },
+  {
+   "offset": 16036,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 196,
+   "strings": [
+    "mortarlauncher",
+    "mortarlauncher",
+    "mortarlauncher"
+   ]
+  },
+  {
+   "offset": 16240,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 187,
+   "strings": [
+    "oilsplatter",
+    "oilsplatter",
+    "oilsplatter"
+   ]
+  },
+  {
+   "offset": 16436,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 178,
+   "strings": [
+    "redmines",
+    "redmines",
+    "redmines"
+   ]
+  },
+  {
+   "offset": 16624,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 172,
+   "strings": [
+    "turret",
+    "turret",
+    "turret"
+   ]
+  },
+  {
+   "offset": 16804,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 169,
+   "strings": [
+    "nook",
+    "nook",
+    "Map #10"
+   ]
+  },
+  {
+   "offset": 16984,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 171,
+   "strings": [
+    "shell",
+    "shell",
+    "Map #14"
+   ]
+  },
+  {
+   "offset": 17164,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 169,
+   "strings": [
+    "speed",
+    "speed",
+    "speed"
+   ]
+  },
+  {
+   "offset": 17344,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 166,
+   "strings": [
+    "bgun",
+    "bgun",
+    "bgun"
+   ]
+  },
+  {
+   "offset": 17520,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 190,
+   "strings": [
+    "minelauncher",
+    "minelauncher",
+    "minelauncher"
+   ]
+  },
+  {
+   "offset": 17720,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 178,
+   "strings": [
+    "rcrocket",
+    "rcrocket",
+    "rcrocket"
+   ]
+  },
+  {
+   "offset": 17908,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 178,
+   "strings": [
+    "sonicgun",
+    "sonicgun",
+    "sonicgun"
+   ]
+  },
+  {
+   "offset": 18096,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 169,
+   "strings": [
+    "laser",
+    "laser",
+    "laser"
+   ]
+  },
+  {
+   "offset": 18276,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 175,
+   "strings": [
+    "mflaser",
+    "mflaser",
+    "mflaser"
+   ]
+  },
+  {
+   "offset": 18460,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 166,
+   "strings": [
+    "tank",
+    "tank",
+    "tank"
+   ]
+  },
+  {
+   "offset": 18636,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 32,
+   "strings": [
+    "blackshine",
+    "blackshine"
+   ]
+  },
+  {
+   "offset": 18676,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 184,
+   "strings": [
+    "stickymine",
+    "stickymine",
+    "stickymine"
+   ]
+  },
+  {
+   "offset": 18868,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 177,
+   "strings": [
+    "porkchop",
+    "porkchop",
+    "Map #15"
+   ]
+  },
+  {
+   "offset": 19056,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 193,
+   "strings": [
+    "stealthshield",
+    "stealthshield",
+    "stealthshield"
+   ]
+  },
+  {
+   "offset": 19260,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 172,
+   "strings": [
+    "rcbomb",
+    "rcbomb",
+    "rcbomb"
+   ]
+  },
+  {
+   "offset": 19440,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 172,
+   "strings": [
+    "health",
+    "health",
+    "health"
+   ]
+  },
+  {
+   "offset": 19620,
+   "type": "0xffffff36",
+   "kind": "material",
+   "size": 28,
+   "strings": [
+    "baseglow",
+    "baseglow"
+   ]
+  },
+  {
+   "offset": 19656,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "wfl",
+    "default",
+    "DefaultShader",
+    "wfl",
+    "wheels"
+   ]
+  },
+  {
+   "offset": 19788,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "wbl",
+    "default",
+    "DefaultShader",
+    "wbl",
+    "wheels"
+   ]
+  },
+  {
+   "offset": 19920,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "wbr",
+    "default",
+    "DefaultShader",
+    "wbr",
+    "wheels"
+   ]
+  },
+  {
+   "offset": 20052,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "wfr",
+    "default",
+    "DefaultShader",
+    "wfr",
+    "wheels"
+   ]
+  },
+  {
+   "offset": 20184,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 129,
+   "strings": [
+    "ramp2",
+    "default",
+    "DefaultShader",
+    "ramp2",
+    "rampboard"
+   ]
+  },
+  {
+   "offset": 20324,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 129,
+   "strings": [
+    "ramp3",
+    "default",
+    "DefaultShader",
+    "ramp3",
+    "rampboard"
+   ]
+  },
+  {
+   "offset": 20464,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 127,
+   "strings": [
+    "loop",
+    "default",
+    "DefaultShader",
+    "loop",
+    "rampboard"
+   ]
+  },
+  {
+   "offset": 20600,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 125,
+   "strings": [
+    "twist",
+    "default",
+    "DefaultShader",
+    "twist",
+    "floor"
+   ]
+  },
+  {
+   "offset": 20736,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "glow",
+    "default",
+    "DefaultShader",
+    "glow",
+    "glow"
+   ]
+  },
+  {
+   "offset": 20868,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 133,
+   "strings": [
+    "gun",
+    "default",
+    "DefaultShader",
+    "gun",
+    "Default Material0"
+   ]
+  },
+  {
+   "offset": 21012,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 135,
+   "strings": [
+    "vgun",
+    "default",
+    "DefaultShader",
+    "vgun",
+    "Default Material1"
+   ]
+  },
+  {
+   "offset": 21156,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 129,
+   "strings": [
+    "ramp1",
+    "default",
+    "DefaultShader",
+    "ramp1",
+    "rampboard"
+   ]
+  },
+  {
+   "offset": 21296,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 383,
+   "strings": [
+    "spawn",
+    "default",
+    "DefaultShader",
+    "DefaultShader",
+    "DefaultShader",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 21688,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 125,
+   "strings": [
+    "brick",
+    "default",
+    "DefaultShader",
+    "brick",
+    "brick"
+   ]
+  },
+  {
+   "offset": 21824,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 151,
+   "strings": [
+    "ground whitebrick1",
+    "default",
+    "DefaultShader",
+    "ground whitebrick1",
+    "brick"
+   ]
+  },
+  {
+   "offset": 21984,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 126,
+   "strings": [
+    "mgunx2",
+    "default",
+    "DefaultShader",
+    "mgunx2",
+    "mgun"
+   ]
+  },
+  {
+   "offset": 22120,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 137,
+   "strings": [
+    "mfmgunx2",
+    "default",
+    "DefaultShader",
+    "mfmgunx2",
+    "mfmachingun"
+   ]
+  },
+  {
+   "offset": 22268,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 131,
+   "strings": [
+    "airship",
+    "default",
+    "DefaultShader",
+    "airship",
+    "airship"
+   ]
+  },
+  {
+   "offset": 22408,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 131,
+   "strings": [
+    "bigbomb",
+    "default",
+    "DefaultShader",
+    "bigbomb",
+    "bombtex"
+   ]
+  },
+  {
+   "offset": 22548,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 137,
+   "strings": [
+    "middlebomb",
+    "default",
+    "DefaultShader",
+    "middlebomb",
+    "bombtex"
+   ]
+  },
+  {
+   "offset": 22696,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 203,
+   "strings": [
+    "rocketlauncherx4",
+    "default",
+    "DefaultShader",
+    "DefaultShader",
+    "rocketlauncherx4",
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 22908,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 142,
+   "strings": [
+    "guidedmissile",
+    "default",
+    "DefaultShader",
+    "guidedmissile",
+    "rocket"
+   ]
+  },
+  {
+   "offset": 23060,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 136,
+   "strings": [
+    "thrusters",
+    "default",
+    "DefaultShader",
+    "thrusters",
+    "thruster"
+   ]
+  },
+  {
+   "offset": 23204,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 136,
+   "strings": [
+    "mortar",
+    "default",
+    "DefaultShader",
+    "mortar",
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 23348,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 152,
+   "strings": [
+    "mortarlauncher",
+    "default",
+    "DefaultShader",
+    "mortarlauncher",
+    "mortarlauncher"
+   ]
+  },
+  {
+   "offset": 23508,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 143,
+   "strings": [
+    "oilsplatter",
+    "default",
+    "DefaultShader",
+    "oilsplatter",
+    "oilsplatter"
+   ]
+  },
+  {
+   "offset": 23660,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 138,
+   "strings": [
+    "remotemine",
+    "default",
+    "DefaultShader",
+    "remotemine",
+    "redmines"
+   ]
+  },
+  {
+   "offset": 23808,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 144,
+   "strings": [
+    "proximitymine",
+    "default",
+    "DefaultShader",
+    "proximitymine",
+    "redmines"
+   ]
+  },
+  {
+   "offset": 23960,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "mgun",
+    "default",
+    "DefaultShader",
+    "mgun",
+    "mgun"
+   ]
+  },
+  {
+   "offset": 24092,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 128,
+   "strings": [
+    "turret",
+    "default",
+    "DefaultShader",
+    "turret",
+    "turret"
+   ]
+  },
+  {
+   "offset": 24228,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 133,
+   "strings": [
+    "mfmgun",
+    "default",
+    "DefaultShader",
+    "mfmgun",
+    "mfmachingun"
+   ]
+  },
+  {
+   "offset": 24372,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "nook",
+    "default",
+    "DefaultShader",
+    "nook",
+    "nook"
+   ]
+  },
+  {
+   "offset": 24504,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 125,
+   "strings": [
+    "shell",
+    "default",
+    "DefaultShader",
+    "shell",
+    "shell"
+   ]
+  },
+  {
+   "offset": 24640,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 125,
+   "strings": [
+    "speed",
+    "default",
+    "DefaultShader",
+    "speed",
+    "speed"
+   ]
+  },
+  {
+   "offset": 24776,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 152,
+   "strings": [
+    "rocketlauncher",
+    "default",
+    "DefaultShader",
+    "rocketlauncher",
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 24936,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 138,
+   "strings": [
+    "nooklauncher",
+    "default",
+    "DefaultShader",
+    "nooklauncher",
+    "nook"
+   ]
+  },
+  {
+   "offset": 25084,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "bgun",
+    "default",
+    "DefaultShader",
+    "bgun",
+    "bgun"
+   ]
+  },
+  {
+   "offset": 25216,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 146,
+   "strings": [
+    "minelauncher",
+    "default",
+    "DefaultShader",
+    "minelauncher",
+    "minelauncher"
+   ]
+  },
+  {
+   "offset": 25372,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 128,
+   "strings": [
+    "rocket",
+    "default",
+    "DefaultShader",
+    "rocket",
+    "rocket"
+   ]
+  },
+  {
+   "offset": 25508,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 166,
+   "strings": [
+    "guidedmissilelauncher",
+    "default",
+    "DefaultShader",
+    "guidedmissilelauncher",
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 25684,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 205,
+   "strings": [
+    "rcrocketlauncher",
+    "default",
+    "DefaultShader",
+    "DefaultShader",
+    "rcrocketlauncher",
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 25900,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 134,
+   "strings": [
+    "sonicgun",
+    "default",
+    "DefaultShader",
+    "sonicgun",
+    "sonicgun"
+   ]
+  },
+  {
+   "offset": 26044,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 131,
+   "strings": [
+    "lasergun",
+    "default",
+    "DefaultShader",
+    "lasergun",
+    "laser"
+   ]
+  },
+  {
+   "offset": 26184,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 137,
+   "strings": [
+    "mflasergun",
+    "default",
+    "DefaultShader",
+    "mflasergun",
+    "mflaser"
+   ]
+  },
+  {
+   "offset": 26332,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 173,
+   "strings": [
+    "tank",
+    "default",
+    "DefaultShader",
+    "DefaultShader",
+    "tank",
+    "tank"
+   ]
+  },
+  {
+   "offset": 26516,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 140,
+   "strings": [
+    "stickymine",
+    "default",
+    "DefaultShader",
+    "stickymine",
+    "stickymine"
+   ]
+  },
+  {
+   "offset": 26664,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 127,
+   "strings": [
+    "thrust",
+    "default",
+    "DefaultShader",
+    "thrust",
+    "floor"
+   ]
+  },
+  {
+   "offset": 26800,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 158,
+   "strings": [
+    "airstrikelauncher",
+    "default",
+    "DefaultShader",
+    "airstrikelauncher",
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 26968,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p6",
+    "default",
+    "DefaultShader",
+    "p6",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 27100,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p3",
+    "default",
+    "DefaultShader",
+    "p3",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 27232,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p5",
+    "default",
+    "DefaultShader",
+    "p5",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 27364,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p9",
+    "default",
+    "DefaultShader",
+    "p9",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 27496,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p7",
+    "default",
+    "DefaultShader",
+    "p7",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 27628,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p8",
+    "default",
+    "DefaultShader",
+    "p8",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 27760,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p2",
+    "default",
+    "DefaultShader",
+    "p2",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 27892,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p1",
+    "default",
+    "DefaultShader",
+    "p1",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 28024,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 122,
+   "strings": [
+    "p4",
+    "default",
+    "DefaultShader",
+    "p4",
+    "porkchop"
+   ]
+  },
+  {
+   "offset": 28156,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 137,
+   "strings": [
+    "stealth",
+    "default",
+    "DefaultShader",
+    "stealth",
+    "stealthshield"
+   ]
+  },
+  {
+   "offset": 28304,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 137,
+   "strings": [
+    "laserturret",
+    "default",
+    "DefaultShader",
+    "laserturret",
+    "laser"
+   ]
+  },
+  {
+   "offset": 28452,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 199,
+   "strings": [
+    "rcbomblauncher",
+    "default",
+    "DefaultShader",
+    "DefaultShader",
+    "rcbomblauncher",
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 28660,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 134,
+   "strings": [
+    "rcrocket",
+    "default",
+    "DefaultShader",
+    "rcrocket",
+    "rcrocket"
+   ]
+  },
+  {
+   "offset": 28804,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 128,
+   "strings": [
+    "rcbomb",
+    "default",
+    "DefaultShader",
+    "rcbomb",
+    "rcbomb"
+   ]
+  },
+  {
+   "offset": 28940,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 128,
+   "strings": [
+    "health",
+    "default",
+    "DefaultShader",
+    "health",
+    "health"
+   ]
+  },
+  {
+   "offset": 29076,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 132,
+   "strings": [
+    "rocketx4",
+    "default",
+    "DefaultShader",
+    "rocketx4",
+    "rocket"
+   ]
+  },
+  {
+   "offset": 29216,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 138,
+   "strings": [
+    "turretround",
+    "default",
+    "DefaultShader",
+    "turretround",
+    "turret"
+   ]
+  },
+  {
+   "offset": 29364,
+   "type": "0xffffff45",
+   "kind": "mesh_declaration",
+   "size": 293,
+   "strings": [
+    "capturepoint",
+    "default",
+    "DefaultShader",
+    "DefaultShader",
+    "DefaultShader",
+    "DefaultShader"
+   ]
+  },
+  {
+   "offset": 29668,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 20,
+   "strings": [
+    "wfl"
+   ]
+  },
+  {
+   "offset": 29696,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 20,
+   "strings": [
+    "wbl"
+   ]
+  },
+  {
+   "offset": 29724,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 20,
+   "strings": [
+    "wbr"
+   ]
+  },
+  {
+   "offset": 29752,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 20,
+   "strings": [
+    "wfr"
+   ]
+  },
+  {
+   "offset": 29780,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 26,
+   "strings": [
+    "ramp2",
+    ""
+   ]
+  },
+  {
+   "offset": 29816,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 25,
+   "strings": [
+    "ramp3"
+   ]
+  },
+  {
+   "offset": 29852,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 21,
+   "strings": [
+    "loop"
+   ]
+  },
+  {
+   "offset": 29884,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 26,
+   "strings": [
+    "twist",
+    "\""
+   ]
+  },
+  {
+   "offset": 29920,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 19,
+   "strings": [
+    "glow"
+   ]
+  },
+  {
+   "offset": 29948,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 18,
+   "strings": [
+    "gun"
+   ]
+  },
+  {
+   "offset": 29976,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 19,
+   "strings": [
+    "vgun"
+   ]
+  },
+  {
+   "offset": 30004,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 26,
+   "strings": [
+    "ramp1",
+    ""
+   ]
+  },
+  {
+   "offset": 30040,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 136,
+   "strings": [
+    "spawn",
+    "l",
+    ""
+   ]
+  },
+  {
+   "offset": 30184,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 20,
+   "strings": [
+    "brick"
+   ]
+  },
+  {
+   "offset": 30212,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 43,
+   "strings": [
+    "ground whitebrick1",
+    ""
+   ]
+  },
+  {
+   "offset": 30264,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 37,
+   "strings": [
+    "mgunx2",
+    ""
+   ]
+  },
+  {
+   "offset": 30312,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 28,
+   "strings": [
+    "mfmgunx2",
+    ""
+   ]
+  },
+  {
+   "offset": 30348,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 55,
+   "strings": [
+    "airship"
+   ]
+  },
+  {
+   "offset": 30412,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 36,
+   "strings": [
+    "bigbomb"
+   ]
+  },
+  {
+   "offset": 30456,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 34,
+   "strings": [
+    "middlebomb"
+   ]
+  },
+  {
+   "offset": 30500,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 79,
+   "strings": [
+    "rocketlauncherx4",
+    ""
+   ]
+  },
+  {
+   "offset": 30588,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 36,
+   "strings": [
+    "guidedmissile",
+    ""
+   ]
+  },
+  {
+   "offset": 30632,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 35,
+   "strings": [
+    "thrusters"
+   ]
+  },
+  {
+   "offset": 30676,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 29,
+   "strings": [
+    "mortar"
+   ]
+  },
+  {
+   "offset": 30716,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 47,
+   "strings": [
+    "mortarlauncher"
+   ]
+  },
+  {
+   "offset": 30772,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 37,
+   "strings": [
+    "oilsplatter"
+   ]
+  },
+  {
+   "offset": 30820,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 34,
+   "strings": [
+    "remotemine"
+   ]
+  },
+  {
+   "offset": 30864,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 34,
+   "strings": [
+    "proximitymine"
+   ]
+  },
+  {
+   "offset": 30908,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 23,
+   "strings": [
+    "mgun"
+   ]
+  },
+  {
+   "offset": 30940,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 37,
+   "strings": [
+    "turret",
+    ""
+   ]
+  },
+  {
+   "offset": 30988,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 25,
+   "strings": [
+    "mfmgun"
+   ]
+  },
+  {
+   "offset": 31024,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 25,
+   "strings": [
+    "nook"
+   ]
+  },
+  {
+   "offset": 31060,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 20,
+   "strings": [
+    "shell",
+    ""
+   ]
+  },
+  {
+   "offset": 31088,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 22,
+   "strings": [
+    "speed"
+   ]
+  },
+  {
+   "offset": 31120,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 39,
+   "strings": [
+    "rocketlauncher"
+   ]
+  },
+  {
+   "offset": 31168,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 35,
+   "strings": [
+    "nooklauncher"
+   ]
+  },
+  {
+   "offset": 31212,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 22,
+   "strings": [
+    "bgun",
+    ""
+   ]
+  },
+  {
+   "offset": 31244,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 33,
+   "strings": [
+    "minelauncher",
+    ""
+   ]
+  },
+  {
+   "offset": 31288,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 27,
+   "strings": [
+    "rocket"
+   ]
+  },
+  {
+   "offset": 31324,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 48,
+   "strings": [
+    "guidedmissilelauncher"
+   ]
+  },
+  {
+   "offset": 31380,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 148,
+   "strings": [
+    "rcrocketlauncher",
+    "t",
+    "P"
+   ]
+  },
+  {
+   "offset": 31536,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 45,
+   "strings": [
+    "sonicgun"
+   ]
+  },
+  {
+   "offset": 31592,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 37,
+   "strings": [
+    "lasergun"
+   ]
+  },
+  {
+   "offset": 31640,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 29,
+   "strings": [
+    "mflasergun"
+   ]
+  },
+  {
+   "offset": 31680,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 155,
+   "strings": [
+    "tank",
+    "H"
+   ]
+  },
+  {
+   "offset": 31844,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 33,
+   "strings": [
+    "stickymine"
+   ]
+  },
+  {
+   "offset": 31888,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 26,
+   "strings": [
+    "thrust"
+   ]
+  },
+  {
+   "offset": 31924,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 42,
+   "strings": [
+    "airstrikelauncher",
+    ""
+   ]
+  },
+  {
+   "offset": 31976,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 19,
+   "strings": [
+    "p6"
+   ]
+  },
+  {
+   "offset": 32004,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 19,
+   "strings": [
+    "p3"
+   ]
+  },
+  {
+   "offset": 32032,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 19,
+   "strings": [
+    "p5"
+   ]
+  },
+  {
+   "offset": 32060,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 19,
+   "strings": [
+    "p9"
+   ]
+  },
+  {
+   "offset": 32088,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 39,
+   "strings": [
+    "p7"
+   ]
+  },
+  {
+   "offset": 32136,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 31,
+   "strings": [
+    "p8"
+   ]
+  },
+  {
+   "offset": 32176,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 29,
+   "strings": [
+    "p2",
+    "@e"
+   ]
+  },
+  {
+   "offset": 32216,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 32,
+   "strings": [
+    "p1"
+   ]
+  },
+  {
+   "offset": 32256,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 35,
+   "strings": [
+    "p4"
+   ]
+  },
+  {
+   "offset": 32300,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 31,
+   "strings": [
+    "stealth",
+    ""
+   ]
+  },
+  {
+   "offset": 32340,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 29,
+   "strings": [
+    "laserturret"
+   ]
+  },
+  {
+   "offset": 32380,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 150,
+   "strings": [
+    "rcbomblauncher",
+    "(",
+    "d",
+    ""
+   ]
+  },
+  {
+   "offset": 32540,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 38,
+   "strings": [
+    "rcrocket",
+    ""
+   ]
+  },
+  {
+   "offset": 32588,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 38,
+   "strings": [
+    "rcbomb",
+    ""
+   ]
+  },
+  {
+   "offset": 32636,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 23,
+   "strings": [
+    "health"
+   ]
+  },
+  {
+   "offset": 32668,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 31,
+   "strings": [
+    "rocketx4"
+   ]
+  },
+  {
+   "offset": 32708,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 27,
+   "strings": [
+    "turretround"
+   ]
+  },
+  {
+   "offset": 32744,
+   "type": "0xffffff47",
+   "kind": "mesh_skeleton/bones",
+   "size": 126,
+   "strings": [
+    "capturepoint",
+    "@"
+   ]
+  },
+  {
+   "offset": 32880,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 47,
+   "strings": [
+    "wfl",
+    ""
+   ]
+  },
+  {
+   "offset": 32936,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 47,
+   "strings": [
+    "wbl",
+    ""
+   ]
+  },
+  {
+   "offset": 32992,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 47,
+   "strings": [
+    "wbr"
+   ]
+  },
+  {
+   "offset": 33048,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 48,
+   "strings": [
+    "wfr"
+   ]
+  },
+  {
+   "offset": 33104,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 128,
+   "strings": [
+    "ramp2",
+    ""
+   ]
+  },
+  {
+   "offset": 33240,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 100,
+   "strings": [
+    "ramp3",
+    "d"
+   ]
+  },
+  {
+   "offset": 33348,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 465,
+   "strings": [
+    "loop",
+    "D",
+    "`r",
+    "07",
+    "$",
+    "pFK"
+   ]
+  },
+  {
+   "offset": 33824,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 323,
+   "strings": [
+    "twist",
+    "2",
+    ",",
+    "@",
+    "\\",
+    "@"
+   ]
+  },
+  {
+   "offset": 34156,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 47,
+   "strings": [
+    "glow"
+   ]
+  },
+  {
+   "offset": 34212,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 18,
+   "strings": [
+    "gun"
+   ]
+  },
+  {
+   "offset": 34240,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 19,
+   "strings": [
+    "vgun"
+   ]
+  },
+  {
+   "offset": 34268,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 103,
+   "strings": [
+    "ramp1"
+   ]
+  },
+  {
+   "offset": 34380,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 169,
+   "strings": [
+    "spawn",
+    "@Q",
+    "@",
+    ""
+   ]
+  },
+  {
+   "offset": 34560,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 48,
+   "strings": [
+    "brick"
+   ]
+  },
+  {
+   "offset": 34616,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 100,
+   "strings": [
+    "ground whitebrick1",
+    "P"
+   ]
+  },
+  {
+   "offset": 34724,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 370,
+   "strings": [
+    "mgunx2",
+    "(",
+    "0",
+    "t",
+    ""
+   ]
+  },
+  {
+   "offset": 35104,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 23,
+   "strings": [
+    "mfmgunx2"
+   ]
+  },
+  {
+   "offset": 35136,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 293,
+   "strings": [
+    "airship",
+    "4,",
+    "T",
+    "2"
+   ]
+  },
+  {
+   "offset": 35440,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 158,
+   "strings": [
+    "bigbomb",
+    "d>",
+    "<",
+    ""
+   ]
+  },
+  {
+   "offset": 35608,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 210,
+   "strings": [
+    "middlebomb",
+    "(a",
+    ""
+   ]
+  },
+  {
+   "offset": 35828,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 163,
+   "strings": [
+    "rocketlauncherx4",
+    "@4",
+    ""
+   ]
+  },
+  {
+   "offset": 36000,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 28,
+   "strings": [
+    "guidedmissile",
+    ""
+   ]
+  },
+  {
+   "offset": 36036,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 131,
+   "strings": [
+    "thrusters",
+    "h=",
+    "P "
+   ]
+  },
+  {
+   "offset": 36176,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 21,
+   "strings": [
+    "mortar"
+   ]
+  },
+  {
+   "offset": 36208,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 361,
+   "strings": [
+    "mortarlauncher",
+    "T",
+    "t",
+    "h",
+    ""
+   ]
+  },
+  {
+   "offset": 36580,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 163,
+   "strings": [
+    "oilsplatter",
+    "0",
+    ""
+   ]
+  },
+  {
+   "offset": 36752,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 117,
+   "strings": [
+    "remotemine",
+    "\"",
+    "`"
+   ]
+  },
+  {
+   "offset": 36880,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 28,
+   "strings": [
+    "proximitymine"
+   ]
+  },
+  {
+   "offset": 36916,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 214,
+   "strings": [
+    "mgun"
+   ]
+  },
+  {
+   "offset": 37140,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 131,
+   "strings": [
+    "turret"
+   ]
+  },
+  {
+   "offset": 37280,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 21,
+   "strings": [
+    "mfmgun"
+   ]
+  },
+  {
+   "offset": 37312,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 48,
+   "strings": [
+    "nook"
+   ]
+  },
+  {
+   "offset": 37368,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 20,
+   "strings": [
+    "shell"
+   ]
+  },
+  {
+   "offset": 37396,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 59,
+   "strings": [
+    "speed"
+   ]
+  },
+  {
+   "offset": 37464,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 373,
+   "strings": [
+    "rocketlauncher",
+    "|",
+    "d",
+    "H",
+    "X",
+    "("
+   ]
+  },
+  {
+   "offset": 37848,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 79,
+   "strings": [
+    "nooklauncher"
+   ]
+  },
+  {
+   "offset": 37936,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 160,
+   "strings": [
+    "bgun"
+   ]
+  },
+  {
+   "offset": 38104,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 66,
+   "strings": [
+    "minelauncher"
+   ]
+  },
+  {
+   "offset": 38180,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 50,
+   "strings": [
+    "rocket"
+   ]
+  },
+  {
+   "offset": 38240,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 398,
+   "strings": [
+    "guidedmissilelauncher",
+    " 0",
+    "`f",
+    "`f",
+    " ",
+    "`"
+   ]
+  },
+  {
+   "offset": 38648,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 528,
+   "strings": [
+    "rcrocketlauncher",
+    "8"
+   ]
+  },
+  {
+   "offset": 39184,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 270,
+   "strings": [
+    "sonicgun",
+    "`U",
+    "(",
+    "PG"
+   ]
+  },
+  {
+   "offset": 39464,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 130,
+   "strings": [
+    "lasergun"
+   ]
+  },
+  {
+   "offset": 39604,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 25,
+   "strings": [
+    "mflasergun"
+   ]
+  },
+  {
+   "offset": 39640,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 995,
+   "strings": [
+    "tank",
+    "h",
+    "d",
+    "B",
+    "r",
+    "b"
+   ]
+  },
+  {
+   "offset": 40644,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 115,
+   "strings": [
+    "stickymine",
+    "L",
+    "d",
+    ""
+   ]
+  },
+  {
+   "offset": 40768,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 21,
+   "strings": [
+    "thrust"
+   ]
+  },
+  {
+   "offset": 40800,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 226,
+   "strings": [
+    "airstrikelauncher",
+    "D",
+    "$"
+   ]
+  },
+  {
+   "offset": 41036,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 17,
+   "strings": [
+    "p6",
+    ""
+   ]
+  },
+  {
+   "offset": 41064,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 46,
+   "strings": [
+    "p3",
+    ""
+   ]
+  },
+  {
+   "offset": 41120,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 17,
+   "strings": [
+    "p5",
+    ""
+   ]
+  },
+  {
+   "offset": 41148,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 17,
+   "strings": [
+    "p9",
+    ""
+   ]
+  },
+  {
+   "offset": 41176,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 198,
+   "strings": [
+    "p7",
+    "d&H",
+    "X"
+   ]
+  },
+  {
+   "offset": 41384,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 132,
+   "strings": [
+    "p8"
+   ]
+  },
+  {
+   "offset": 41524,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 136,
+   "strings": [
+    "p2",
+    " "
+   ]
+  },
+  {
+   "offset": 41668,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 151,
+   "strings": [
+    "p1",
+    " "
+   ]
+  },
+  {
+   "offset": 41828,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 142,
+   "strings": [
+    "p4",
+    "`"
+   ]
+  },
+  {
+   "offset": 41980,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 124,
+   "strings": [
+    "stealth",
+    "`e%",
+    ""
+   ]
+  },
+  {
+   "offset": 42112,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 96,
+   "strings": [
+    "laserturret"
+   ]
+  },
+  {
+   "offset": 42216,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 332,
+   "strings": [
+    "rcbomblauncher",
+    "@",
+    " +",
+    "@T",
+    "l",
+    ""
+   ]
+  },
+  {
+   "offset": 42556,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 176,
+   "strings": [
+    "rcrocket",
+    "("
+   ]
+  },
+  {
+   "offset": 42740,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 160,
+   "strings": [
+    "rcbomb",
+    ","
+   ]
+  },
+  {
+   "offset": 42908,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 51,
+   "strings": [
+    "health"
+   ]
+  },
+  {
+   "offset": 42968,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 105,
+   "strings": [
+    "rocketx4"
+   ]
+  },
+  {
+   "offset": 43084,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 55,
+   "strings": [
+    "turretround"
+   ]
+  },
+  {
+   "offset": 43148,
+   "type": "0xffffff48",
+   "kind": "mesh_shading",
+   "size": 57,
+   "strings": [
+    "capturepoint",
+    "@"
+   ]
+  },
+  {
+   "offset": 43216,
+   "type": "0xffffff01",
+   "kind": "file_ref/priority",
+   "size": 4,
+   "strings": []
+  },
+  {
+   "offset": 43228,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7612,
+   "strings": [
+    "wfl",
+    "EON",
+    "@",
+    "@;",
+    " ",
+    "("
+   ]
+  },
+  {
+   "offset": 50848,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7612,
+   "strings": [
+    "wbl",
+    "EON",
+    "@",
+    "@;",
+    " ",
+    "("
+   ]
+  },
+  {
+   "offset": 58468,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7658,
+   "strings": [
+    "wbr",
+    "h",
+    "s",
+    "@",
+    "$",
+    " "
+   ]
+  },
+  {
+   "offset": 66136,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7405,
+   "strings": [
+    "wfr",
+    "M",
+    "l",
+    "0",
+    "P",
+    " "
+   ]
+  },
+  {
+   "offset": 73552,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 2642,
+   "strings": [
+    "ramp2",
+    "L",
+    "4",
+    "@",
+    " Z",
+    "x"
+   ]
+  },
+  {
+   "offset": 76204,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 1470,
+   "strings": [
+    "ramp3",
+    " ",
+    "P9",
+    "@k",
+    "@V",
+    "@5"
+   ]
+  },
+  {
+   "offset": 77684,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 8949,
+   "strings": [
+    "loop",
+    "h",
+    "PG7",
+    "`",
+    "$",
+    "@2f0!"
+   ]
+  },
+  {
+   "offset": 86644,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 5785,
+   "strings": [
+    "twist",
+    "l",
+    "@",
+    "6",
+    "`",
+    "@"
+   ]
+  },
+  {
+   "offset": 92440,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 803,
+   "strings": [
+    "glow",
+    "z",
+    "p>;",
+    "@?",
+    " "
+   ]
+  },
+  {
+   "offset": 93252,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 670,
+   "strings": [
+    "gun",
+    "5O",
+    "p",
+    "`",
+    " G",
+    "`"
+   ]
+  },
+  {
+   "offset": 93932,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 671,
+   "strings": [
+    "vgun",
+    "5O",
+    "p",
+    "`",
+    " G",
+    "`"
+   ]
+  },
+  {
+   "offset": 94612,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 2403,
+   "strings": [
+    "ramp1",
+    "Q",
+    "h",
+    "0",
+    "`",
+    "p"
+   ]
+  },
+  {
+   "offset": 97024,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 9083,
+   "strings": [
+    "spawn",
+    "h",
+    "Y",
+    "h",
+    "P",
+    "0>"
+   ]
+  },
+  {
+   "offset": 106116,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 643,
+   "strings": [
+    "brick",
+    "P",
+    "p",
+    "p",
+    "0",
+    "("
+   ]
+  },
+  {
+   "offset": 106768,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 14514,
+   "strings": [
+    "ground whitebrick1",
+    "`",
+    "0",
+    "`",
+    " ",
+    "1"
+   ]
+  },
+  {
+   "offset": 121292,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 16592,
+   "strings": [
+    "mgunx2",
+    "@",
+    "p",
+    "P",
+    "H",
+    " "
+   ]
+  },
+  {
+   "offset": 137892,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 660,
+   "strings": [
+    "mfmgunx2",
+    "`",
+    "\"",
+    "8"
+   ]
+  },
+  {
+   "offset": 138560,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 12891,
+   "strings": [
+    "airship",
+    "P",
+    "@",
+    "W",
+    "Pr",
+    "x"
+   ]
+  },
+  {
+   "offset": 151460,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 4804,
+   "strings": [
+    "bigbomb",
+    "r",
+    "t",
+    "H",
+    "h",
+    "@"
+   ]
+  },
+  {
+   "offset": 156272,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 5029,
+   "strings": [
+    "middlebomb",
+    "`",
+    "H",
+    "@\"",
+    " ",
+    "*G, />"
+   ]
+  },
+  {
+   "offset": 161312,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7856,
+   "strings": [
+    "rocketlauncherx4",
+    "x",
+    "p",
+    "\\",
+    "5~",
+    "D"
+   ]
+  },
+  {
+   "offset": 169176,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 5098,
+   "strings": [
+    "guidedmissile",
+    "0",
+    "@",
+    "(",
+    "J",
+    " "
+   ]
+  },
+  {
+   "offset": 174284,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 8871,
+   "strings": [
+    "thrusters",
+    "p",
+    "h",
+    "$",
+    "(",
+    "A"
+   ]
+  },
+  {
+   "offset": 183164,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 3953,
+   "strings": [
+    "mortar",
+    "@",
+    " ",
+    "@",
+    "h",
+    "@>"
+   ]
+  },
+  {
+   "offset": 187128,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 13307,
+   "strings": [
+    "mortarlauncher",
+    "`",
+    "p",
+    " ",
+    " ",
+    "$-"
+   ]
+  },
+  {
+   "offset": 200444,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7576,
+   "strings": [
+    "oilsplatter",
+    " ",
+    "{",
+    "`",
+    "f",
+    "="
+   ]
+  },
+  {
+   "offset": 208028,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 4368,
+   "strings": [
+    "remotemine",
+    "`]D",
+    "@",
+    "P",
+    "V",
+    "|"
+   ]
+  },
+  {
+   "offset": 212404,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 2210,
+   "strings": [
+    "proximitymine",
+    "(",
+    "<",
+    "P",
+    "D",
+    "P"
+   ]
+  },
+  {
+   "offset": 214624,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 9640,
+   "strings": [
+    "mgun",
+    "x",
+    "$",
+    ":",
+    ".",
+    "0"
+   ]
+  },
+  {
+   "offset": 224272,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7490,
+   "strings": [
+    "turret",
+    "x",
+    "@",
+    "@u",
+    " ",
+    "J"
+   ]
+  },
+  {
+   "offset": 231772,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 435,
+   "strings": [
+    "mfmgun",
+    " @",
+    " ",
+    "O"
+   ]
+  },
+  {
+   "offset": 232216,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 2439,
+   "strings": [
+    "nook",
+    "JA",
+    "PV<",
+    "X",
+    "v",
+    ",,"
+   ]
+  },
+  {
+   "offset": 234664,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 891,
+   "strings": [
+    "shell",
+    "9",
+    "0",
+    "h",
+    "8"
+   ]
+  },
+  {
+   "offset": 235564,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 8080,
+   "strings": [
+    "speed",
+    "Xh|",
+    "p!",
+    "`",
+    "&2",
+    " "
+   ]
+  },
+  {
+   "offset": 243652,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 11429,
+   "strings": [
+    "rocketlauncher",
+    "p<",
+    "H",
+    "cxdN",
+    " ",
+    "@K"
+   ]
+  },
+  {
+   "offset": 255092,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 4377,
+   "strings": [
+    "nooklauncher",
+    " ",
+    "p{",
+    " 5",
+    "L",
+    "l"
+   ]
+  },
+  {
+   "offset": 259480,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 8802,
+   "strings": [
+    "bgun",
+    "m",
+    "Z",
+    "b",
+    "(",
+    "^"
+   ]
+  },
+  {
+   "offset": 268292,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 4703,
+   "strings": [
+    "minelauncher",
+    "x",
+    " /",
+    "1",
+    "P",
+    "0B"
+   ]
+  },
+  {
+   "offset": 273004,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 3720,
+   "strings": [
+    "rocket",
+    "@u",
+    "h",
+    " ",
+    "p",
+    "@"
+   ]
+  },
+  {
+   "offset": 276732,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 13189,
+   "strings": [
+    "guidedmissilelauncher",
+    "A",
+    "`",
+    "0w",
+    "}",
+    "{"
+   ]
+  },
+  {
+   "offset": 289932,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 16965,
+   "strings": [
+    "rcrocketlauncher",
+    "p`",
+    "D<",
+    "0",
+    "H",
+    "("
+   ]
+  },
+  {
+   "offset": 306908,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 16362,
+   "strings": [
+    "sonicgun",
+    "0",
+    "@",
+    "[",
+    "$",
+    "@O\\"
+   ]
+  },
+  {
+   "offset": 323280,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 11784,
+   "strings": [
+    "lasergun",
+    "b",
+    "g",
+    "P",
+    "-",
+    "D"
+   ]
+  },
+  {
+   "offset": 335072,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 429,
+   "strings": [
+    "mflasergun",
+    "\"",
+    "d"
+   ]
+  },
+  {
+   "offset": 335512,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 16835,
+   "strings": [
+    "tank",
+    "3",
+    "X",
+    "V",
+    "8",
+    " ;"
+   ]
+  },
+  {
+   "offset": 352356,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 2001,
+   "strings": [
+    "stickymine",
+    "?",
+    "B4",
+    "b2",
+    " ",
+    "O"
+   ]
+  },
+  {
+   "offset": 354368,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 578,
+   "strings": [
+    "thrust",
+    "%",
+    " I"
+   ]
+  },
+  {
+   "offset": 354956,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 6252,
+   "strings": [
+    "airstrikelauncher",
+    " 9",
+    "O",
+    "`",
+    "Pf:",
+    "@"
+   ]
+  },
+  {
+   "offset": 361216,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 10388,
+   "strings": [
+    "p6",
+    "p",
+    "4",
+    "d",
+    " ",
+    "r"
+   ]
+  },
+  {
+   "offset": 371612,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 9172,
+   "strings": [
+    "p3",
+    ",",
+    "H",
+    "(",
+    "<",
+    "@"
+   ]
+  },
+  {
+   "offset": 380792,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 9355,
+   "strings": [
+    "p5",
+    "B",
+    "p",
+    "k",
+    "\"",
+    "0"
+   ]
+  },
+  {
+   "offset": 390156,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 9735,
+   "strings": [
+    "p9",
+    "$T",
+    "@",
+    "0",
+    "$",
+    "` "
+   ]
+  },
+  {
+   "offset": 399900,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 16866,
+   "strings": [
+    "p7",
+    "$",
+    "@",
+    "h",
+    "}a",
+    " "
+   ]
+  },
+  {
+   "offset": 416776,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7391,
+   "strings": [
+    "p8",
+    "Z",
+    "D",
+    ";$P",
+    " ",
+    "@"
+   ]
+  },
+  {
+   "offset": 424176,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 8956,
+   "strings": [
+    "p2",
+    "N",
+    "@",
+    "h",
+    "r",
+    "H"
+   ]
+  },
+  {
+   "offset": 433140,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 12091,
+   "strings": [
+    "p1",
+    ",",
+    "p",
+    "0",
+    "@",
+    "@"
+   ]
+  },
+  {
+   "offset": 445240,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 13149,
+   "strings": [
+    "p4",
+    "4",
+    "t",
+    " ",
+    "@P",
+    "4"
+   ]
+  },
+  {
+   "offset": 458400,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7323,
+   "strings": [
+    "stealth",
+    "2@",
+    " ",
+    "(",
+    "@",
+    "t"
+   ]
+  },
+  {
+   "offset": 465732,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 6132,
+   "strings": [
+    "laserturret",
+    "M",
+    "H",
+    "|!%",
+    "*",
+    "v"
+   ]
+  },
+  {
+   "offset": 471872,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 15792,
+   "strings": [
+    "rcbomblauncher",
+    "d",
+    "|",
+    "@I",
+    "H",
+    "z;"
+   ]
+  },
+  {
+   "offset": 487672,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 14680,
+   "strings": [
+    "rcrocket",
+    "M",
+    "@",
+    ".N",
+    "@",
+    "`t"
+   ]
+  },
+  {
+   "offset": 502360,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 13735,
+   "strings": [
+    "rcbomb",
+    "f",
+    "$X6",
+    "D",
+    "h",
+    " J"
+   ]
+  },
+  {
+   "offset": 516104,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7171,
+   "strings": [
+    "health",
+    "q",
+    "@",
+    "L",
+    "p",
+    "0"
+   ]
+  },
+  {
+   "offset": 523284,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 3843,
+   "strings": [
+    "rocketx4",
+    ",",
+    "p",
+    " ",
+    "@",
+    "P"
+   ]
+  },
+  {
+   "offset": 527136,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 2269,
+   "strings": [
+    "turretround",
+    "rC",
+    "h",
+    "P",
+    " ",
+    "`"
+   ]
+  },
+  {
+   "offset": 529416,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 10382,
+   "strings": [
+    "capturepoint",
+    "~",
+    "t",
+    "p",
+    "<",
+    "d"
+   ]
+  },
+  {
+   "offset": 539808,
+   "type": "0xffffff01",
+   "kind": "file_ref/priority",
+   "size": 4,
+   "strings": []
+  },
+  {
+   "offset": 539820,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7494,
+   "strings": [
+    "airship",
+    "P",
+    " ",
+    "@",
+    "r",
+    "pDF"
+   ]
+  },
+  {
+   "offset": 547324,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 7242,
+   "strings": [
+    "rcrocketlauncher",
+    "@",
+    "R",
+    "0",
+    "p",
+    "X"
+   ]
+  },
+  {
+   "offset": 554576,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 2441,
+   "strings": [
+    "sonicgun",
+    " bz",
+    "d",
+    "5",
+    "0",
+    "@"
+   ]
+  },
+  {
+   "offset": 557028,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 18380,
+   "strings": [
+    "tank",
+    "!",
+    "Wu",
+    "`",
+    "p",
+    "r"
+   ]
+  },
+  {
+   "offset": 575416,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 3322,
+   "strings": [
+    "p7",
+    "\"",
+    "b",
+    "H",
+    "l",
+    "S"
+   ]
+  },
+  {
+   "offset": 578748,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 5793,
+   "strings": [
+    "rcbomblauncher",
+    ":",
+    ">",
+    "(",
+    "@",
+    "D"
+   ]
+  },
+  {
+   "offset": 584552,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 1830,
+   "strings": [
+    "rcrocket",
+    " ",
+    "@9",
+    "$",
+    "@aF",
+    "@B"
+   ]
+  },
+  {
+   "offset": 586392,
+   "type": "0xffffff01",
+   "kind": "file_ref/priority",
+   "size": 4,
+   "strings": []
+  },
+  {
+   "offset": 586404,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 33769,
+   "strings": [
+    "tank",
+    " ",
+    "`",
+    "@",
+    ":",
+    "`"
+   ]
+  },
+  {
+   "offset": 620184,
+   "type": "0xffffff01",
+   "kind": "file_ref/priority",
+   "size": 4,
+   "strings": []
+  },
+  {
+   "offset": 620196,
+   "type": "0xffffff49",
+   "kind": "mesh_geometry(compressed)",
+   "size": 11607,
+   "strings": [
+    "tank",
+    " ",
+    "V",
+    "@",
+    "8",
+    "@s"
+   ]
+  }
+ ]
+}

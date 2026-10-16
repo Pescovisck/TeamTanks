@@ -1,0 +1,402 @@
+property ptimer, pchoplist, ppartlist, pbloodsequence, pbloodtimes, plifetime, pshowblood
+global gmem, ghvk, goody, gsmokes, gmodinc
+
+on new me, npos, nrot, nvelo, nvang
+  [  0] pushcons 0 .............................. <"p1">
+  [  2] pushcons 1 .............................. <"p2">
+  [  4] pushcons 2 .............................. <"p3">
+  [  6] pushcons 3 .............................. <"p4">
+  [  8] pushcons 4 .............................. <"p5">
+  [ 10] pushcons 5 .............................. <"p6">
+  [ 12] pushcons 6 .............................. <"p7">
+  [ 14] pushcons 7 .............................. <"p8">
+  [ 16] pushcons 8 .............................. <"p9">
+  [ 18] pusharglist 9 ........................... <["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"]>
+  [ 20] pushlist ................................ <["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"]>
+  [ 21] setprop 1352 ............................ ppartlist = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"]
+  [ 24] pusharglist 0 ........................... <[]>
+  [ 26] pushlist ................................ <[]>
+  [ 27] setprop 1353 ............................ pchoplist = []
+  [ 30] pushint8 4 .............................. <4>
+  [ 32] pushint8 4 .............................. <4>
+  [ 34] pusharglist 1 ........................... <4>
+  [ 36] extcall 402 ............................. <random(4)>
+  [ 39] add ..................................... <4 + random(4)>
+  [ 40] setlocal 0 .............................. nshot = 4 + random(4)
+  [ 42] pushint8 1 .............................. <1>
+  [ 44] setlocal 1
+  [ 46] getlocal 1
+  [ 48] getlocal 0 .............................. <nshot>
+  [ 50] lteq
+  [ 51] jmpifz [ 80] ............................ repeat with i = 1 to nshot
+  [ 54] getprop 1352 ............................ <ppartlist>
+  [ 57] getprop 1352 ............................ <ppartlist>
+  [ 60] getobjprop 72 ........................... <ppartlist.count>
+  [ 62] pusharglist 1 ........................... <ppartlist.count>
+  [ 64] extcall 402 ............................. <random(ppartlist.count)>
+  [ 67] pusharglistnoret 2 ...................... <ppartlist, random(ppartlist.count)>
+  [ 69] objcall 234 ............................. ppartlist.deleteAt(random(ppartlist.count))
+  [ 71] pushint8 1
+  [ 73] getlocal 1
+  [ 75] add
+  [ 76] setlocal 1
+  [ 78] endrepeat [ 46]
+  [ 80] pushint8 1 .............................. <1>
+  [ 82] setlocal 1
+  [ 84] getlocal 1
+  [ 86] getprop 1352 ............................ <ppartlist>
+  [ 89] getobjprop 72 ........................... <ppartlist.count>
+  [ 91] lteq
+  [ 92] jmpifz [390] ............................ repeat with i = 1 to ppartlist.count
+  [ 95] getprop 1352 ............................ <ppartlist>
+  [ 98] getlocal 1 .............................. <i>
+  [100] pusharglist 2 ........................... <ppartlist, i>
+  [102] objcall 73 .............................. <ppartlist[i]>
+  [104] pusharglist 1 ........................... <ppartlist[i]>
+  [106] extcall 30 .............................. <recyclemodel(ppartlist[i])>
+  [108] setlocal 2 .............................. vmod = recyclemodel(ppartlist[i])
+  [110] getlocal 2 .............................. <vmod>
+  [112] pushzero ................................ <0>
+  [113] eq ...................................... <vmod = 0>
+  [114] jmpifz [253] ............................ if vmod = 0 then / else
+  [117] getglobal 77 ............................ <gmodinc>
+  [119] pushint8 1 .............................. <1>
+  [121] add ..................................... <gmodinc + 1>
+  [122] setglobal 77 ............................ gmodinc = gmodinc + 1
+  [124] getglobal 56 ............................ <gmem>
+  [126] getprop 1352 ............................ <ppartlist>
+  [129] getlocal 1 .............................. <i>
+  [131] pusharglist 2 ........................... <ppartlist, i>
+  [133] objcall 73 .............................. <ppartlist[i]>
+  [135] pusharglist 2 ........................... <gmem, ppartlist[i]>
+  [137] objcall 225 ............................. <gmem.model(ppartlist[i])>
+  [139] getprop 1352 ............................ <ppartlist>
+  [142] getlocal 1 .............................. <i>
+  [144] pusharglist 2 ........................... <ppartlist, i>
+  [146] objcall 73 .............................. <ppartlist[i]>
+  [148] pusharglist 1 ........................... <ppartlist[i]>
+  [150] extcall 59 .............................. <string(ppartlist[i])>
+  [152] getglobal 77 ............................ <gmodinc>
+  [154] joinstr ................................. <string(ppartlist[i]) & gmodinc>
+  [155] pusharglist 2 ........................... <gmem.model(ppartlist[i]), string(ppartlist[i]) & gmodinc>
+  [157] objcall 872 ............................. <gmem.model(ppartlist[i]).clone(string(ppartlist[i]) & gmodinc)>
+  [160] setlocal 2 .............................. vmod = gmem.model(ppartlist[i]).clone(string(ppartlist[i]) & gmodinc)
+  [162] getlocal 2 .............................. <vmod>
+  [164] getchainedprop 38 ....................... <vmod.transform>
+  [166] getparam 1 .............................. <npos>
+  [168] setobjprop 48 ........................... vmod.transform.position = npos
+  [170] getlocal 2 .............................. <vmod>
+  [172] getchainedprop 38 ....................... <vmod.transform>
+  [174] getparam 2 .............................. <nrot>
+  [176] setobjprop 39 ........................... vmod.transform.rotation = nrot
+  [178] getlocal 2 .............................. <vmod>
+  [180] getchainedprop 38 ....................... <vmod.transform>
+  [182] pushint8 1 .............................. <1>
+  [184] pushint8 1 .............................. <1>
+  [186] pushint8 1 .............................. <1>
+  [188] pusharglist 3 ........................... <1, 1, 1>
+  [190] extcall 46 .............................. <vector(1, 1, 1)>
+  [192] pushfloat32 1.5 ......................... <1.5>
+  [197] mul ..................................... <vector(1, 1, 1) * 1.5>
+  [198] setobjprop 47 ........................... vmod.transform.scale = vector(1, 1, 1) * 1.5
+  [200] getglobal 612 ........................... <ghvk>
+  [203] getlocal 2 .............................. <vmod>
+  [205] pushsymb 473 ............................ <#convexshape>
+  [208] pushsymb 474 ............................ <#dynamic>
+  [211] pusharglist 4 ........................... <ghvk, vmod, #convexshape, #dynamic>
+  [213] objcall 439 ............................. <ghvk.make_rb(vmod, #convexshape, #dynamic)>
+  [216] setlocal 3 .............................. vdummy = ghvk.make_rb(vmod, #convexshape, #dynamic)
+  [218] getlocal 3 .............................. <vdummy>
+  [220] pushint8 8 .............................. <8>
+  [222] setobjprop 465 .......................... vdummy.mass = 8
+  [225] getlocal 3 .............................. <vdummy>
+  [227] pushint8 2 .............................. <2>
+  [229] setobjprop 419 .......................... vdummy.friction = 2
+  [232] getlocal 3 .............................. <vdummy>
+  [234] pushcons 9 .............................. <0.01>
+  [236] setobjprop 450 .......................... vdummy.restitution = 0.01
+  [239] getlocal 2 .............................. <vmod>
+  [241] pushcons 10 ............................. <"porkchoptex">
+  [243] pusharglist 1 ........................... <"porkchoptex">
+  [245] extcall 12 .............................. <shady("porkchoptex")>
+  [247] setobjprop 562 .......................... vmod.shaderList = shady("porkchoptex")
+  [250] jmp [304]
+  [253] getglobal 612 ........................... <ghvk>
+  [256] getchainedprop 443 ...................... <ghvk.pphysx>
+  [259] getlocal 2 .............................. <vmod>
+  [261] getobjprop 416 .......................... <vmod.name>
+  [264] pusharglist 2 ........................... <ghvk.pphysx, vmod.name>
+  [266] objcall 459 ............................. <ghvk.pphysx.getRigidBody(vmod.name)>
+  [269] setlocal 3 .............................. vdummy = ghvk.pphysx.getRigidBody(vmod.name)
+  [271] getlocal 3 .............................. <vdummy>
+  [273] pushzero ................................ <0>
+  [274] setobjprop 629 .......................... vdummy.isPinned = 0
+  [277] getlocal 2 .............................. <vmod>
+  [279] getchainedprop 38 ....................... <vmod.transform>
+  [281] getparam 1 .............................. <npos>
+  [283] setobjprop 48 ........................... vmod.transform.position = npos
+  [285] getlocal 2 .............................. <vmod>
+  [287] getchainedprop 38 ....................... <vmod.transform>
+  [289] getparam 2 .............................. <nrot>
+  [291] setobjprop 39 ........................... vmod.transform.rotation = nrot
+  [293] getlocal 3 .............................. <vdummy>
+  [295] getlocal 2 .............................. <vmod>
+  [297] getchainedprop 38 ....................... <vmod.transform>
+  [299] getobjprop 51 ........................... <vmod.transform.axisAngle>
+  [301] setobjprop 719 .......................... vdummy.orientation = vmod.transform.axisAngle
+  [304] getprop 1353 ............................ <pchoplist>
+  [307] getlocal 2 .............................. <vmod>
+  [309] pusharglistnoret 2 ...................... <pchoplist, vmod>
+  [311] objcall 154 ............................. pchoplist.add(vmod)
+  [313] getlocal 2 .............................. <vmod>
+  [315] pusharglistnoret 1 ...................... <vmod>
+  [317] objcall 228 ............................. vmod.addToWorld()
+  [319] getlocal 2 .............................. <vmod>
+  [321] getglobal 608 ........................... <gsmokes>
+  [324] setobjprop 609 .......................... vmod.parent = gsmokes
+  [327] getlocal 3 .............................. <vdummy>
+  [329] getparam 1 .............................. <npos>
+  [331] setobjprop 48 ........................... vdummy.position = npos
+  [333] getlocal 3 .............................. <vdummy>
+  [335] getparam 3 .............................. <nvelo>
+  [337] setobjprop 621 .......................... vdummy.linearVelocity = nvelo
+  [340] getlocal 3 .............................. <vdummy>
+  [342] getparam 4 .............................. <nvang>
+  [344] setobjprop 728 .......................... vdummy.angularVelocity = nvang
+  [347] pushint16 200 ........................... <200>
+  [350] pusharglist 1 ........................... <200>
+  [352] extcall 402 ............................. <random(200)>
+  [355] pushint8 100 ............................ <100>
+  [357] sub ..................................... <random(200) - 100>
+  [358] setlocal 4 .............................. vdaforce = random(200) - 100
+  [360] getlocal 3 .............................. <vdummy>
+  [362] getlocal 4 .............................. <vdaforce>
+  [364] getlocal 4 .............................. <vdaforce>
+  [366] getlocal 4 .............................. <vdaforce>
+  [368] pushint8 2 .............................. <2>
+  [370] mul ..................................... <vdaforce * 2>
+  [371] pusharglist 3 ........................... <vdaforce, vdaforce, vdaforce * 2>
+  [373] extcall 46 .............................. <vector(vdaforce, vdaforce, vdaforce * 2)>
+  [375] pusharglistnoret 2 ...................... <vdummy, vector(vdaforce, vdaforce, vdaforce * 2)>
+  [377] objcall 729 ............................. vdummy.applyLinearImpulse(vector(vdaforce, vdaforce, vdaforce * 2))
+  [380] pushint8 1
+  [382] getlocal 1
+  [384] add
+  [385] setlocal 1
+  [387] endrepeat [ 84]
+  [390] pushint16 200 ........................... <200>
+  [393] pushint16 200 ........................... <200>
+  [396] pusharglist 1 ........................... <200>
+  [398] extcall 402 ............................. <random(200)>
+  [401] add ..................................... <200 + random(200)>
+  [402] setprop 1060 ............................ plifetime = 200 + random(200)
+  [405] pushint8 5 .............................. <5>
+  [407] pushint8 20 ............................. <20>
+  [409] pushint8 60 ............................. <60>
+  [411] pusharglist 3 ........................... <[5, 20, 60]>
+  [413] pushlist ................................ <[5, 20, 60]>
+  [414] pushint8 10 ............................. <10>
+  [416] pushint8 40 ............................. <40>
+  [418] pushint8 50 ............................. <50>
+  [420] pusharglist 3 ........................... <[10, 40, 50]>
+  [422] pushlist ................................ <[10, 40, 50]>
+  [423] pushint8 50 ............................. <50>
+  [425] pusharglist 1 ........................... <[50]>
+  [427] pushlist ................................ <[50]>
+  [428] pushint8 10 ............................. <10>
+  [430] pushint8 30 ............................. <30>
+  [432] pushint8 60 ............................. <60>
+  [434] pusharglist 3 ........................... <[10, 30, 60]>
+  [436] pushlist ................................ <[10, 30, 60]>
+  [437] pushint8 12 ............................. <12>
+  [439] pusharglist 1 ........................... <[12]>
+  [441] pushlist ................................ <[12]>
+  [442] pushint8 1 .............................. <1>
+  [444] pusharglist 1 ........................... <[1]>
+  [446] pushlist ................................ <[1]>
+  [447] pushint8 30 ............................. <30>
+  [449] pusharglist 1 ........................... <[30]>
+  [451] pushlist ................................ <[30]>
+  [452] pushint8 10 ............................. <10>
+  [454] pushint8 23 ............................. <23>
+  [456] pusharglist 2 ........................... <[10, 23]>
+  [458] pushlist ................................ <[10, 23]>
+  [459] pushint8 5 .............................. <5>
+  [461] pushint8 60 ............................. <60>
+  [463] pusharglist 2 ........................... <[5, 60]>
+  [465] pushlist ................................ <[5, 60]>
+  [466] pushint8 10 ............................. <10>
+  [468] pushint8 40 ............................. <40>
+  [470] pusharglist 2 ........................... <[10, 40]>
+  [472] pushlist ................................ <[10, 40]>
+  [473] pusharglist 10 .......................... <[[5, 20, 60], [10, 40, 50], [50], [10, 30, 60], [12], [1], [30], [10, 23], [5, 60], [10, 40]]>
+  [475] pushlist ................................ <[[5, 20, 60], [10, 40, 50], [50], [10, 30, 60], [12], [1], [30], [10, 23], [5, 60], [10, 40]]>
+  [476] setprop 1354 ............................ pbloodsequence = [[5, 20, 60], [10, 40, 50], [50], [10, 30, 60], [12], [1], [30], [10, 23], [5, 60], [10, 40]]
+  [479] getprop 1354 ............................ <pbloodsequence>
+  [482] getprop 1354 ............................ <pbloodsequence>
+  [485] getobjprop 72 ........................... <pbloodsequence.count>
+  [487] pusharglist 1 ........................... <pbloodsequence.count>
+  [489] extcall 402 ............................. <random(pbloodsequence.count)>
+  [492] pusharglist 2 ........................... <pbloodsequence, random(pbloodsequence.count)>
+  [494] objcall 73 .............................. <pbloodsequence[random(pbloodsequence.count)]>
+  [496] setprop 1355 ............................ pbloodtimes = pbloodsequence[random(pbloodsequence.count)]
+  [499] pushzero ................................ <0>
+  [500] setprop 1356 ............................ pshowblood = 0
+  [503] getparam 1 .............................. <npos>
+  [505] getglobal 83 ............................ <goody>
+  [507] getobjprop 105 .......................... <goody.pos>
+  [509] pusharglist 2 ........................... <npos, goody.pos>
+  [511] objcall 98 .............................. <npos.distanceTo(goody.pos)>
+  [513] pushint16 2000 .......................... <2000>
+  [516] lt ...................................... <npos.distanceTo(goody.pos) < 2000>
+  [517] jmpifz [525] ............................ if npos.distanceTo(goody.pos) < 2000 then
+  [520] pushint8 1 .............................. <1>
+  [522] setprop 1356 ............................ pshowblood = 1
+  [525] getparam 1 .............................. <npos>
+  [527] pushcons 11 ............................. <"redeath_explosion">
+  [529] pusharglistnoret 2 ...................... <npos, "redeath_explosion">
+  [531] extcall 10 .............................. playsound(npos, "redeath_explosion")
+  [533] getmovieprop 71 ......................... <the actorList>
+  [535] getparam 0 .............................. <me>
+  [537] pusharglistnoret 2 ...................... <the actorList, me>
+  [539] objcall 154 ............................. (the actorList).add(me)
+  [541] getparam 0 .............................. <me>
+  [543] pusharglistnoret 1 ...................... <me>
+  [545] extcall 40 .............................. return me
+  [547] ret
+end
+
+on stepFrame me
+  [  0] getprop 1277 ............................ <ptimer>
+  [  3] pushint8 1 .............................. <1>
+  [  5] add ..................................... <ptimer + 1>
+  [  6] setprop 1277 ............................ ptimer = ptimer + 1
+  [  9] getprop 1356 ............................ <pshowblood>
+  [ 12] jmpifz [ 34] ............................ if pshowblood then
+  [ 15] getprop 1355 ............................ <pbloodtimes>
+  [ 18] getprop 1277 ............................ <ptimer>
+  [ 21] pusharglist 2 ........................... <pbloodtimes, ptimer>
+  [ 23] objcall 111 ............................. <pbloodtimes.getOne(ptimer)>
+  [ 25] jmpifz [ 34] ............................ if pbloodtimes.getOne(ptimer) then
+  [ 28] getparam 0 .............................. <me>
+  [ 30] pusharglistnoret 1 ...................... <me>
+  [ 32] localcall 2 ............................. dosplat(me)
+  [ 34] getprop 1277 ............................ <ptimer>
+  [ 37] getprop 1060 ............................ <plifetime>
+  [ 40] gt ...................................... <ptimer > plifetime>
+  [ 41] jmpifz [ 50] ............................ if ptimer > plifetime then
+  [ 44] getparam 0 .............................. <me>
+  [ 46] pusharglistnoret 1 ...................... <me>
+  [ 48] localcall 3 ............................. die(me)
+  [ 50] ret
+end
+
+on dosplat me
+  [  0] getprop 1353 ............................ <pchoplist>
+  [  3] getprop 1353 ............................ <pchoplist>
+  [  6] getobjprop 72 ........................... <pchoplist.count>
+  [  8] pusharglist 1 ........................... <pchoplist.count>
+  [ 10] extcall 402 ............................. <random(pchoplist.count)>
+  [ 13] pusharglist 2 ........................... <pchoplist, random(pchoplist.count)>
+  [ 15] objcall 73 .............................. <pchoplist[random(pchoplist.count)]>
+  [ 17] setlocal 0 .............................. nmod = pchoplist[random(pchoplist.count)]
+  [ 19] getglobal 608 ........................... <gsmokes>
+  [ 22] pusharglistnoret 1 ...................... <gsmokes>
+  [ 24] objcall 200 ............................. gsmokes.removeFromWorld()
+  [ 26] getglobal 56 ............................ <gmem>
+  [ 28] getlocal 0 .............................. <nmod>
+  [ 30] getchainedprop 38 ....................... <nmod.transform>
+  [ 32] getobjprop 48 ........................... <nmod.transform.position>
+  [ 34] pushcons 9 .............................. <0.01>
+  [ 36] pushzero ................................ <0>
+  [ 37] pushcons 12 ............................. <0.98999999999999999>
+  [ 39] inv ..................................... <-0.98999999999999999>
+  [ 40] pusharglist 3 ........................... <0.01, 0, -0.98999999999999999>
+  [ 42] extcall 46 .............................. <vector(0.01, 0, -0.98999999999999999)>
+  [ 44] pushint8 1 .............................. <1>
+  [ 46] pushsymb 681 ............................ <#detailed>
+  [ 49] pusharglist 5 ........................... <gmem, nmod.transform.position, vector(0.01, 0, -0.98999999999999999), 1, #detailed>
+  [ 51] objcall 682 ............................. <gmem.modelsUnderRay(nmod.transform.position, vector(0.01, 0, -0.98999999999999999), 1, #detailed)>
+  [ 54] setlocal 1 .............................. vshoot = gmem.modelsUnderRay(nmod.transform.position, vector(0.01, 0, -0.98999999999999999), 1, #detailed)
+  [ 56] getlocal 1 .............................. <vshoot>
+  [ 58] pusharglist 0 ........................... <[]>
+  [ 60] pushlist ................................ <[]>
+  [ 61] nteq .................................... <vshoot <> []>
+  [ 62] jmpifz [112] ............................ if vshoot <> [] then
+  [ 65] pushcons 13 ............................. <"bloodsplat">
+  [ 67] pusharglist 1 ........................... <"bloodsplat">
+  [ 69] extcall 303 ............................. <script("bloodsplat")>
+  [ 72] getlocal 1 .............................. <vshoot>
+  [ 74] pushint8 1 .............................. <1>
+  [ 76] pusharglist 2 ........................... <vshoot, 1>
+  [ 78] objcall 73 .............................. <vshoot[1]>
+  [ 80] getobjprop 684 .......................... <vshoot[1].isectPosition>
+  [ 83] getlocal 1 .............................. <vshoot>
+  [ 85] pushint8 1 .............................. <1>
+  [ 87] pusharglist 2 ........................... <vshoot, 1>
+  [ 89] objcall 73 .............................. <vshoot[1]>
+  [ 91] getobjprop 685 .......................... <vshoot[1].isectNormal>
+  [ 94] pushint8 100 ............................ <100>
+  [ 96] pushint16 500 ........................... <500>
+  [ 99] pusharglist 1 ........................... <500>
+  [101] extcall 402 ............................. <random(500)>
+  [104] add ..................................... <100 + random(500)>
+  [105] pusharglist 4 ........................... <script("bloodsplat"), vshoot[1].isectPosition, vshoot[1].isectNormal, 100 + random(500)>
+  [107] objcall 265 ............................. <script("bloodsplat").new(vshoot[1].isectPosition, vshoot[1].isectNormal, 100 + random(500))>
+  [110] setlocal 2 .............................. bloodsplat = script("bloodsplat").new(vshoot[1].isectPosition, vshoot[1].isectNormal, 100 + random(500))
+  [112] getglobal 608 ........................... <gsmokes>
+  [115] pusharglistnoret 1 ...................... <gsmokes>
+  [117] objcall 228 ............................. gsmokes.addToWorld()
+  [119] ret
+end
+
+on die me
+  [  0] pushint8 1 .............................. <1>
+  [  2] setlocal 0
+  [  4] getlocal 0
+  [  6] getprop 1353 ............................ <pchoplist>
+  [  9] getobjprop 72 ........................... <pchoplist.count>
+  [ 11] lteq
+  [ 12] jmpifz [ 92] ............................ repeat with i = 1 to pchoplist.count
+  [ 15] getglobal 612 ........................... <ghvk>
+  [ 18] getchainedprop 443 ...................... <ghvk.pphysx>
+  [ 21] getprop 1353 ............................ <pchoplist>
+  [ 24] getlocal 0 .............................. <i>
+  [ 26] pusharglist 2 ........................... <pchoplist, i>
+  [ 28] objcall 73 .............................. <pchoplist[i]>
+  [ 30] getobjprop 416 .......................... <pchoplist[i].name>
+  [ 33] pusharglist 2 ........................... <ghvk.pphysx, pchoplist[i].name>
+  [ 35] objcall 459 ............................. <ghvk.pphysx.getRigidBody(pchoplist[i].name)>
+  [ 38] setlocal 1 .............................. vdummy = ghvk.pphysx.getRigidBody(pchoplist[i].name)
+  [ 40] getlocal 1 .............................. <vdummy>
+  [ 42] pushzero ................................ <0>
+  [ 43] pushzero ................................ <0>
+  [ 44] pushint16 1000 .......................... <1000>
+  [ 47] inv ..................................... <-1000>
+  [ 48] pusharglist 3 ........................... <0, 0, -1000>
+  [ 50] extcall 46 .............................. <vector(0, 0, -1000)>
+  [ 52] setobjprop 48 ........................... vdummy.position = vector(0, 0, -1000)
+  [ 54] getlocal 1 .............................. <vdummy>
+  [ 56] pushint8 1 .............................. <1>
+  [ 58] setobjprop 629 .......................... vdummy.isPinned = 1
+  [ 61] getprop 1352 ............................ <ppartlist>
+  [ 64] getlocal 0 .............................. <i>
+  [ 66] pusharglist 2 ........................... <ppartlist, i>
+  [ 68] objcall 73 .............................. <ppartlist[i]>
+  [ 70] getprop 1353 ............................ <pchoplist>
+  [ 73] getlocal 0 .............................. <i>
+  [ 75] pusharglist 2 ........................... <pchoplist, i>
+  [ 77] objcall 73 .............................. <pchoplist[i]>
+  [ 79] pusharglistnoret 2 ...................... <ppartlist[i], pchoplist[i]>
+  [ 81] extcall 29 .............................. storemodel(ppartlist[i], pchoplist[i])
+  [ 83] pushint8 1
+  [ 85] getlocal 0
+  [ 87] add
+  [ 88] setlocal 0
+  [ 90] endrepeat [  4]
+  [ 92] getmovieprop 71 ......................... <the actorList>
+  [ 94] getparam 0 .............................. <me>
+  [ 96] pusharglistnoret 2 ...................... <the actorList, me>
+  [ 98] objcall 227 ............................. (the actorList).deleteOne(me)
+  [100] ret
+end

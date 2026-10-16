@@ -1,0 +1,70 @@
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Russo One", "Chakra Petch", sans-serif;
+  --color-hazard: #f2c230;
+  --color-gunmetal: #14171c;
+  --color-steel: #232830;
+  --color-plate: #2e343e;
+  --color-team-red: #e0442e;
+  --color-team-blue: #3b7bf0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #0b0d10;
+  color: #e8ebef;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
+/* riveted steel plate used by HUD and menu panels */
+.plate {
+  background:
+    radial-gradient(circle at 8px 8px, #5a6270 1.5px, transparent 2px) top left / 100% 100% no-repeat,
+    radial-gradient(circle at calc(100% - 8px) 8px, #5a6270 1.5px, transparent 2px) top right / 100% 100% no-repeat,
+    linear-gradient(180deg, rgba(46, 52, 62, 0.92), rgba(24, 28, 34, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.hazard-stripe {
+  background: repeating-linear-gradient(-45deg, #f2c230 0 10px, #14171c 10px 20px);
+}
+
+@keyframes pop {
+  0% { transform: translate(-50%, 8px) scale(0.7); opacity: 0; }
+  15% { transform: translate(-50%, 0) scale(1.08); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate(-50%, -24px) scale(1); opacity: 0; }
+}
+.anim-pop {
+  animation: pop 1.5s ease-out forwards;
+}
+
+@keyframes feed-in {
+  from { transform: translateX(-12px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.anim-feed {
+  animation: feed-in 0.25s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-pop,
+  .anim-feed {
+    animation: none;
+  }
+}

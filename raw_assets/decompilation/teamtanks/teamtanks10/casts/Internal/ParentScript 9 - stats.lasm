@@ -1,0 +1,1125 @@
+property pscore, pkills, pshots_hit, pshots_total, pnukebbq, pubers, pflips, pcaptures, pdamage_to_enemy, pweapaccuracy, pweapaccuracy_hits, pweapaccuracy_shots, pdefends, paccuracy, pscratch, prespawns, pwin, ptopscore, pairtime, ptricksize, ptrickspulled, pSpeed, purl, pnetid, pop
+global gmem, goody, gisloggedin, gsession
+
+on new me
+  [  0] getparam 0 .............................. <me>
+  [  2] pusharglistnoret 1 ...................... <me>
+  [  4] localcall 1 ............................. resetstats(me)
+  [  6] pushcons 0 .............................. <"http://www.gamevial.com/data/gamecomms.php">
+  [  8] setprop 1012 ............................ purl = "http://www.gamevial.com/data/gamecomms.php"
+  [ 11] pushzero ................................ <0>
+  [ 12] setprop 1013 ............................ pnetid = 0
+  [ 15] pushcons 1 .............................. <EMPTY>
+  [ 17] setprop 1014 ............................ pop = EMPTY
+  [ 20] getmovieprop 71 ......................... <the actorList>
+  [ 22] getparam 0 .............................. <me>
+  [ 24] pusharglistnoret 2 ...................... <the actorList, me>
+  [ 26] objcall 154 ............................. (the actorList).add(me)
+  [ 28] getparam 0 .............................. <me>
+  [ 30] pusharglistnoret 1 ...................... <me>
+  [ 32] extcall 40 .............................. return me
+  [ 34] ret
+end
+
+on resetstats me
+  [  0] pushzero ................................ <0>
+  [  1] setprop 318 ............................. pscore = 0
+  [  4] pushzero ................................ <0>
+  [  5] setprop 351 ............................. pkills = 0
+  [  8] pushzero ................................ <0>
+  [  9] setprop 771 ............................. pshots_hit = 0
+  [ 12] pushzero ................................ <0>
+  [ 13] setprop 901 ............................. pshots_total = 0
+  [ 16] pushzero ................................ <0>
+  [ 17] setprop 354 ............................. pnukebbq = 0
+  [ 20] pushzero ................................ <0>
+  [ 21] setprop 746 ............................. pubers = 0
+  [ 24] pushzero ................................ <0>
+  [ 25] setprop 747 ............................. pflips = 0
+  [ 28] pushzero ................................ <0>
+  [ 29] setprop 1015 ............................ pcaptures = 0
+  [ 32] pushzero ................................ <0>
+  [ 33] setprop 353 ............................. pdefends = 0
+  [ 36] pushzero ................................ <0>
+  [ 37] setprop 1016 ............................ paccuracy = 0
+  [ 40] pushzero ................................ <0>
+  [ 41] setprop 638 ............................. pscratch = 0
+  [ 44] pushzero ................................ <0>
+  [ 45] setprop 764 ............................. prespawns = 0
+  [ 48] pushzero ................................ <0>
+  [ 49] setprop 1017 ............................ pwin = 0
+  [ 52] pushzero ................................ <0>
+  [ 53] setprop 1018 ............................ ptopscore = 0
+  [ 56] pushzero ................................ <0>
+  [ 57] setprop 724 ............................. pairtime = 0
+  [ 60] pushzero ................................ <0>
+  [ 61] setprop 640 ............................. ptricksize = 0
+  [ 64] pushzero ................................ <0>
+  [ 65] setprop 748 ............................. ptrickspulled = 0
+  [ 68] pushzero ................................ <0>
+  [ 69] setprop 725 ............................. pSpeed = 0
+  [ 72] pushsymb 338 ............................ <#mgun>
+  [ 75] pushzero ................................ <0>
+  [ 76] pushsymb 339 ............................ <#bgun>
+  [ 79] pushzero ................................ <0>
+  [ 80] pushsymb 208 ............................ <#nook>
+  [ 82] pushzero ................................ <0>
+  [ 83] pushsymb 206 ............................ <#rocket>
+  [ 85] pushzero ................................ <0>
+  [ 86] pushsymb 222 ............................ <#proximitymine>
+  [ 88] pushzero ................................ <0>
+  [ 89] pushsymb 340 ............................ <#speed>
+  [ 92] pushzero ................................ <0>
+  [ 93] pushsymb 341 ............................ <#lasergun>
+  [ 96] pushzero ................................ <0>
+  [ 97] pushsymb 342 ............................ <#mgunx2>
+  [100] pushzero ................................ <0>
+  [101] pushsymb 207 ............................ <#rocketx4>
+  [103] pushzero ................................ <0>
+  [104] pushsymb 223 ............................ <#remotemine>
+  [106] pushzero ................................ <0>
+  [107] pushsymb 343 ............................ <#sonicgun>
+  [110] pushzero ................................ <0>
+  [111] pushsymb 210 ............................ <#guidedmissile>
+  [113] pushzero ................................ <0>
+  [114] pushsymb 344 ............................ <#thrusters>
+  [117] pushzero ................................ <0>
+  [118] pushsymb 211 ............................ <#mortar>
+  [120] pushzero ................................ <0>
+  [121] pushsymb 345 ............................ <#airstrike>
+  [124] pushzero ................................ <0>
+  [125] pushsymb 213 ............................ <#rcbomb>
+  [127] pushzero ................................ <0>
+  [128] pushsymb 217 ............................ <#rcrocket>
+  [130] pushzero ................................ <0>
+  [131] pushsymb 216 ............................ <#health>
+  [133] pushzero ................................ <0>
+  [134] pushsymb 323 ............................ <#stealth>
+  [137] pushzero ................................ <0>
+  [138] pusharglist 38 .......................... <[#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]>
+  [140] pushproplist ............................ <[#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]>
+  [141] setprop 773 ............................. pdamage_to_enemy = [#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]
+  [144] pushsymb 338 ............................ <#mgun>
+  [147] pushzero ................................ <0>
+  [148] pushsymb 339 ............................ <#bgun>
+  [151] pushzero ................................ <0>
+  [152] pushsymb 208 ............................ <#nook>
+  [154] pushzero ................................ <0>
+  [155] pushsymb 206 ............................ <#rocket>
+  [157] pushzero ................................ <0>
+  [158] pushsymb 222 ............................ <#proximitymine>
+  [160] pushzero ................................ <0>
+  [161] pushsymb 340 ............................ <#speed>
+  [164] pushzero ................................ <0>
+  [165] pushsymb 341 ............................ <#lasergun>
+  [168] pushzero ................................ <0>
+  [169] pushsymb 342 ............................ <#mgunx2>
+  [172] pushzero ................................ <0>
+  [173] pushsymb 207 ............................ <#rocketx4>
+  [175] pushzero ................................ <0>
+  [176] pushsymb 223 ............................ <#remotemine>
+  [178] pushzero ................................ <0>
+  [179] pushsymb 343 ............................ <#sonicgun>
+  [182] pushzero ................................ <0>
+  [183] pushsymb 210 ............................ <#guidedmissile>
+  [185] pushzero ................................ <0>
+  [186] pushsymb 344 ............................ <#thrusters>
+  [189] pushzero ................................ <0>
+  [190] pushsymb 211 ............................ <#mortar>
+  [192] pushzero ................................ <0>
+  [193] pushsymb 345 ............................ <#airstrike>
+  [196] pushzero ................................ <0>
+  [197] pushsymb 213 ............................ <#rcbomb>
+  [199] pushzero ................................ <0>
+  [200] pushsymb 217 ............................ <#rcrocket>
+  [202] pushzero ................................ <0>
+  [203] pushsymb 216 ............................ <#health>
+  [205] pushzero ................................ <0>
+  [206] pushsymb 323 ............................ <#stealth>
+  [209] pushzero ................................ <0>
+  [210] pusharglist 38 .......................... <[#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]>
+  [212] pushproplist ............................ <[#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]>
+  [213] setprop 772 ............................. pweapaccuracy_hits = [#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]
+  [216] pushsymb 338 ............................ <#mgun>
+  [219] pushzero ................................ <0>
+  [220] pushsymb 339 ............................ <#bgun>
+  [223] pushzero ................................ <0>
+  [224] pushsymb 208 ............................ <#nook>
+  [226] pushzero ................................ <0>
+  [227] pushsymb 206 ............................ <#rocket>
+  [229] pushzero ................................ <0>
+  [230] pushsymb 222 ............................ <#proximitymine>
+  [232] pushzero ................................ <0>
+  [233] pushsymb 340 ............................ <#speed>
+  [236] pushzero ................................ <0>
+  [237] pushsymb 341 ............................ <#lasergun>
+  [240] pushzero ................................ <0>
+  [241] pushsymb 342 ............................ <#mgunx2>
+  [244] pushzero ................................ <0>
+  [245] pushsymb 207 ............................ <#rocketx4>
+  [247] pushzero ................................ <0>
+  [248] pushsymb 223 ............................ <#remotemine>
+  [250] pushzero ................................ <0>
+  [251] pushsymb 343 ............................ <#sonicgun>
+  [254] pushzero ................................ <0>
+  [255] pushsymb 210 ............................ <#guidedmissile>
+  [257] pushzero ................................ <0>
+  [258] pushsymb 344 ............................ <#thrusters>
+  [261] pushzero ................................ <0>
+  [262] pushsymb 211 ............................ <#mortar>
+  [264] pushzero ................................ <0>
+  [265] pushsymb 345 ............................ <#airstrike>
+  [268] pushzero ................................ <0>
+  [269] pushsymb 213 ............................ <#rcbomb>
+  [271] pushzero ................................ <0>
+  [272] pushsymb 217 ............................ <#rcrocket>
+  [274] pushzero ................................ <0>
+  [275] pushsymb 216 ............................ <#health>
+  [277] pushzero ................................ <0>
+  [278] pushsymb 323 ............................ <#stealth>
+  [281] pushzero ................................ <0>
+  [282] pusharglist 38 .......................... <[#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]>
+  [284] pushproplist ............................ <[#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]>
+  [285] setprop 902 ............................. pweapaccuracy_shots = [#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]
+  [288] pushsymb 338 ............................ <#mgun>
+  [291] pushzero ................................ <0>
+  [292] pushsymb 339 ............................ <#bgun>
+  [295] pushzero ................................ <0>
+  [296] pushsymb 208 ............................ <#nook>
+  [298] pushzero ................................ <0>
+  [299] pushsymb 206 ............................ <#rocket>
+  [301] pushzero ................................ <0>
+  [302] pushsymb 222 ............................ <#proximitymine>
+  [304] pushzero ................................ <0>
+  [305] pushsymb 340 ............................ <#speed>
+  [308] pushzero ................................ <0>
+  [309] pushsymb 341 ............................ <#lasergun>
+  [312] pushzero ................................ <0>
+  [313] pushsymb 342 ............................ <#mgunx2>
+  [316] pushzero ................................ <0>
+  [317] pushsymb 207 ............................ <#rocketx4>
+  [319] pushzero ................................ <0>
+  [320] pushsymb 223 ............................ <#remotemine>
+  [322] pushzero ................................ <0>
+  [323] pushsymb 343 ............................ <#sonicgun>
+  [326] pushzero ................................ <0>
+  [327] pushsymb 210 ............................ <#guidedmissile>
+  [329] pushzero ................................ <0>
+  [330] pushsymb 344 ............................ <#thrusters>
+  [333] pushzero ................................ <0>
+  [334] pushsymb 211 ............................ <#mortar>
+  [336] pushzero ................................ <0>
+  [337] pushsymb 345 ............................ <#airstrike>
+  [340] pushzero ................................ <0>
+  [341] pushsymb 213 ............................ <#rcbomb>
+  [343] pushzero ................................ <0>
+  [344] pushsymb 217 ............................ <#rcrocket>
+  [346] pushzero ................................ <0>
+  [347] pushsymb 216 ............................ <#health>
+  [349] pushzero ................................ <0>
+  [350] pushsymb 323 ............................ <#stealth>
+  [353] pushzero ................................ <0>
+  [354] pusharglist 38 .......................... <[#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]>
+  [356] pushproplist ............................ <[#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]>
+  [357] setprop 1019 ............................ pweapaccuracy = [#mgun: 0, #bgun: 0, #nook: 0, #rocket: 0, #proximitymine: 0, #speed: 0, #lasergun: 0, #mgunx2: 0, #rocketx4: 0, #remotemine: 0, #sonicgun: 0, #guidedmissile: 0, #thrusters: 0, #mortar: 0, #airstrike: 0, #rcbomb: 0, #rcrocket: 0, #health: 0, #stealth: 0]
+  [360] ret
+end
+
+on stepFrame me
+  [  0] getprop 1013 ............................ <pnetid>
+  [  3] pushzero ................................ <0>
+  [  4] nteq .................................... <pnetid <> 0>
+  [  5] getprop 1014 ............................ <pop>
+  [  8] pushcons 2 .............................. <"mmmpotato">
+  [ 10] eq ...................................... <pop = "mmmpotato">
+  [ 11] and ..................................... <(pnetid <> 0) and (pop = "mmmpotato")>
+  [ 12] jmpifz [188] ............................ if (pnetid <> 0) and (pop = "mmmpotato") then
+  [ 15] getprop 1013 ............................ <pnetid>
+  [ 18] pusharglist 1 ........................... <pnetid>
+  [ 20] extcall 1020 ............................ <netDone(pnetid)>
+  [ 23] jmpifz [184] ............................ if netDone(pnetid) then / else
+  [ 26] getprop 1013 ............................ <pnetid>
+  [ 29] pusharglist 1 ........................... <pnetid>
+  [ 31] extcall 1021 ............................ <netError(pnetid)>
+  [ 34] pushcons 3 .............................. <"OK">
+  [ 36] eq ...................................... <netError(pnetid) = "OK">
+  [ 37] jmpifz [168] ............................ if netError(pnetid) = "OK" then / else
+  [ 40] getprop 1013 ............................ <pnetid>
+  [ 43] pusharglist 1 ........................... <pnetid>
+  [ 45] extcall 1022 ............................ <netTextResult(pnetid)>
+  [ 48] setlocal 0 .............................. Msg = netTextResult(pnetid)
+  [ 50] pushcons 4 .............................. <";">
+  [ 52] setmovieprop 363 ........................ the itemDelimiter = ";"
+  [ 55] getlocal 0 .............................. <Msg>
+  [ 57] pushsymb 364 ............................ <#item>
+  [ 60] pushint8 1 .............................. <1>
+  [ 62] pusharglist 3 ........................... <Msg, #item, 1>
+  [ 64] objcall 122 ............................. <Msg.item[1]>
+  [ 66] pushcons 5 .............................. <"1">
+  [ 68] eq ...................................... <Msg.item[1] = "1">
+  [ 69] jmpifz [156] ............................ if Msg.item[1] = "1" then
+  [ 72] getlocal 0 .............................. <Msg>
+  [ 74] pushsymb 364 ............................ <#item>
+  [ 77] pushint8 2 .............................. <2>
+  [ 79] pusharglist 3 ........................... <Msg, #item, 2>
+  [ 81] objcall 122 ............................. <Msg.item[2]>
+  [ 83] setlocal 1 .............................. vnewrank = Msg.item[2]
+  [ 85] pushcons 6 .............................. <"datamytank">
+  [ 87] pusharglist 1 ........................... <"datamytank">
+  [ 89] extcall 52 .............................. <member("datamytank")>
+  [ 91] getobjprop 54 ........................... <member("datamytank").text>
+  [ 93] setlocal 2 .............................. vupdaterank = member("datamytank").text
+  [ 95] pushcons 4 .............................. <";">
+  [ 97] setmovieprop 363 ........................ the itemDelimiter = ";"
+  [100] getlocal 2 .............................. <vupdaterank>
+  [102] pushsymb 364 ............................ <#item>
+  [105] pushint8 2 .............................. <2>
+  [107] getlocal 1 .............................. <vnewrank>
+  [109] pusharglistnoret 4 ...................... <vupdaterank, #item, 2, vnewrank>
+  [111] objcall 142 ............................. vupdaterank.item[2] = vnewrank
+  [113] pushcons 6 .............................. <"datamytank">
+  [115] pusharglist 1 ........................... <"datamytank">
+  [117] extcall 52 .............................. <member("datamytank")>
+  [119] getlocal 2 .............................. <vupdaterank>
+  [121] setobjprop 54 ........................... member("datamytank").text = vupdaterank
+  [123] getglobal 83 ............................ <goody>
+  [125] pusharglist 1 ........................... <goody>
+  [127] extcall 55 .............................. <voidp(goody)>
+  [129] not ..................................... <not voidp(goody)>
+  [130] jmpifz [156] ............................ if not voidp(goody) then
+  [133] getglobal 83 ............................ <goody>
+  [135] getobjprop 358 .......................... <goody.pstate>
+  [138] pushcons 7 .............................. <"end">
+  [140] eq ...................................... <goody.pstate = "end">
+  [141] jmpifz [156] ............................ if goody.pstate = "end" then
+  [144] pushint8 3 .............................. <3>
+  [146] pushsymb 1024 ........................... <#showpromotion>
+  [149] getlocal 1 .............................. <vnewrank>
+  [151] pusharglistnoret 3 ...................... <3, #showpromotion, vnewrank>
+  [153] extcall 1023 ............................ sendSprite(3, #showpromotion, vnewrank)
+  [156] pushzero ................................ <0>
+  [157] setprop 1013 ............................ pnetid = 0
+  [160] pushcons 1 .............................. <EMPTY>
+  [162] setprop 1014 ............................ pop = EMPTY
+  [165] jmp [181]
+  [168] pushzero ................................ <0>
+  [169] setprop 1013 ............................ pnetid = 0
+  [172] pushcons 1 .............................. <EMPTY>
+  [174] setprop 1014 ............................ pop = EMPTY
+  [177] pushcons 8 .............................. <"Unable to connect">
+  [179] setlocal 3 .............................. vresult = "Unable to connect"
+  [181] jmp [188]
+  [184] pushcons 9 .............................. <"Connecting">
+  [186] setlocal 3 .............................. vresult = "Connecting"
+  [188] ret
+end
+
+on die me
+  [  0] getmovieprop 71 ......................... <the actorList>
+  [  2] getparam 0 .............................. <me>
+  [  4] pusharglistnoret 2 ...................... <the actorList, me>
+  [  6] objcall 227 ............................. (the actorList).deleteOne(me)
+  [  8] pusharglist 0 ........................... <>
+  [ 10] extcall 66 .............................. <VOID>
+  [ 12] setparam 0 .............................. me = VOID
+  [ 14] ret
+end
+
+on updatestats me
+  [  0] pushcons 10 ............................. <"datastats">
+  [  2] pusharglist 1 ........................... <"datastats">
+  [  4] extcall 52 .............................. <member("datastats")>
+  [  6] getobjprop 54 ........................... <member("datastats").text>
+  [  8] pusharglist 1 ........................... <member("datastats").text>
+  [ 10] extcall 62 .............................. <value(member("datastats").text)>
+  [ 12] setlocal 0 .............................. vstats = value(member("datastats").text)
+  [ 14] getlocal 0 .............................. <vstats>
+  [ 16] getobjprop 1028 ......................... <vstats.max_points>
+  [ 19] getprop 318 ............................. <pscore>
+  [ 22] lt ...................................... <vstats.max_points < pscore>
+  [ 23] jmpifz [ 34] ............................ if vstats.max_points < pscore then
+  [ 26] getlocal 0 .............................. <vstats>
+  [ 28] getprop 318 ............................. <pscore>
+  [ 31] setobjprop 1028 ......................... vstats.max_points = pscore
+  [ 34] getlocal 0 .............................. <vstats>
+  [ 36] getobjprop 1029 ......................... <vstats.max_killed>
+  [ 39] getprop 351 ............................. <pkills>
+  [ 42] lt ...................................... <vstats.max_killed < pkills>
+  [ 43] jmpifz [ 54] ............................ if vstats.max_killed < pkills then
+  [ 46] getlocal 0 .............................. <vstats>
+  [ 48] getprop 351 ............................. <pkills>
+  [ 51] setobjprop 1029 ......................... vstats.max_killed = pkills
+  [ 54] getlocal 0 .............................. <vstats>
+  [ 56] getlocal 0 .............................. <vstats>
+  [ 58] getobjprop 1030 ......................... <vstats.total_killed>
+  [ 61] getprop 351 ............................. <pkills>
+  [ 64] add ..................................... <vstats.total_killed + pkills>
+  [ 65] setobjprop 1030 ......................... vstats.total_killed = vstats.total_killed + pkills
+  [ 68] pushint8 1 .............................. <1>
+  [ 70] setlocal 1
+  [ 72] getlocal 1
+  [ 74] getlocal 0 .............................. <vstats>
+  [ 76] pushsymb 1031 ........................... <#damage_to_enemy>
+  [ 79] pusharglist 2 ........................... <vstats, #damage_to_enemy>
+  [ 81] objcall 72 .............................. <vstats.damage_to_enemy.count>
+  [ 83] lteq
+  [ 84] jmpifz [188] ............................ repeat with i = 1 to vstats.damage_to_enemy.count
+  [ 87] getlocal 0 .............................. <vstats>
+  [ 89] getchainedprop 1031 ..................... <vstats.damage_to_enemy>
+  [ 92] getlocal 0 .............................. <vstats>
+  [ 94] getchainedprop 1031 ..................... <vstats.damage_to_enemy>
+  [ 97] getlocal 1 .............................. <i>
+  [ 99] pusharglist 2 ........................... <vstats.damage_to_enemy, i>
+  [101] objcall 1032 ............................ <vstats.damage_to_enemy.getPropAt(i)>
+  [104] pusharglist 2 ........................... <vstats.damage_to_enemy, vstats.damage_to_enemy.getPropAt(i)>
+  [106] objcall 122 ............................. <vstats.damage_to_enemy.getProp(vstats.damage_to_enemy.getPropAt(i))>
+  [108] pusharglist 1 ........................... <vstats.damage_to_enemy.getProp(vstats.damage_to_enemy.getPropAt(i))>
+  [110] extcall 96 .............................. <integer(vstats.damage_to_enemy.getProp(vstats.damage_to_enemy.getPropAt(i)))>
+  [112] getprop 773 ............................. <pdamage_to_enemy>
+  [115] getprop 773 ............................. <pdamage_to_enemy>
+  [118] getlocal 1 .............................. <i>
+  [120] pusharglist 2 ........................... <pdamage_to_enemy, i>
+  [122] objcall 1032 ............................ <pdamage_to_enemy.getPropAt(i)>
+  [125] pusharglist 2 ........................... <pdamage_to_enemy, pdamage_to_enemy.getPropAt(i)>
+  [127] objcall 122 ............................. <pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i))>
+  [129] pusharglist 1 ........................... <pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i))>
+  [131] extcall 96 .............................. <integer(pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i)))>
+  [133] lt ...................................... <integer(vstats.damage_to_enemy.getProp(vstats.damage_to_enemy.getPropAt(i))) < integer(pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i)))>
+  [134] jmpifz [179] ............................ if integer(vstats.damage_to_enemy.getProp(vstats.damage_to_enemy.getPropAt(i))) < integer(pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i))) then
+  [137] getlocal 0 .............................. <vstats>
+  [139] pushsymb 1031 ........................... <#damage_to_enemy>
+  [142] getlocal 0 .............................. <vstats>
+  [144] getchainedprop 1031 ..................... <vstats.damage_to_enemy>
+  [147] getlocal 1 .............................. <i>
+  [149] pusharglist 2 ........................... <vstats.damage_to_enemy, i>
+  [151] objcall 1032 ............................ <vstats.damage_to_enemy.getPropAt(i)>
+  [154] getprop 773 ............................. <pdamage_to_enemy>
+  [157] getprop 773 ............................. <pdamage_to_enemy>
+  [160] getlocal 1 .............................. <i>
+  [162] pusharglist 2 ........................... <pdamage_to_enemy, i>
+  [164] objcall 1032 ............................ <pdamage_to_enemy.getPropAt(i)>
+  [167] pusharglist 2 ........................... <pdamage_to_enemy, pdamage_to_enemy.getPropAt(i)>
+  [169] objcall 122 ............................. <pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i))>
+  [171] pusharglist 1 ........................... <pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i))>
+  [173] extcall 96 .............................. <integer(pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i)))>
+  [175] pusharglistnoret 4 ...................... <vstats, #damage_to_enemy, vstats.damage_to_enemy.getPropAt(i), integer(pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i)))>
+  [177] objcall 142 ............................. vstats.damage_to_enemy[vstats.damage_to_enemy.getPropAt(i)] = integer(pdamage_to_enemy.getProp(pdamage_to_enemy.getPropAt(i)))
+  [179] pushint8 1
+  [181] getlocal 1
+  [183] add
+  [184] setlocal 1
+  [186] endrepeat [ 72]
+  [188] getlocal 0 .............................. <vstats>
+  [190] getlocal 0 .............................. <vstats>
+  [192] getobjprop 1033 ......................... <vstats.total_deaths>
+  [195] pushint8 1 .............................. <1>
+  [197] add ..................................... <vstats.total_deaths + 1>
+  [198] setobjprop 1033 ......................... vstats.total_deaths = vstats.total_deaths + 1
+  [201] getlocal 0 .............................. <vstats>
+  [203] getlocal 0 .............................. <vstats>
+  [205] getobjprop 1034 ......................... <vstats.total_respawns>
+  [208] getprop 764 ............................. <prespawns>
+  [211] add ..................................... <vstats.total_respawns + prespawns>
+  [212] setobjprop 1034 ......................... vstats.total_respawns = vstats.total_respawns + prespawns
+  [215] getlocal 0 .............................. <vstats>
+  [217] getobjprop 1035 ......................... <vstats.max_captures>
+  [220] getprop 1015 ............................ <pcaptures>
+  [223] lt ...................................... <vstats.max_captures < pcaptures>
+  [224] jmpifz [235] ............................ if vstats.max_captures < pcaptures then
+  [227] getlocal 0 .............................. <vstats>
+  [229] getprop 1015 ............................ <pcaptures>
+  [232] setobjprop 1035 ......................... vstats.max_captures = pcaptures
+  [235] getlocal 0 .............................. <vstats>
+  [237] getlocal 0 .............................. <vstats>
+  [239] getobjprop 1036 ......................... <vstats.total_captures>
+  [242] getprop 1015 ............................ <pcaptures>
+  [245] add ..................................... <vstats.total_captures + pcaptures>
+  [246] setobjprop 1036 ......................... vstats.total_captures = vstats.total_captures + pcaptures
+  [249] getprop 1017 ............................ <pwin>
+  [252] pushzero ................................ <0>
+  [253] gt ...................................... <pwin > 0>
+  [254] jmpifz [270] ............................ if pwin > 0 then
+  [257] getlocal 0 .............................. <vstats>
+  [259] getlocal 0 .............................. <vstats>
+  [261] getobjprop 1037 ......................... <vstats.team_wins>
+  [264] pushint8 1 .............................. <1>
+  [266] add ..................................... <vstats.team_wins + 1>
+  [267] setobjprop 1037 ......................... vstats.team_wins = vstats.team_wins + 1
+  [270] getlocal 0 .............................. <vstats>
+  [272] getlocal 0 .............................. <vstats>
+  [274] getobjprop 1038 ......................... <vstats.battles_fought>
+  [277] pushint8 1 .............................. <1>
+  [279] eq ...................................... <vstats.battles_fought = 1>
+  [280] setobjprop 1038 ......................... vstats.battles_fought = vstats.battles_fought = 1
+  [283] getlocal 0 .............................. <vstats>
+  [285] getobjprop 1039 ......................... <vstats.max_airtime>
+  [288] getprop 724 ............................. <pairtime>
+  [291] lt ...................................... <vstats.max_airtime < pairtime>
+  [292] jmpifz [303] ............................ if vstats.max_airtime < pairtime then
+  [295] getlocal 0 .............................. <vstats>
+  [297] getprop 724 ............................. <pairtime>
+  [300] setobjprop 1039 ......................... vstats.max_airtime = pairtime
+  [303] getlocal 0 .............................. <vstats>
+  [305] getobjprop 1040 ......................... <vstats.max_tricksize>
+  [308] getprop 640 ............................. <ptricksize>
+  [311] lt ...................................... <vstats.max_tricksize < ptricksize>
+  [312] jmpifz [323] ............................ if vstats.max_tricksize < ptricksize then
+  [315] getlocal 0 .............................. <vstats>
+  [317] getprop 640 ............................. <ptricksize>
+  [320] setobjprop 1040 ......................... vstats.max_tricksize = ptricksize
+  [323] getlocal 0 .............................. <vstats>
+  [325] getobjprop 1041 ......................... <vstats.max_trickpulled>
+  [328] getprop 640 ............................. <ptricksize>
+  [331] lt ...................................... <vstats.max_trickpulled < ptricksize>
+  [332] jmpifz [343] ............................ if vstats.max_trickpulled < ptricksize then
+  [335] getlocal 0 .............................. <vstats>
+  [337] getprop 748 ............................. <ptrickspulled>
+  [340] setobjprop 1041 ......................... vstats.max_trickpulled = ptrickspulled
+  [343] getlocal 0 .............................. <vstats>
+  [345] getobjprop 1042 ......................... <vstats.top_speed>
+  [348] getprop 725 ............................. <pSpeed>
+  [351] lt ...................................... <vstats.top_speed < pSpeed>
+  [352] jmpifz [363] ............................ if vstats.top_speed < pSpeed then
+  [355] getlocal 0 .............................. <vstats>
+  [357] getprop 725 ............................. <pSpeed>
+  [360] setobjprop 1042 ......................... vstats.top_speed = pSpeed
+  [363] pushint8 1 .............................. <1>
+  [365] setlocal 1
+  [367] getlocal 1
+  [369] getprop 1019 ............................ <pweapaccuracy>
+  [372] getobjprop 72 ........................... <pweapaccuracy.count>
+  [374] lteq
+  [375] jmpifz [473] ............................ repeat with i = 1 to pweapaccuracy.count
+  [378] getprop 902 ............................. <pweapaccuracy_shots>
+  [381] getprop 902 ............................. <pweapaccuracy_shots>
+  [384] getlocal 1 .............................. <i>
+  [386] pusharglist 2 ........................... <pweapaccuracy_shots, i>
+  [388] objcall 1032 ............................ <pweapaccuracy_shots.getPropAt(i)>
+  [391] pusharglist 2 ........................... <pweapaccuracy_shots, pweapaccuracy_shots.getPropAt(i)>
+  [393] objcall 73 .............................. <pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)]>
+  [395] pushzero ................................ <0>
+  [396] gt ...................................... <pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)] > 0>
+  [397] jmpifz [464] ............................ if pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)] > 0 then
+  [400] getprop 1019 ............................ <pweapaccuracy>
+  [403] getprop 1019 ............................ <pweapaccuracy>
+  [406] getlocal 1 .............................. <i>
+  [408] pusharglist 2 ........................... <pweapaccuracy, i>
+  [410] objcall 1032 ............................ <pweapaccuracy.getPropAt(i)>
+  [413] getprop 772 ............................. <pweapaccuracy_hits>
+  [416] getprop 772 ............................. <pweapaccuracy_hits>
+  [419] getlocal 1 .............................. <i>
+  [421] pusharglist 2 ........................... <pweapaccuracy_hits, i>
+  [423] objcall 1032 ............................ <pweapaccuracy_hits.getPropAt(i)>
+  [426] pusharglist 2 ........................... <pweapaccuracy_hits, pweapaccuracy_hits.getPropAt(i)>
+  [428] objcall 73 .............................. <pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)]>
+  [430] pusharglist 1 ........................... <pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)]>
+  [432] extcall 97 .............................. <float(pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)])>
+  [434] getprop 902 ............................. <pweapaccuracy_shots>
+  [437] getprop 902 ............................. <pweapaccuracy_shots>
+  [440] getlocal 1 .............................. <i>
+  [442] pusharglist 2 ........................... <pweapaccuracy_shots, i>
+  [444] objcall 1032 ............................ <pweapaccuracy_shots.getPropAt(i)>
+  [447] pusharglist 2 ........................... <pweapaccuracy_shots, pweapaccuracy_shots.getPropAt(i)>
+  [449] objcall 73 .............................. <pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)]>
+  [451] div ..................................... <float(pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)]) / pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)]>
+  [452] pushint8 100 ............................ <100>
+  [454] mul ..................................... <float(pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)]) / pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)] * 100>
+  [455] pusharglist 1 ........................... <float(pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)]) / pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)] * 100>
+  [457] extcall 96 .............................. <integer(float(pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)]) / pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)] * 100)>
+  [459] pusharglistnoret 3 ...................... <pweapaccuracy, pweapaccuracy.getPropAt(i), integer(float(pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)]) / pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)] * 100)>
+  [461] objcall 1043 ............................ pweapaccuracy[pweapaccuracy.getPropAt(i)] = integer(float(pweapaccuracy_hits[pweapaccuracy_hits.getPropAt(i)]) / pweapaccuracy_shots[pweapaccuracy_shots.getPropAt(i)] * 100)
+  [464] pushint8 1
+  [466] getlocal 1
+  [468] add
+  [469] setlocal 1
+  [471] endrepeat [367]
+  [473] pushint8 1 .............................. <1>
+  [475] setlocal 1
+  [477] getlocal 1
+  [479] getlocal 0 .............................. <vstats>
+  [481] pushsymb 1044 ........................... <#accuracy>
+  [484] pusharglist 2 ........................... <vstats, #accuracy>
+  [486] objcall 72 .............................. <vstats.accuracy.count>
+  [488] lteq
+  [489] jmpifz [576] ............................ repeat with i = 1 to vstats.accuracy.count
+  [492] getlocal 0 .............................. <vstats>
+  [494] pushsymb 1044 ........................... <#accuracy>
+  [497] getlocal 0 .............................. <vstats>
+  [499] getchainedprop 1044 ..................... <vstats.accuracy>
+  [502] getlocal 1 .............................. <i>
+  [504] pusharglist 2 ........................... <vstats.accuracy, i>
+  [506] objcall 1032 ............................ <vstats.accuracy.getPropAt(i)>
+  [509] getlocal 0 .............................. <vstats>
+  [511] getchainedprop 1044 ..................... <vstats.accuracy>
+  [514] getlocal 0 .............................. <vstats>
+  [516] getchainedprop 1044 ..................... <vstats.accuracy>
+  [519] getlocal 1 .............................. <i>
+  [521] pusharglist 2 ........................... <vstats.accuracy, i>
+  [523] objcall 1032 ............................ <vstats.accuracy.getPropAt(i)>
+  [526] pusharglist 2 ........................... <vstats.accuracy, vstats.accuracy.getPropAt(i)>
+  [528] objcall 122 ............................. <vstats.accuracy.getProp(vstats.accuracy.getPropAt(i))>
+  [530] pusharglist 1 ........................... <vstats.accuracy.getProp(vstats.accuracy.getPropAt(i))>
+  [532] extcall 97 .............................. <float(vstats.accuracy.getProp(vstats.accuracy.getPropAt(i)))>
+  [534] getprop 1019 ............................ <pweapaccuracy>
+  [537] getprop 1019 ............................ <pweapaccuracy>
+  [540] getlocal 1 .............................. <i>
+  [542] pusharglist 2 ........................... <pweapaccuracy, i>
+  [544] objcall 1032 ............................ <pweapaccuracy.getPropAt(i)>
+  [547] pusharglist 2 ........................... <pweapaccuracy, pweapaccuracy.getPropAt(i)>
+  [549] objcall 122 ............................. <pweapaccuracy.getProp(pweapaccuracy.getPropAt(i))>
+  [551] pusharglist 1 ........................... <pweapaccuracy.getProp(pweapaccuracy.getPropAt(i))>
+  [553] extcall 96 .............................. <integer(pweapaccuracy.getProp(pweapaccuracy.getPropAt(i)))>
+  [555] add ..................................... <float(vstats.accuracy.getProp(vstats.accuracy.getPropAt(i))) + integer(pweapaccuracy.getProp(pweapaccuracy.getPropAt(i)))>
+  [556] pushint8 2 .............................. <2>
+  [558] div ..................................... <(float(vstats.accuracy.getProp(vstats.accuracy.getPropAt(i))) + integer(pweapaccuracy.getProp(pweapaccuracy.getPropAt(i)))) / 2>
+  [559] pusharglist 1 ........................... <(float(vstats.accuracy.getProp(vstats.accuracy.getPropAt(i))) + integer(pweapaccuracy.getProp(pweapaccuracy.getPropAt(i)))) / 2>
+  [561] extcall 96 .............................. <integer((float(vstats.accuracy.getProp(vstats.accuracy.getPropAt(i))) + integer(pweapaccuracy.getProp(pweapaccuracy.getPropAt(i)))) / 2)>
+  [563] pusharglistnoret 4 ...................... <vstats, #accuracy, vstats.accuracy.getPropAt(i), integer((float(vstats.accuracy.getProp(vstats.accuracy.getPropAt(i))) + integer(pweapaccuracy.getProp(pweapaccuracy.getPropAt(i)))) / 2)>
+  [565] objcall 142 ............................. vstats.accuracy[vstats.accuracy.getPropAt(i)] = integer((float(vstats.accuracy.getProp(vstats.accuracy.getPropAt(i))) + integer(pweapaccuracy.getProp(pweapaccuracy.getPropAt(i)))) / 2)
+  [567] pushint8 1
+  [569] getlocal 1
+  [571] add
+  [572] setlocal 1
+  [574] endrepeat [477]
+  [576] getlocal 0 .............................. <vstats>
+  [578] getobjprop 1045 ......................... <vstats.max_ubers>
+  [581] getprop 746 ............................. <pubers>
+  [584] lt ...................................... <vstats.max_ubers < pubers>
+  [585] jmpifz [596] ............................ if vstats.max_ubers < pubers then
+  [588] getlocal 0 .............................. <vstats>
+  [590] getprop 746 ............................. <pubers>
+  [593] setobjprop 1045 ......................... vstats.max_ubers = pubers
+  [596] getlocal 0 .............................. <vstats>
+  [598] getlocal 0 .............................. <vstats>
+  [600] getobjprop 1046 ......................... <vstats.total_ubers>
+  [603] getprop 746 ............................. <pubers>
+  [606] add ..................................... <vstats.total_ubers + pubers>
+  [607] setobjprop 1046 ......................... vstats.total_ubers = vstats.total_ubers + pubers
+  [610] getprop 1018 ............................ <ptopscore>
+  [613] pushzero ................................ <0>
+  [614] gt ...................................... <ptopscore > 0>
+  [615] jmpifz [631] ............................ if ptopscore > 0 then
+  [618] getlocal 0 .............................. <vstats>
+  [620] getlocal 0 .............................. <vstats>
+  [622] getobjprop 1047 ......................... <vstats.award_topscoretimes>
+  [625] pushint8 1 .............................. <1>
+  [627] add ..................................... <vstats.award_topscoretimes + 1>
+  [628] setobjprop 1047 ......................... vstats.award_topscoretimes = vstats.award_topscoretimes + 1
+  [631] pushcons 6 .............................. <"datamytank">
+  [633] pusharglist 1 ........................... <"datamytank">
+  [635] extcall 52 .............................. <member("datamytank")>
+  [637] getobjprop 54 ........................... <member("datamytank").text>
+  [639] setlocal 2 .............................. vnom = member("datamytank").text
+  [641] pushcons 4 .............................. <";">
+  [643] setmovieprop 363 ........................ the itemDelimiter = ";"
+  [646] getlocal 2 .............................. <vnom>
+  [648] pushsymb 364 ............................ <#item>
+  [651] pushint8 1 .............................. <1>
+  [653] pusharglist 3 ........................... <vnom, #item, 1>
+  [655] objcall 122 ............................. <vnom.item[1]>
+  [657] setlocal 3 .............................. vrank = vnom.item[1]
+  [659] getlocal 2 .............................. <vnom>
+  [661] pushsymb 364 ............................ <#item>
+  [664] pushint8 3 .............................. <3>
+  [666] pusharglist 3 ........................... <vnom, #item, 3>
+  [668] objcall 122 ............................. <vnom.item[3]>
+  [670] setlocal 4 .............................. vrecruits = vnom.item[3]
+  [672] getlocal 0 .............................. <vstats>
+  [674] getlocal 4 .............................. <vrecruits>
+  [676] pusharglist 1 ........................... <vrecruits>
+  [678] extcall 96 .............................. <integer(vrecruits)>
+  [680] setobjprop 1048 ......................... vstats.award_recruits = integer(vrecruits)
+  [683] getprop 771 ............................. <pshots_hit>
+  [686] pusharglist 1 ........................... <pshots_hit>
+  [688] extcall 97 .............................. <float(pshots_hit)>
+  [690] getprop 901 ............................. <pshots_total>
+  [693] div ..................................... <float(pshots_hit) / pshots_total>
+  [694] pushint8 100 ............................ <100>
+  [696] mul ..................................... <float(pshots_hit) / pshots_total * 100>
+  [697] pusharglist 1 ........................... <float(pshots_hit) / pshots_total * 100>
+  [699] extcall 96 .............................. <integer(float(pshots_hit) / pshots_total * 100)>
+  [701] setprop 1016 ............................ paccuracy = integer(float(pshots_hit) / pshots_total * 100)
+  [704] getparam 0 .............................. <me>
+  [706] getlocal 3 .............................. <vrank>
+  [708] getlocal 0 .............................. <vstats>
+  [710] pusharglistnoret 3 ...................... <me, vrank, vstats>
+  [712] localcall 5 ............................. checkpromote(me, vrank, vstats)
+  [714] ret
+end
+
+on checkpromote me, nrank, nstat
+  [  0] getparam 1 .............................. <nrank>
+  [  2] peek 0 .................................. case nrank of
+  [  4] pushcons 11 ............................. <"Tank Private">
+  [  6] eq
+  [  7] jmpifz [ 41] ............................ (case) "Tank Private":
+  [ 10] getparam 2 .............................. <nstat>
+  [ 12] getobjprop 1030 ......................... <nstat.total_killed>
+  [ 15] pushint8 20 ............................. <20>
+  [ 17] gteq .................................... <nstat.total_killed >= 20>
+  [ 18] getparam 2 .............................. <nstat>
+  [ 20] getobjprop 1037 ......................... <nstat.team_wins>
+  [ 23] pushint8 2 .............................. <2>
+  [ 25] gteq .................................... <nstat.team_wins >= 2>
+  [ 26] and ..................................... <(nstat.total_killed >= 20) and (nstat.team_wins >= 2)>
+  [ 27] jmpifz [ 38] ............................ if (nstat.total_killed >= 20) and (nstat.team_wins >= 2) then
+  [ 30] getparam 0 .............................. <me>
+  [ 32] getparam 2 .............................. <nstat>
+  [ 34] pusharglistnoret 2 ...................... <me, nstat>
+  [ 36] localcall 6 ............................. promote(me, nstat)
+  [ 38] jmp [885]
+  [ 41] peek 0
+  [ 43] pushcons 12 ............................. <"Tank Gunner">
+  [ 45] eq
+  [ 46] jmpifz [145] ............................ (case) "Tank Gunner":
+  [ 49] getprop 354 ............................. <pnukebbq>
+  [ 52] pushint8 2 .............................. <2>
+  [ 54] gteq .................................... <pnukebbq >= 2>
+  [ 55] jmpifz [ 71] ............................ if pnukebbq >= 2 then
+  [ 58] getparam 2 .............................. <nstat>
+  [ 60] pushsymb 1052 ........................... <#award_round_challenges>
+  [ 63] pushint8 1 .............................. <1>
+  [ 65] pushint8 1 .............................. <1>
+  [ 67] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 1, 1>
+  [ 69] objcall 142 ............................. nstat.award_round_challenges[1] = 1
+  [ 71] getprop 1015 ............................ <pcaptures>
+  [ 74] pushint8 5 .............................. <5>
+  [ 76] gteq .................................... <pcaptures >= 5>
+  [ 77] jmpifz [ 93] ............................ if pcaptures >= 5 then
+  [ 80] getparam 2 .............................. <nstat>
+  [ 82] pushsymb 1052 ........................... <#award_round_challenges>
+  [ 85] pushint8 2 .............................. <2>
+  [ 87] pushint8 1 .............................. <1>
+  [ 89] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 2, 1>
+  [ 91] objcall 142 ............................. nstat.award_round_challenges[2] = 1
+  [ 93] getparam 2 .............................. <nstat>
+  [ 95] getobjprop 1030 ......................... <nstat.total_killed>
+  [ 98] pushint8 50 ............................. <50>
+  [100] gteq .................................... <nstat.total_killed >= 50>
+  [101] getparam 2 .............................. <nstat>
+  [103] pushsymb 1052 ........................... <#award_round_challenges>
+  [106] pushint8 1 .............................. <1>
+  [108] pusharglist 3 ........................... <nstat, #award_round_challenges, 1>
+  [110] objcall 122 ............................. <nstat.award_round_challenges[1]>
+  [112] pushint8 1 .............................. <1>
+  [114] eq ...................................... <nstat.award_round_challenges[1] = 1>
+  [115] and ..................................... <(nstat.total_killed >= 50) and (nstat.award_round_challenges[1] = 1)>
+  [116] getparam 2 .............................. <nstat>
+  [118] pushsymb 1052 ........................... <#award_round_challenges>
+  [121] pushint8 2 .............................. <2>
+  [123] pusharglist 3 ........................... <nstat, #award_round_challenges, 2>
+  [125] objcall 122 ............................. <nstat.award_round_challenges[2]>
+  [127] pushint8 1 .............................. <1>
+  [129] eq ...................................... <nstat.award_round_challenges[2] = 1>
+  [130] and ..................................... <(nstat.total_killed >= 50) and (nstat.award_round_challenges[1] = 1) and (nstat.award_round_challenges[2] = 1)>
+  [131] jmpifz [142] ............................ if (nstat.total_killed >= 50) and (nstat.award_round_challenges[1] = 1) and (nstat.award_round_challenges[2] = 1) then
+  [134] getparam 0 .............................. <me>
+  [136] getparam 2 .............................. <nstat>
+  [138] pusharglistnoret 2 ...................... <me, nstat>
+  [140] localcall 6 ............................. promote(me, nstat)
+  [142] jmp [885]
+  [145] peek 0
+  [147] pushcons 13 ............................. <"Tank Commander">
+  [149] eq
+  [150] jmpifz [230] ............................ (case) "Tank Commander":
+  [153] getprop 746 ............................. <pubers>
+  [156] pushint8 2 .............................. <2>
+  [158] gteq .................................... <pubers >= 2>
+  [159] getprop 747 ............................. <pflips>
+  [162] pushint8 20 ............................. <20>
+  [164] gteq .................................... <pflips >= 20>
+  [165] and ..................................... <(pubers >= 2) and (pflips >= 20)>
+  [166] jmpifz [182] ............................ if (pubers >= 2) and (pflips >= 20) then
+  [169] getparam 2 .............................. <nstat>
+  [171] pushsymb 1052 ........................... <#award_round_challenges>
+  [174] pushint8 3 .............................. <3>
+  [176] pushint8 1 .............................. <1>
+  [178] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 3, 1>
+  [180] objcall 142 ............................. nstat.award_round_challenges[3] = 1
+  [182] getparam 2 .............................. <nstat>
+  [184] pushsymb 1052 ........................... <#award_round_challenges>
+  [187] pushint8 3 .............................. <3>
+  [189] pusharglist 3 ........................... <nstat, #award_round_challenges, 3>
+  [191] objcall 122 ............................. <nstat.award_round_challenges[3]>
+  [193] pushint8 1 .............................. <1>
+  [195] eq ...................................... <nstat.award_round_challenges[3] = 1>
+  [196] getparam 2 .............................. <nstat>
+  [198] getobjprop 1030 ......................... <nstat.total_killed>
+  [201] pushint16 200 ........................... <200>
+  [204] gteq .................................... <nstat.total_killed >= 200>
+  [205] and ..................................... <(nstat.award_round_challenges[3] = 1) and (nstat.total_killed >= 200)>
+  [206] getparam 2 .............................. <nstat>
+  [208] getobjprop 1039 ......................... <nstat.max_airtime>
+  [211] pushint16 2000 .......................... <2000>
+  [214] gteq .................................... <nstat.max_airtime >= 2000>
+  [215] and ..................................... <(nstat.award_round_challenges[3] = 1) and (nstat.total_killed >= 200) and (nstat.max_airtime >= 2000)>
+  [216] jmpifz [227] ............................ if (nstat.award_round_challenges[3] = 1) and (nstat.total_killed >= 200) and (nstat.max_airtime >= 2000) then
+  [219] getparam 0 .............................. <me>
+  [221] getparam 2 .............................. <nstat>
+  [223] pusharglistnoret 2 ...................... <me, nstat>
+  [225] localcall 6 ............................. promote(me, nstat)
+  [227] jmp [885]
+  [230] peek 0
+  [232] pushcons 14 ............................. <"Tank Style Technician">
+  [234] eq
+  [235] jmpifz [314] ............................ (case) "Tank Style Technician":
+  [238] getprop 354 ............................. <pnukebbq>
+  [241] pushint8 5 .............................. <5>
+  [243] gteq .................................... <pnukebbq >= 5>
+  [244] getprop 353 ............................. <pdefends>
+  [247] pushint8 5 .............................. <5>
+  [249] gteq .................................... <pdefends >= 5>
+  [250] and ..................................... <(pnukebbq >= 5) and (pdefends >= 5)>
+  [251] jmpifz [267] ............................ if (pnukebbq >= 5) and (pdefends >= 5) then
+  [254] getparam 2 .............................. <nstat>
+  [256] pushsymb 1052 ........................... <#award_round_challenges>
+  [259] pushint8 4 .............................. <4>
+  [261] pushint8 1 .............................. <1>
+  [263] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 4, 1>
+  [265] objcall 142 ............................. nstat.award_round_challenges[4] = 1
+  [267] getparam 2 .............................. <nstat>
+  [269] pushsymb 1052 ........................... <#award_round_challenges>
+  [272] pushint8 4 .............................. <4>
+  [274] pusharglist 3 ........................... <nstat, #award_round_challenges, 4>
+  [276] objcall 122 ............................. <nstat.award_round_challenges[4]>
+  [278] pushint8 1 .............................. <1>
+  [280] eq ...................................... <nstat.award_round_challenges[4] = 1>
+  [281] getparam 2 .............................. <nstat>
+  [283] getobjprop 1030 ......................... <nstat.total_killed>
+  [286] pushint16 500 ........................... <500>
+  [289] gteq .................................... <nstat.total_killed >= 500>
+  [290] and ..................................... <(nstat.award_round_challenges[4] = 1) and (nstat.total_killed >= 500)>
+  [291] getparam 2 .............................. <nstat>
+  [293] getobjprop 1047 ......................... <nstat.award_topscoretimes>
+  [296] pushint8 5 .............................. <5>
+  [298] gteq .................................... <nstat.award_topscoretimes >= 5>
+  [299] and ..................................... <(nstat.award_round_challenges[4] = 1) and (nstat.total_killed >= 500) and (nstat.award_topscoretimes >= 5)>
+  [300] jmpifz [311] ............................ if (nstat.award_round_challenges[4] = 1) and (nstat.total_killed >= 500) and (nstat.award_topscoretimes >= 5) then
+  [303] getparam 0 .............................. <me>
+  [305] getparam 2 .............................. <nstat>
+  [307] pusharglistnoret 2 ...................... <me, nstat>
+  [309] localcall 6 ............................. promote(me, nstat)
+  [311] jmp [885]
+  [314] peek 0
+  [316] pushcons 15 ............................. <"Tank Captain">
+  [318] eq
+  [319] jmpifz [401] ............................ (case) "Tank Captain":
+  [322] getprop 354 ............................. <pnukebbq>
+  [325] pushint8 10 ............................. <10>
+  [327] gteq .................................... <pnukebbq >= 10>
+  [328] getprop 318 ............................. <pscore>
+  [331] pushint16 5000 .......................... <5000>
+  [334] gteq .................................... <pscore >= 5000>
+  [335] and ..................................... <(pnukebbq >= 10) and (pscore >= 5000)>
+  [336] jmpifz [352] ............................ if (pnukebbq >= 10) and (pscore >= 5000) then
+  [339] getparam 2 .............................. <nstat>
+  [341] pushsymb 1052 ........................... <#award_round_challenges>
+  [344] pushint8 5 .............................. <5>
+  [346] pushint8 1 .............................. <1>
+  [348] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 5, 1>
+  [350] objcall 142 ............................. nstat.award_round_challenges[5] = 1
+  [352] getparam 2 .............................. <nstat>
+  [354] pushsymb 1052 ........................... <#award_round_challenges>
+  [357] pushint8 5 .............................. <5>
+  [359] pusharglist 3 ........................... <nstat, #award_round_challenges, 5>
+  [361] objcall 122 ............................. <nstat.award_round_challenges[5]>
+  [363] pushint8 1 .............................. <1>
+  [365] eq ...................................... <nstat.award_round_challenges[5] = 1>
+  [366] getparam 2 .............................. <nstat>
+  [368] getobjprop 1047 ......................... <nstat.award_topscoretimes>
+  [371] pushint8 20 ............................. <20>
+  [373] gteq .................................... <nstat.award_topscoretimes >= 20>
+  [374] and ..................................... <(nstat.award_round_challenges[5] = 1) and (nstat.award_topscoretimes >= 20)>
+  [375] getparam 2 .............................. <nstat>
+  [377] getobjprop 1039 ......................... <nstat.max_airtime>
+  [380] pushint32 40000 ......................... <40000>
+  [385] gteq .................................... <nstat.max_airtime >= 40000>
+  [386] and ..................................... <(nstat.award_round_challenges[5] = 1) and (nstat.award_topscoretimes >= 20) and (nstat.max_airtime >= 40000)>
+  [387] jmpifz [398] ............................ if (nstat.award_round_challenges[5] = 1) and (nstat.award_topscoretimes >= 20) and (nstat.max_airtime >= 40000) then
+  [390] getparam 0 .............................. <me>
+  [392] getparam 2 .............................. <nstat>
+  [394] pusharglistnoret 2 ...................... <me, nstat>
+  [396] localcall 6 ............................. promote(me, nstat)
+  [398] jmp [885]
+  [401] peek 0
+  [403] pushcons 16 ............................. <"Chief Style Technician">
+  [405] eq
+  [406] jmpifz [544] ............................ (case) "Chief Style Technician":
+  [409] pushzero ................................ <0>
+  [410] setlocal 0 .............................. vcheck = 0
+  [412] pushint8 1 .............................. <1>
+  [414] setlocal 1
+  [416] getlocal 1
+  [418] getparam 2 .............................. <nstat>
+  [420] pushsymb 1031 ........................... <#damage_to_enemy>
+  [423] pusharglist 2 ........................... <nstat, #damage_to_enemy>
+  [425] objcall 72 .............................. <nstat.damage_to_enemy.count>
+  [427] lteq
+  [428] jmpifz [477] ............................ repeat with i = 1 to nstat.damage_to_enemy.count
+  [431] getparam 2 .............................. <nstat>
+  [433] getchainedprop 1031 ..................... <nstat.damage_to_enemy>
+  [436] getparam 2 .............................. <nstat>
+  [438] getchainedprop 1031 ..................... <nstat.damage_to_enemy>
+  [441] getlocal 1 .............................. <i>
+  [443] pusharglist 2 ........................... <nstat.damage_to_enemy, i>
+  [445] objcall 1032 ............................ <nstat.damage_to_enemy.getPropAt(i)>
+  [448] pusharglist 2 ........................... <nstat.damage_to_enemy, nstat.damage_to_enemy.getPropAt(i)>
+  [450] objcall 122 ............................. <nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i))>
+  [452] pusharglist 1 ........................... <nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i))>
+  [454] extcall 96 .............................. <integer(nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i)))>
+  [456] pushzero ................................ <0>
+  [457] gt ...................................... <integer(nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i))) > 0>
+  [458] jmpifz [468] ............................ if integer(nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i))) > 0 then
+  [461] getlocal 0 .............................. <vcheck>
+  [463] pushint8 1 .............................. <1>
+  [465] add ..................................... <vcheck + 1>
+  [466] setlocal 0 .............................. vcheck = vcheck + 1
+  [468] pushint8 1
+  [470] getlocal 1
+  [472] add
+  [473] setlocal 1
+  [475] endrepeat [416]
+  [477] getprop 318 ............................. <pscore>
+  [480] pushint16 6000 .......................... <6000>
+  [483] gteq .................................... <pscore >= 6000>
+  [484] jmpifz [500] ............................ if pscore >= 6000 then
+  [487] getparam 2 .............................. <nstat>
+  [489] pushsymb 1052 ........................... <#award_round_challenges>
+  [492] pushint8 6 .............................. <6>
+  [494] pushint8 1 .............................. <1>
+  [496] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 6, 1>
+  [498] objcall 142 ............................. nstat.award_round_challenges[6] = 1
+  [500] getlocal 0 .............................. <vcheck>
+  [502] pushint8 10 ............................. <10>
+  [504] gteq .................................... <vcheck >= 10>
+  [505] getparam 2 .............................. <nstat>
+  [507] pushsymb 1052 ........................... <#award_round_challenges>
+  [510] pushint8 6 .............................. <6>
+  [512] pusharglist 3 ........................... <nstat, #award_round_challenges, 6>
+  [514] objcall 122 ............................. <nstat.award_round_challenges[6]>
+  [516] pushint8 1 .............................. <1>
+  [518] eq ...................................... <nstat.award_round_challenges[6] = 1>
+  [519] and ..................................... <(vcheck >= 10) and (nstat.award_round_challenges[6] = 1)>
+  [520] getparam 2 .............................. <nstat>
+  [522] getobjprop 1030 ......................... <nstat.total_killed>
+  [525] pushint16 1000 .......................... <1000>
+  [528] gteq .................................... <nstat.total_killed >= 1000>
+  [529] and ..................................... <(vcheck >= 10) and (nstat.award_round_challenges[6] = 1) and (nstat.total_killed >= 1000)>
+  [530] jmpifz [541] ............................ if (vcheck >= 10) and (nstat.award_round_challenges[6] = 1) and (nstat.total_killed >= 1000) then
+  [533] getparam 0 .............................. <me>
+  [535] getparam 2 .............................. <nstat>
+  [537] pusharglistnoret 2 ...................... <me, nstat>
+  [539] localcall 6 ............................. promote(me, nstat)
+  [541] jmp [885]
+  [544] peek 0
+  [546] pushcons 17 ............................. <"Corporal">
+  [548] eq
+  [549] jmpifz [583] ............................ (case) "Corporal":
+  [552] getparam 2 .............................. <nstat>
+  [554] getobjprop 1047 ......................... <nstat.award_topscoretimes>
+  [557] pushint8 50 ............................. <50>
+  [559] gteq .................................... <nstat.award_topscoretimes >= 50>
+  [560] getparam 2 .............................. <nstat>
+  [562] getobjprop 1048 ......................... <nstat.award_recruits>
+  [565] pushint8 3 .............................. <3>
+  [567] gteq .................................... <nstat.award_recruits >= 3>
+  [568] and ..................................... <(nstat.award_topscoretimes >= 50) and (nstat.award_recruits >= 3)>
+  [569] jmpifz [580] ............................ if (nstat.award_topscoretimes >= 50) and (nstat.award_recruits >= 3) then
+  [572] getparam 0 .............................. <me>
+  [574] getparam 2 .............................. <nstat>
+  [576] pusharglistnoret 2 ...................... <me, nstat>
+  [578] localcall 6 ............................. promote(me, nstat)
+  [580] jmp [885]
+  [583] peek 0
+  [585] pushcons 18 ............................. <"Sergeant">
+  [587] eq
+  [588] jmpifz [652] ............................ (case) "Sergeant":
+  [591] getprop 318 ............................. <pscore>
+  [594] pushint16 7000 .......................... <7000>
+  [597] gteq .................................... <pscore >= 7000>
+  [598] jmpifz [614] ............................ if pscore >= 7000 then
+  [601] getparam 2 .............................. <nstat>
+  [603] pushsymb 1052 ........................... <#award_round_challenges>
+  [606] pushint8 7 .............................. <7>
+  [608] pushint8 1 .............................. <1>
+  [610] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 7, 1>
+  [612] objcall 142 ............................. nstat.award_round_challenges[7] = 1
+  [614] getparam 2 .............................. <nstat>
+  [616] pushsymb 1052 ........................... <#award_round_challenges>
+  [619] pushint8 7 .............................. <7>
+  [621] pusharglist 3 ........................... <nstat, #award_round_challenges, 7>
+  [623] objcall 122 ............................. <nstat.award_round_challenges[7]>
+  [625] pushint8 1 .............................. <1>
+  [627] eq ...................................... <nstat.award_round_challenges[7] = 1>
+  [628] getparam 2 .............................. <nstat>
+  [630] getobjprop 1030 ......................... <nstat.total_killed>
+  [633] pushint16 2000 .......................... <2000>
+  [636] gteq .................................... <nstat.total_killed >= 2000>
+  [637] and ..................................... <(nstat.award_round_challenges[7] = 1) and (nstat.total_killed >= 2000)>
+  [638] jmpifz [649] ............................ if (nstat.award_round_challenges[7] = 1) and (nstat.total_killed >= 2000) then
+  [641] getparam 0 .............................. <me>
+  [643] getparam 2 .............................. <nstat>
+  [645] pusharglistnoret 2 ...................... <me, nstat>
+  [647] localcall 6 ............................. promote(me, nstat)
+  [649] jmp [885]
+  [652] peek 0
+  [654] pushcons 19 ............................. <"Gunnery Sergeant">
+  [656] eq
+  [657] jmpifz [701] ............................ (case) "Gunnery Sergeant":
+  [660] getprop 318 ............................. <pscore>
+  [663] pushint16 5000 .......................... <5000>
+  [666] gteq .................................... <pscore >= 5000>
+  [667] getprop 1016 ............................ <paccuracy>
+  [670] pushint8 90 ............................. <90>
+  [672] gteq .................................... <paccuracy >= 90>
+  [673] and ..................................... <(pscore >= 5000) and (paccuracy >= 90)>
+  [674] jmpifz [698] ............................ if (pscore >= 5000) and (paccuracy >= 90) then
+  [677] getparam 2 .............................. <nstat>
+  [679] pushsymb 1052 ........................... <#award_round_challenges>
+  [682] pushint8 8 .............................. <8>
+  [684] pushint8 1 .............................. <1>
+  [686] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 8, 1>
+  [688] objcall 142 ............................. nstat.award_round_challenges[8] = 1
+  [690] getparam 0 .............................. <me>
+  [692] getparam 2 .............................. <nstat>
+  [694] pusharglistnoret 2 ...................... <me, nstat>
+  [696] localcall 6 ............................. promote(me, nstat)
+  [698] jmp [885]
+  [701] peek 0
+  [703] pushcons 20 ............................. <"Master Sergeant">
+  [705] eq
+  [706] jmpifz [742] ............................ (case) "Master Sergeant":
+  [709] getprop 354 ............................. <pnukebbq>
+  [712] pushint8 50 ............................. <50>
+  [714] gteq .................................... <pnukebbq >= 50>
+  [715] jmpifz [739] ............................ if pnukebbq >= 50 then
+  [718] getparam 2 .............................. <nstat>
+  [720] pushsymb 1052 ........................... <#award_round_challenges>
+  [723] pushint8 9 .............................. <9>
+  [725] pushint8 1 .............................. <1>
+  [727] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 9, 1>
+  [729] objcall 142 ............................. nstat.award_round_challenges[9] = 1
+  [731] getparam 0 .............................. <me>
+  [733] getparam 2 .............................. <nstat>
+  [735] pusharglistnoret 2 ...................... <me, nstat>
+  [737] localcall 6 ............................. promote(me, nstat)
+  [739] jmp [885]
+  [742] peek 0
+  [744] pushcons 21 ............................. <"Master Gunnary Sergeant">
+  [746] eq
+  [747] jmpifz [773] ............................ (case) "Master Gunnary Sergeant":
+  [750] getparam 2 .............................. <nstat>
+  [752] getobjprop 1030 ......................... <nstat.total_killed>
+  [755] pushint16 5000 .......................... <5000>
+  [758] gteq .................................... <nstat.total_killed >= 5000>
+  [759] jmpifz [770] ............................ if nstat.total_killed >= 5000 then
+  [762] getparam 0 .............................. <me>
+  [764] getparam 2 .............................. <nstat>
+  [766] pusharglistnoret 2 ...................... <me, nstat>
+  [768] localcall 6 ............................. promote(me, nstat)
+  [770] jmp [885]
+  [773] peek 0
+  [775] pushcons 22 ............................. <"Sergeant Major">
+  [777] eq
+  [778] jmpifz [804] ............................ (case) "Sergeant Major":
+  [781] getparam 2 .............................. <nstat>
+  [783] getobjprop 1038 ......................... <nstat.battles_fought>
+  [786] pushint16 1000 .......................... <1000>
+  [789] gteq .................................... <nstat.battles_fought >= 1000>
+  [790] jmpifz [801] ............................ if nstat.battles_fought >= 1000 then
+  [793] getparam 0 .............................. <me>
+  [795] getparam 2 .............................. <nstat>
+  [797] pusharglistnoret 2 ...................... <me, nstat>
+  [799] localcall 6 ............................. promote(me, nstat)
+  [801] jmp [885]
+  [804] peek 0
+  [806] pushcons 23 ............................. <"Veteran">
+  [808] eq
+  [809] jmpifz [866] ............................ (case) "Veteran":
+  [812] getprop 638 ............................. <pscratch>
+  [815] pushzero ................................ <0>
+  [816] lteq .................................... <pscratch <= 0>
+  [817] getprop 318 ............................. <pscore>
+  [820] pushint16 5000 .......................... <5000>
+  [823] gt ...................................... <pscore > 5000>
+  [824] and ..................................... <(pscratch <= 0) and (pscore > 5000)>
+  [825] getprop 1016 ............................ <paccuracy>
+  [828] pushint8 95 ............................. <95>
+  [830] eq ...................................... <paccuracy = 95>
+  [831] and ..................................... <(pscratch <= 0) and (pscore > 5000) and (paccuracy = 95)>
+  [832] getprop 746 ............................. <pubers>
+  [835] pushint8 5 .............................. <5>
+  [837] gt ...................................... <pubers > 5>
+  [838] and ..................................... <(pscratch <= 0) and (pscore > 5000) and (paccuracy = 95) and (pubers > 5)>
+  [839] jmpifz [863] ............................ if (pscratch <= 0) and (pscore > 5000) and (paccuracy = 95) and (pubers > 5) then
+  [842] getparam 2 .............................. <nstat>
+  [844] pushsymb 1052 ........................... <#award_round_challenges>
+  [847] pushint8 10 ............................. <10>
+  [849] pushint8 1 .............................. <1>
+  [851] pusharglistnoret 4 ...................... <nstat, #award_round_challenges, 10, 1>
+  [853] objcall 142 ............................. nstat.award_round_challenges[10] = 1
+  [855] getparam 0 .............................. <me>
+  [857] getparam 2 .............................. <nstat>
+  [859] pusharglistnoret 2 ...................... <me, nstat>
+  [861] localcall 6 ............................. promote(me, nstat)
+  [863] jmp [885]
+  [866] peek 0
+  [868] pushcons 24 ............................. <"Special Ops">
+  [870] eq
+  [871] jmpifz [877] ............................ (case) "Special Ops":
+  [874] jmp [885]
+  [877] peek 0
+  [879] pushcons 1 .............................. <EMPTY>
+  [881] eq
+  [882] jmpifz [885] ............................ (case) EMPTY:
+  [885] pop 1 ................................... end case
+  [887] pushcons 10 ............................. <"datastats">
+  [889] pusharglist 1 ........................... <"datastats">
+  [891] extcall 52 .............................. <member("datastats")>
+  [893] getparam 2 .............................. <nstat>
+  [895] pusharglist 1 ........................... <nstat>
+  [897] extcall 59 .............................. <string(nstat)>
+  [899] setobjprop 54 ........................... member("datastats").text = string(nstat)
+  [901] getglobal 191 ........................... <gisloggedin>
+  [903] jmpifz [943] ............................ if gisloggedin then
+  [906] pushcons 25 ............................. <"action">
+  [908] pushcons 26 ............................. <"stats">
+  [910] pushcons 27 ............................. <"game">
+  [912] pushcons 28 ............................. <"teamtanks">
+  [914] pushcons 26 ............................. <"stats">
+  [916] pushcons 10 ............................. <"datastats">
+  [918] pusharglist 1 ........................... <"datastats">
+  [920] extcall 52 .............................. <member("datastats")>
+  [922] getobjprop 54 ........................... <member("datastats").text>
+  [924] pushcons 29 ............................. <"sessionID">
+  [926] getglobal 190 ........................... <gsession>
+  [928] pusharglist 8 ........................... <["action": "stats", "game": "teamtanks", "stats": member("datastats").text, "sessionID": gsession]>
+  [930] pushproplist ............................ <["action": "stats", "game": "teamtanks", "stats": member("datastats").text, "sessionID": gsession]>
+  [931] setlocal 2 .............................. vcont = ["action": "stats", "game": "teamtanks", "stats": member("datastats").text, "sessionID": gsession]
+  [933] getprop 1012 ............................ <purl>
+  [936] getlocal 2 .............................. <vcont>
+  [938] pusharglistnoret 2 ...................... <purl, vcont>
+  [940] extcall 1053 ............................ postNetText(purl, vcont)
+  [943] ret
+end
+
+on promote me, nrank
+  [  0] getglobal 191 ........................... <gisloggedin>
+  [  2] jmpifz [ 37] ............................ if gisloggedin then
+  [  5] pushcons 2 .............................. <"mmmpotato">
+  [  7] setprop 1014 ............................ pop = "mmmpotato"
+  [ 10] pushcons 25 ............................. <"action">
+  [ 12] pushcons 30 ............................. <"promote">
+  [ 14] pushcons 27 ............................. <"game">
+  [ 16] pushcons 28 ............................. <"teamtanks">
+  [ 18] pushcons 29 ............................. <"sessionID">
+  [ 20] getglobal 190 ........................... <gsession>
+  [ 22] pusharglist 6 ........................... <["action": "promote", "game": "teamtanks", "sessionID": gsession]>
+  [ 24] pushproplist ............................ <["action": "promote", "game": "teamtanks", "sessionID": gsession]>
+  [ 25] setlocal 0 .............................. vcont = ["action": "promote", "game": "teamtanks", "sessionID": gsession]
+  [ 27] getprop 1012 ............................ <purl>
+  [ 30] getlocal 0 .............................. <vcont>
+  [ 32] pusharglistnoret 2 ...................... <purl, vcont>
+  [ 34] extcall 1053 ............................ postNetText(purl, vcont)
+  [ 37] ret
+end

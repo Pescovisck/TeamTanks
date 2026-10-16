@@ -1,0 +1,73 @@
+property pmod, pteam, bangtime
+global gmem, goody, gsmokes
+
+on new me, nmod, nteam
+  [  0] getparam 1 .............................. <nmod>
+  [  2] setprop 472 ............................. pmod = nmod
+  [  5] getparam 2 .............................. <nteam>
+  [  7] setprop 300 ............................. pteam = nteam
+  [ 10] pushcons 0 .............................. <"supercharge">
+  [ 12] getprop 300 ............................. <pteam>
+  [ 15] joinstr ................................. <"supercharge" & pteam>
+  [ 16] pusharglist 1 ........................... <"supercharge" & pteam>
+  [ 18] extcall 59 .............................. <string("supercharge" & pteam)>
+  [ 20] pusharglist 1 ........................... <string("supercharge" & pteam)>
+  [ 22] extcall 12 .............................. <shady(string("supercharge" & pteam))>
+  [ 24] setlocal 0 .............................. vshad = shady(string("supercharge" & pteam))
+  [ 26] getlocal 0 .............................. <vshad>
+  [ 28] pushint16 255 ........................... <255>
+  [ 31] pushint16 255 ........................... <255>
+  [ 34] pushint16 255 ........................... <255>
+  [ 37] pusharglist 3 ........................... <255, 255, 255>
+  [ 39] extcall 115 ............................. <rgb(255, 255, 255)>
+  [ 41] setobjprop 116 .......................... vshad.emissive = rgb(255, 255, 255)
+  [ 43] getprop 472 ............................. <pmod>
+  [ 46] getlocal 0 .............................. <vshad>
+  [ 48] setobjprop 562 .......................... pmod.shaderList = vshad
+  [ 51] pushint16 200 ........................... <200>
+  [ 54] setprop 1079 ............................ bangtime = 200
+  [ 57] getmovieprop 71 ......................... <the actorList>
+  [ 59] getparam 0 .............................. <me>
+  [ 61] pusharglistnoret 2 ...................... <the actorList, me>
+  [ 63] objcall 154 ............................. (the actorList).add(me)
+  [ 65] getparam 0 .............................. <me>
+  [ 67] pusharglistnoret 1 ...................... <me>
+  [ 69] extcall 40 .............................. return me
+  [ 71] ret
+end
+
+on stepFrame me
+  [  0] getprop 1079 ............................ <bangtime>
+  [  3] pushzero ................................ <0>
+  [  4] eq ...................................... <bangtime = 0>
+  [  5] jmpifz [ 53] ............................ if bangtime = 0 then
+  [  8] getprop 472 ............................. <pmod>
+  [ 11] pushsymb 562 ............................ <#shaderList>
+  [ 14] pushint8 1 .............................. <1>
+  [ 16] getglobal 83 ............................ <goody>
+  [ 18] getobjprop 561 .......................... <goody.ptankshad>
+  [ 21] pusharglistnoret 4 ...................... <pmod, #shaderList, 1, goody.ptankshad>
+  [ 23] objcall 142 ............................. pmod.shaderList[1] = goody.ptankshad
+  [ 25] getprop 472 ............................. <pmod>
+  [ 28] pushsymb 562 ............................ <#shaderList>
+  [ 31] pushint8 2 .............................. <2>
+  [ 33] getglobal 56 ............................ <gmem>
+  [ 35] pushcons 1 .............................. <"blackshine">
+  [ 37] pusharglist 2 ........................... <gmem, "blackshine">
+  [ 39] objcall 112 ............................. <gmem.shader("blackshine")>
+  [ 41] pusharglistnoret 4 ...................... <pmod, #shaderList, 2, gmem.shader("blackshine")>
+  [ 43] objcall 142 ............................. pmod.shaderList[2] = gmem.shader("blackshine")
+  [ 45] getmovieprop 71 ......................... <the actorList>
+  [ 47] getparam 0 .............................. <me>
+  [ 49] pusharglistnoret 2 ...................... <the actorList, me>
+  [ 51] objcall 227 ............................. (the actorList).deleteOne(me)
+  [ 53] getprop 1079 ............................ <bangtime>
+  [ 56] pushint8 1 .............................. <1>
+  [ 58] sub ..................................... <bangtime - 1>
+  [ 59] setprop 1079 ............................ bangtime = bangtime - 1
+  [ 62] ret
+end
+
+on hurt me
+  [  0] ret
+end

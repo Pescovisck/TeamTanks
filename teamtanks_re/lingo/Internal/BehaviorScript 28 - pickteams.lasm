@@ -1,0 +1,123 @@
+property pbother, pteam
+global gteam, gteamok, gteambalancer, goody, gmem, govlist, gtaglist, gplayers
+
+on beginSprite me
+  [  0] getparam 0 .............................. <me>
+  [  2] getobjprop 944 .......................... <me.spriteNum>
+  [  5] pushint8 3 .............................. <3>
+  [  7] eq ...................................... <me.spriteNum = 3>
+  [  8] jmpifz [ 19] ............................ if me.spriteNum = 3 then / else
+  [ 11] pushcons 0 .............................. <"red">
+  [ 13] setprop 300 ............................. pteam = "red"
+  [ 16] jmp [ 24]
+  [ 19] pushcons 1 .............................. <"blue">
+  [ 21] setprop 300 ............................. pteam = "blue"
+  [ 24] ret
+end
+
+on exitFrame me
+  [  0] getprop 1243 ............................ <pbother>
+  [  3] setlocal 0 .............................. vbother = pbother
+  [  5] getglobal 1109 .......................... <gteamok>
+  [  8] getprop 300 ............................. <pteam>
+  [ 11] pusharglist 2 ........................... <gteamok, pteam>
+  [ 13] objcall 111 ............................. <gteamok.getOne(pteam)>
+  [ 15] pushzero ................................ <0>
+  [ 16] nteq .................................... <gteamok.getOne(pteam) <> 0>
+  [ 17] jmpifz [ 44] ............................ if gteamok.getOne(pteam) <> 0 then / else
+  [ 20] pushint8 1 .............................. <1>
+  [ 22] setprop 1243 ............................ pbother = 1
+  [ 25] getparam 0 .............................. <me>
+  [ 27] getobjprop 944 .......................... <me.spriteNum>
+  [ 30] pusharglist 1 ........................... <me.spriteNum>
+  [ 32] extcall 282 ............................. <sprite(me.spriteNum)>
+  [ 35] pushint16 280 ........................... <280>
+  [ 38] setobjprop 597 .......................... sprite(me.spriteNum).cursor = 280
+  [ 41] jmp [ 64]
+  [ 44] pushzero ................................ <0>
+  [ 45] setprop 1243 ............................ pbother = 0
+  [ 48] getparam 0 .............................. <me>
+  [ 50] getobjprop 944 .......................... <me.spriteNum>
+  [ 53] pusharglist 1 ........................... <me.spriteNum>
+  [ 55] extcall 282 ............................. <sprite(me.spriteNum)>
+  [ 58] pushint8 1 .............................. <1>
+  [ 60] inv ..................................... <-1>
+  [ 61] setobjprop 597 .......................... sprite(me.spriteNum).cursor = -1
+  [ 64] getlocal 0 .............................. <vbother>
+  [ 66] getprop 1243 ............................ <pbother>
+  [ 69] nteq .................................... <vbother <> pbother>
+  [ 70] jmpifz [ 81] ............................ if vbother <> pbother then
+  [ 73] getglobal 558 ........................... <gteambalancer>
+  [ 76] pusharglistnoret 1 ...................... <gteambalancer>
+  [ 78] objcall 1108 ............................ gteambalancer.updateoverlays()
+  [ 81] ret
+end
+
+on mouseUp me
+  [  0] getprop 1243 ............................ <pbother>
+  [  3] jmpifz [136] ............................ if pbother then
+  [  6] getprop 300 ............................. <pteam>
+  [  9] setglobal 68 ............................ gteam = pteam
+  [ 11] getglobal 79 ............................ <gplayers>
+  [ 13] peek 0
+  [ 15] pusharglist 1
+  [ 17] extcall 72
+  [ 19] pushint8 1
+  [ 21] peek 0
+  [ 23] peek 2
+  [ 25] lteq
+  [ 26] jmpifz [ 54] ............................ repeat with bad in gplayers
+  [ 29] peek 2
+  [ 31] peek 1
+  [ 33] pusharglist 2
+  [ 35] extcall 73
+  [ 37] setlocal 0
+  [ 39] getlocal 0 .............................. <bad>
+  [ 41] pushsymb 669 ............................ <#phavoverlay>
+  [ 44] pushzero ................................ <0>
+  [ 45] pusharglistnoret 3 ...................... <bad, #phavoverlay, 0>
+  [ 47] objcall 199 ............................. bad.setaProp(#phavoverlay, 0)
+  [ 49] pushint8 1
+  [ 51] add
+  [ 52] endrepeat [ 21]
+  [ 54] pop 3
+  [ 56] getglobal 56 ............................ <gmem>
+  [ 58] pushint8 1 .............................. <1>
+  [ 60] pusharglist 2 ........................... <gmem, 1>
+  [ 62] objcall 532 ............................. <gmem.camera(1)>
+  [ 65] pushsymb 649 ............................ <#overlay>
+  [ 68] pusharglist 2 ........................... <gmem.camera(1), #overlay>
+  [ 70] objcall 72 .............................. <gmem.camera(1).overlay.count>
+  [ 72] setlocal 1 .............................. vcount = gmem.camera(1).overlay.count
+  [ 74] pushint8 1 .............................. <1>
+  [ 76] setlocal 2
+  [ 78] getlocal 2
+  [ 80] getlocal 1 .............................. <vcount>
+  [ 82] lteq
+  [ 83] jmpifz [111] ............................ repeat with i = 1 to vcount
+  [ 86] getglobal 56 ............................ <gmem>
+  [ 88] pushint8 1 .............................. <1>
+  [ 90] pusharglist 2 ........................... <gmem, 1>
+  [ 92] objcall 532 ............................. <gmem.camera(1)>
+  [ 95] pushint8 1 .............................. <1>
+  [ 97] pusharglistnoret 2 ...................... <gmem.camera(1), 1>
+  [ 99] objcall 670 ............................. gmem.camera(1).removeOverlay(1)
+  [102] pushint8 1
+  [104] getlocal 2
+  [106] add
+  [107] setlocal 2
+  [109] endrepeat [ 78]
+  [111] pusharglist 0 ........................... <[]>
+  [113] pushlist ................................ <[]>
+  [114] setglobal 435 ........................... govlist = []
+  [117] pusharglist 0 ........................... <[]>
+  [119] pushlist ................................ <[]>
+  [120] setglobal 434 ........................... gtaglist = []
+  [123] getglobal 83 ............................ <goody>
+  [125] pusharglistnoret 1 ...................... <goody>
+  [127] objcall 503 ............................. goody.prep()
+  [130] pushcons 2 .............................. <"play">
+  [132] pusharglistnoret 1 ...................... <"play">
+  [134] extcall 193 ............................. go("play")
+  [136] ret
+end

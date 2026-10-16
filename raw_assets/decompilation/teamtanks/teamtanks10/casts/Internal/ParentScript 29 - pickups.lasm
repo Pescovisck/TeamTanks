@@ -1,0 +1,712 @@
+property pos, prot, pmod, pstate, pmax, ptype, pid, pstartpos, plocked
+global gmem, gsmokes, goody
+
+on new me, npos, nrot, nid, ntype, nlocked, nramp
+  [  0] getmovieprop 71 ......................... <the actorList>
+  [  2] getparam 0 .............................. <me>
+  [  4] pusharglistnoret 2 ...................... <the actorList, me>
+  [  6] objcall 154 ............................. (the actorList).add(me)
+  [  8] getparam 4 .............................. <ntype>
+  [ 10] setprop 332 ............................. ptype = ntype
+  [ 13] getparam 5 .............................. <nlocked>
+  [ 15] pusharglist 1 ........................... <nlocked>
+  [ 17] extcall 55 .............................. <voidp(nlocked)>
+  [ 19] jmpifz [ 26] ............................ if voidp(nlocked) then
+  [ 22] pushint8 1 .............................. <1>
+  [ 24] setparam 5 .............................. nlocked = 1
+  [ 26] getparam 5 .............................. <nlocked>
+  [ 28] setprop 1245 ............................ plocked = nlocked
+  [ 31] getparam 3 .............................. <nid>
+  [ 33] setprop 305 ............................. pid = nid
+  [ 36] getparam 6 .............................. <nramp>
+  [ 38] pushcons 0 .............................. <"ramp1">
+  [ 40] eq ...................................... <nramp = "ramp1">
+  [ 41] jmpifz [ 57] ............................ if nramp = "ramp1" then / else
+  [ 44] pushint16 200 ........................... <200>
+  [ 47] setlocal 0 .............................. vup = 200
+  [ 49] pushint16 140 ........................... <140>
+  [ 52] setlocal 1 .............................. vfor = 140
+  [ 54] jmp [144]
+  [ 57] getparam 6 .............................. <nramp>
+  [ 59] pushcons 1 .............................. <"ramp2">
+  [ 61] eq ...................................... <nramp = "ramp2">
+  [ 62] jmpifz [ 78] ............................ if nramp = "ramp2" then / else
+  [ 65] pushint16 460 ........................... <460>
+  [ 68] setlocal 0 .............................. vup = 460
+  [ 70] pushint16 420 ........................... <420>
+  [ 73] setlocal 1 .............................. vfor = 420
+  [ 75] jmp [144]
+  [ 78] getparam 6 .............................. <nramp>
+  [ 80] pushcons 2 .............................. <"ramp3">
+  [ 82] eq ...................................... <nramp = "ramp3">
+  [ 83] jmpifz [ 99] ............................ if nramp = "ramp3" then / else
+  [ 86] pushint16 250 ........................... <250>
+  [ 89] setlocal 0 .............................. vup = 250
+  [ 91] pushint16 320 ........................... <320>
+  [ 94] setlocal 1 .............................. vfor = 320
+  [ 96] jmp [144]
+  [ 99] getparam 6 .............................. <nramp>
+  [101] pushcons 3 .............................. <"loop">
+  [103] eq ...................................... <nramp = "loop">
+  [104] jmpifz [118] ............................ if nramp = "loop" then / else
+  [107] pushint16 410 ........................... <410>
+  [110] setlocal 0 .............................. vup = 410
+  [112] pushzero ................................ <0>
+  [113] setlocal 1 .............................. vfor = 0
+  [115] jmp [144]
+  [118] getparam 6 .............................. <nramp>
+  [120] pushcons 4 .............................. <"twist">
+  [122] eq ...................................... <nramp = "twist">
+  [123] jmpifz [137] ............................ if nramp = "twist" then / else
+  [126] pushint8 10 ............................. <10>
+  [128] setlocal 0 .............................. vup = 10
+  [130] pushint8 1 .............................. <1>
+  [132] setlocal 1 .............................. vfor = 1
+  [134] jmp [144]
+  [137] pushint8 20 ............................. <20>
+  [139] setlocal 0 .............................. vup = 20
+  [141] pushzero ................................ <0>
+  [142] setlocal 1 .............................. vfor = 0
+  [144] getparam 1 .............................. <npos>
+  [146] pushzero ................................ <0>
+  [147] pushzero ................................ <0>
+  [148] getlocal 0 .............................. <vup>
+  [150] pusharglist 3 ........................... <0, 0, vup>
+  [152] extcall 46 .............................. <vector(0, 0, vup)>
+  [154] add ..................................... <npos + vector(0, 0, vup)>
+  [155] setprop 105 ............................. pos = npos + vector(0, 0, vup)
+  [157] getprop 105 ............................. <pos>
+  [159] getparam 2 .............................. <nrot>
+  [161] pushzero ................................ <0>
+  [162] pushzero ................................ <0>
+  [163] pushint8 90 ............................. <90>
+  [165] pusharglist 3 ........................... <0, 0, 90>
+  [167] extcall 46 .............................. <vector(0, 0, 90)>
+  [169] add ..................................... <nrot + vector(0, 0, 90)>
+  [170] pusharglist 1 ........................... <nrot + vector(0, 0, 90)>
+  [172] extcall 22 .............................. <angtovec(nrot + vector(0, 0, 90))>
+  [174] getlocal 1 .............................. <vfor>
+  [176] mul ..................................... <angtovec(nrot + vector(0, 0, 90)) * vfor>
+  [177] sub ..................................... <pos - (angtovec(nrot + vector(0, 0, 90)) * vfor)>
+  [178] setprop 105 ............................. pos = pos - (angtovec(nrot + vector(0, 0, 90)) * vfor)
+  [180] pushint8 1 .............................. <1>
+  [182] setprop 358 ............................. pstate = 1
+  [185] pushsymb 164 ............................ <#plane>
+  [187] pusharglist 1 ........................... <#plane>
+  [189] extcall 30 .............................. <recyclemodel(#plane)>
+  [191] setprop 472 ............................. pmod = recyclemodel(#plane)
+  [194] getprop 472 ............................. <pmod>
+  [197] pushzero ................................ <0>
+  [198] eq ...................................... <pmod = 0>
+  [199] jmpifz [209] ............................ if pmod = 0 then
+  [202] pusharglist 0 ........................... <>
+  [204] extcall 21 .............................. <planemake()>
+  [206] setprop 472 ............................. pmod = planemake()
+  [209] getglobal 56 ............................ <gmem>
+  [211] pushcons 5 .............................. <"t">
+  [213] getprop 332 ............................. <ptype>
+  [216] joinstr ................................. <"t" & ptype>
+  [217] pusharglist 2 ........................... <gmem, "t" & ptype>
+  [219] objcall 112 ............................. <gmem.shader("t" & ptype)>
+  [221] pusharglist 1 ........................... <gmem.shader("t" & ptype)>
+  [223] extcall 55 .............................. <voidp(gmem.shader("t" & ptype))>
+  [225] jmpifz [400] ............................ if voidp(gmem.shader("t" & ptype)) then
+  [228] pushcons 6 .............................. <"mgun">
+  [230] pushcons 7 .............................. <"bgun">
+  [232] pushcons 8 .............................. <"nook">
+  [234] pushcons 9 .............................. <"rocket">
+  [236] pushcons 10 ............................. <"proximitymine">
+  [238] pushcons 11 ............................. <"speed">
+  [240] pushcons 12 ............................. <"lasergun">
+  [242] pushcons 13 ............................. <"mgunx2">
+  [244] pushcons 14 ............................. <"rocketx4">
+  [246] pushcons 15 ............................. <"remotemine">
+  [248] pushcons 16 ............................. <"sonicgun">
+  [250] pushcons 17 ............................. <"guidedmissile">
+  [252] pushcons 18 ............................. <"thrusters">
+  [254] pushcons 19 ............................. <"mortar">
+  [256] pushcons 20 ............................. <"airstrike">
+  [258] pushcons 21 ............................. <"rcbomb">
+  [260] pushcons 22 ............................. <"rcrocket">
+  [262] pushcons 23 ............................. <"health">
+  [264] pushcons 24 ............................. <"stealth">
+  [266] pusharglist 19 .......................... <["mgun", "bgun", "nook", "rocket", "proximitymine", "speed", "lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth"]>
+  [268] pushlist ................................ <["mgun", "bgun", "nook", "rocket", "proximitymine", "speed", "lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth"]>
+  [269] setlocal 2 .............................. vtexs = ["mgun", "bgun", "nook", "rocket", "proximitymine", "speed", "lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth"]
+  [271] getlocal 2 .............................. <vtexs>
+  [273] getprop 332 ............................. <ptype>
+  [276] pusharglist 2 ........................... <vtexs, ptype>
+  [278] objcall 111 ............................. <vtexs.getOne(ptype)>
+  [280] pushzero ................................ <0>
+  [281] nteq .................................... <vtexs.getOne(ptype) <> 0>
+  [282] jmpifz [352] ............................ if vtexs.getOne(ptype) <> 0 then
+  [285] getprop 1245 ............................ <plocked>
+  [288] pushint8 1 .............................. <1>
+  [290] eq ...................................... <plocked = 1>
+  [291] jmpifz [318] ............................ if plocked = 1 then / else
+  [294] pushcons 25 ............................. <"icons">
+  [296] pusharglist 1 ........................... <"icons">
+  [298] extcall 52 .............................. <member("icons")>
+  [300] getlocal 2 .............................. <vtexs>
+  [302] getprop 332 ............................. <ptype>
+  [305] pusharglist 2 ........................... <vtexs, ptype>
+  [307] objcall 111 ............................. <vtexs.getOne(ptype)>
+  [309] pusharglist 1 ........................... <vtexs.getOne(ptype)>
+  [311] extcall 96 .............................. <integer(vtexs.getOne(ptype))>
+  [313] setobjprop 132 .......................... member("icons").posterFrame = integer(vtexs.getOne(ptype))
+  [315] jmp [352]
+  [318] getprop 1245 ............................ <plocked>
+  [321] pushzero ................................ <0>
+  [322] eq ...................................... <plocked = 0>
+  [323] jmpifz [352] ............................ if plocked = 0 then
+  [326] pushcons 25 ............................. <"icons">
+  [328] pusharglist 1 ........................... <"icons">
+  [330] extcall 52 .............................. <member("icons")>
+  [332] getlocal 2 .............................. <vtexs>
+  [334] getprop 332 ............................. <ptype>
+  [337] pusharglist 2 ........................... <vtexs, ptype>
+  [339] objcall 111 ............................. <vtexs.getOne(ptype)>
+  [341] getlocal 2 .............................. <vtexs>
+  [343] getobjprop 72 ........................... <vtexs.count>
+  [345] add ..................................... <vtexs.getOne(ptype) + vtexs.count>
+  [346] pusharglist 1 ........................... <vtexs.getOne(ptype) + vtexs.count>
+  [348] extcall 96 .............................. <integer(vtexs.getOne(ptype) + vtexs.count)>
+  [350] setobjprop 132 .......................... member("icons").posterFrame = integer(vtexs.getOne(ptype) + vtexs.count)
+  [352] getglobal 56 ............................ <gmem>
+  [354] pushcons 5 .............................. <"t">
+  [356] getprop 332 ............................. <ptype>
+  [359] joinstr ................................. <"t" & ptype>
+  [360] pushsymb 113 ............................ <#standard>
+  [362] pusharglist 3 ........................... <gmem, "t" & ptype, #standard>
+  [364] objcall 114 ............................. <gmem.newShader("t" & ptype, #standard)>
+  [366] setlocal 3 .............................. ns = gmem.newShader("t" & ptype, #standard)
+  [368] getlocal 3 .............................. <ns>
+  [370] getglobal 56 ............................ <gmem>
+  [372] pushcons 5 .............................. <"t">
+  [374] getprop 332 ............................. <ptype>
+  [377] joinstr ................................. <"t" & ptype>
+  [378] pushsymb 123 ............................ <#fromCastMember>
+  [380] pushcons 25 ............................. <"icons">
+  [382] pusharglist 1 ........................... <"icons">
+  [384] extcall 52 .............................. <member("icons")>
+  [386] pusharglist 4 ........................... <gmem, "t" & ptype, #fromCastMember, member("icons")>
+  [388] objcall 124 ............................. <gmem.newTexture("t" & ptype, #fromCastMember, member("icons"))>
+  [390] setobjprop 57 ........................... ns.texture = gmem.newTexture("t" & ptype, #fromCastMember, member("icons"))
+  [392] getlocal 3 .............................. <ns>
+  [394] getchainedprop 57 ....................... <ns.texture>
+  [396] pushsymb 125 ............................ <#rgba8888>
+  [398] setobjprop 126 .......................... ns.texture.renderFormat = #rgba8888
+  [400] getprop 472 ............................. <pmod>
+  [403] getchainedprop 38 ....................... <pmod.transform>
+  [405] pushint8 90 ............................. <90>
+  [407] pushzero ................................ <0>
+  [408] pushzero ................................ <0>
+  [409] pusharglist 3 ........................... <90, 0, 0>
+  [411] extcall 46 .............................. <vector(90, 0, 0)>
+  [413] setobjprop 39 ........................... pmod.transform.rotation = vector(90, 0, 0)
+  [415] getprop 472 ............................. <pmod>
+  [418] pushzero ................................ <0>
+  [419] pushint16 180 ........................... <180>
+  [422] pusharglist 1 ........................... <180>
+  [424] extcall 402 ............................. <random(180)>
+  [427] pushzero ................................ <0>
+  [428] pusharglist 3 ........................... <0, random(180), 0>
+  [430] extcall 46 .............................. <vector(0, random(180), 0)>
+  [432] pushsymb 811 ............................ <#self>
+  [435] pusharglistnoret 3 ...................... <pmod, vector(0, random(180), 0), #self>
+  [437] objcall 718 ............................. pmod.rotate(vector(0, random(180), 0), #self)
+  [440] getprop 472 ............................. <pmod>
+  [443] getchainedprop 38 ....................... <pmod.transform>
+  [445] pushint8 1 .............................. <1>
+  [447] pushint8 1 .............................. <1>
+  [449] pushint8 1 .............................. <1>
+  [451] pusharglist 3 ........................... <1, 1, 1>
+  [453] extcall 46 .............................. <vector(1, 1, 1)>
+  [455] pushint8 2 .............................. <2>
+  [457] mul ..................................... <vector(1, 1, 1) * 2>
+  [458] setobjprop 47 ........................... pmod.transform.scale = vector(1, 1, 1) * 2
+  [460] getprop 472 ............................. <pmod>
+  [463] getchainedprop 38 ....................... <pmod.transform>
+  [465] getprop 105 ............................. <pos>
+  [467] setobjprop 48 ........................... pmod.transform.position = pos
+  [469] getprop 105 ............................. <pos>
+  [471] setprop 1246 ............................ pstartpos = pos
+  [474] getprop 472 ............................. <pmod>
+  [477] pushsymb 873 ............................ <#both>
+  [480] setobjprop 628 .......................... pmod.visibility = #both
+  [483] getprop 472 ............................. <pmod>
+  [486] getglobal 56 ............................ <gmem>
+  [488] pushcons 5 .............................. <"t">
+  [490] getprop 332 ............................. <ptype>
+  [493] joinstr ................................. <"t" & ptype>
+  [494] pusharglist 2 ........................... <gmem, "t" & ptype>
+  [496] objcall 112 ............................. <gmem.shader("t" & ptype)>
+  [498] setobjprop 562 .......................... pmod.shaderList = gmem.shader("t" & ptype)
+  [501] getprop 472 ............................. <pmod>
+  [504] getchainedprop 112 ...................... <pmod.shader>
+  [506] pushint16 255 ........................... <255>
+  [509] pushint16 255 ........................... <255>
+  [512] pushint16 255 ........................... <255>
+  [515] pusharglist 3 ........................... <255, 255, 255>
+  [517] extcall 115 ............................. <rgb(255, 255, 255)>
+  [519] setobjprop 116 .......................... pmod.shader.emissive = rgb(255, 255, 255)
+  [521] getprop 472 ............................. <pmod>
+  [524] getchainedprop 112 ...................... <pmod.shader>
+  [526] pushzero ................................ <0>
+  [527] setobjprop 233 .......................... pmod.shader.shininess = 0
+  [529] getprop 472 ............................. <pmod>
+  [532] getglobal 608 ........................... <gsmokes>
+  [535] setobjprop 609 .......................... pmod.parent = gsmokes
+  [538] ret
+end
+
+on distboy me
+  [  0] getglobal 83 ............................ <goody>
+  [  2] getobjprop 586 .......................... <goody.weaponry>
+  [  5] pusharglist 1 ........................... <goody.weaponry>
+  [  7] extcall 55 .............................. <voidp(goody.weaponry)>
+  [  9] not ..................................... <not voidp(goody.weaponry)>
+  [ 10] jmpifz [693] ............................ if not voidp(goody.weaponry) then
+  [ 13] getglobal 83 ............................ <goody>
+  [ 15] getchainedprop 105 ...................... <goody.pos>
+  [ 17] getprop 105 ............................. <pos>
+  [ 19] pusharglist 2 ........................... <goody.pos, pos>
+  [ 21] objcall 98 .............................. <goody.pos.distanceTo(pos)>
+  [ 23] getglobal 83 ............................ <goody>
+  [ 25] getobjprop 160 .......................... <goody.bsp>
+  [ 27] pushint8 2 .............................. <2>
+  [ 29] mul ..................................... <goody.bsp * 2>
+  [ 30] lt ...................................... <goody.pos.distanceTo(pos) < (goody.bsp * 2)>
+  [ 31] getglobal 83 ............................ <goody>
+  [ 33] getchainedprop 586 ...................... <goody.weaponry>
+  [ 36] getobjprop 662 .......................... <goody.weaponry.premote>
+  [ 39] pusharglist 0 ........................... <>
+  [ 41] extcall 66 .............................. <VOID>
+  [ 43] eq ...................................... <goody.weaponry.premote = VOID>
+  [ 44] and ..................................... <(goody.pos.distanceTo(pos) < (goody.bsp * 2)) and (goody.weaponry.premote = VOID)>
+  [ 45] jmpifz [693] ............................ if (goody.pos.distanceTo(pos) < (goody.bsp * 2)) and (goody.weaponry.premote = VOID) then
+  [ 48] pushzero ................................ <0>
+  [ 49] setlocal 0 .............................. vrefresh = 0
+  [ 51] getprop 105 ............................. <pos>
+  [ 53] pushcons 26 ............................. <"reload">
+  [ 55] pushint8 7 .............................. <7>
+  [ 57] pusharglistnoret 3 ...................... <pos, "reload", 7>
+  [ 59] extcall 10 .............................. playsound(pos, "reload", 7)
+  [ 61] getprop 332 ............................. <ptype>
+  [ 64] peek 0 .................................. case ptype of
+  [ 66] pushcons 6 .............................. <"mgun">
+  [ 68] eq
+  [ 69] jmpifz [ 90] ............................ (case) "mgun":
+  [ 72] pushsymb 338 ............................ <#mgun>
+  [ 75] pushint8 80 ............................. <80>
+  [ 77] pusharglist 2 ........................... <[#mgun: 80]>
+  [ 79] pushproplist ............................ <[#mgun: 80]>
+  [ 80] setlocal 1 .............................. vweapons = [#mgun: 80]
+  [ 82] pushsymb 338 ............................ <#mgun>
+  [ 85] setlocal 2 .............................. vpweapon = #mgun
+  [ 87] jmp [550]
+  [ 90] peek 0
+  [ 92] pushcons 7 .............................. <"bgun">
+  [ 94] eq
+  [ 95] jmpifz [116] ............................ (case) "bgun":
+  [ 98] pushsymb 339 ............................ <#bgun>
+  [101] pushint8 6 .............................. <6>
+  [103] pusharglist 2 ........................... <[#bgun: 6]>
+  [105] pushproplist ............................ <[#bgun: 6]>
+  [106] setlocal 1 .............................. vweapons = [#bgun: 6]
+  [108] pushsymb 339 ............................ <#bgun>
+  [111] setlocal 2 .............................. vpweapon = #bgun
+  [113] jmp [550]
+  [116] peek 0
+  [118] pushcons 8 .............................. <"nook">
+  [120] eq
+  [121] jmpifz [140] ............................ (case) "nook":
+  [124] pushsymb 208 ............................ <#nook>
+  [126] pushint8 1 .............................. <1>
+  [128] pusharglist 2 ........................... <[#nook: 1]>
+  [130] pushproplist ............................ <[#nook: 1]>
+  [131] setlocal 1 .............................. vweapons = [#nook: 1]
+  [133] pushsymb 208 ............................ <#nook>
+  [135] setlocal 2 .............................. vpweapon = #nook
+  [137] jmp [550]
+  [140] peek 0
+  [142] pushcons 9 .............................. <"rocket">
+  [144] eq
+  [145] jmpifz [164] ............................ (case) "rocket":
+  [148] pushsymb 206 ............................ <#rocket>
+  [150] pushint8 4 .............................. <4>
+  [152] pusharglist 2 ........................... <[#rocket: 4]>
+  [154] pushproplist ............................ <[#rocket: 4]>
+  [155] setlocal 1 .............................. vweapons = [#rocket: 4]
+  [157] pushsymb 206 ............................ <#rocket>
+  [159] setlocal 2 .............................. vpweapon = #rocket
+  [161] jmp [550]
+  [164] peek 0
+  [166] pushcons 10 ............................. <"proximitymine">
+  [168] eq
+  [169] jmpifz [188] ............................ (case) "proximitymine":
+  [172] pushsymb 222 ............................ <#proximitymine>
+  [174] pushint8 5 .............................. <5>
+  [176] pusharglist 2 ........................... <[#proximitymine: 5]>
+  [178] pushproplist ............................ <[#proximitymine: 5]>
+  [179] setlocal 1 .............................. vweapons = [#proximitymine: 5]
+  [181] pushsymb 222 ............................ <#proximitymine>
+  [183] setlocal 2 .............................. vpweapon = #proximitymine
+  [185] jmp [550]
+  [188] peek 0
+  [190] pushcons 11 ............................. <"speed">
+  [192] eq
+  [193] jmpifz [214] ............................ (case) "speed":
+  [196] pushsymb 340 ............................ <#speed>
+  [199] pushint8 100 ............................ <100>
+  [201] pusharglist 2 ........................... <[#speed: 100]>
+  [203] pushproplist ............................ <[#speed: 100]>
+  [204] setlocal 1 .............................. vweapons = [#speed: 100]
+  [206] pushsymb 340 ............................ <#speed>
+  [209] setlocal 2 .............................. vpweapon = #speed
+  [211] jmp [550]
+  [214] peek 0
+  [216] pushcons 12 ............................. <"lasergun">
+  [218] eq
+  [219] jmpifz [240] ............................ (case) "lasergun":
+  [222] pushsymb 341 ............................ <#lasergun>
+  [225] pushint8 120 ............................ <120>
+  [227] pusharglist 2 ........................... <[#lasergun: 120]>
+  [229] pushproplist ............................ <[#lasergun: 120]>
+  [230] setlocal 1 .............................. vweapons = [#lasergun: 120]
+  [232] pushsymb 341 ............................ <#lasergun>
+  [235] setlocal 2 .............................. vpweapon = #lasergun
+  [237] jmp [550]
+  [240] peek 0
+  [242] pushcons 13 ............................. <"mgunx2">
+  [244] eq
+  [245] jmpifz [266] ............................ (case) "mgunx2":
+  [248] pushsymb 342 ............................ <#mgunx2>
+  [251] pushint8 80 ............................. <80>
+  [253] pusharglist 2 ........................... <[#mgunx2: 80]>
+  [255] pushproplist ............................ <[#mgunx2: 80]>
+  [256] setlocal 1 .............................. vweapons = [#mgunx2: 80]
+  [258] pushsymb 342 ............................ <#mgunx2>
+  [261] setlocal 2 .............................. vpweapon = #mgunx2
+  [263] jmp [550]
+  [266] peek 0
+  [268] pushcons 14 ............................. <"rocketx4">
+  [270] eq
+  [271] jmpifz [290] ............................ (case) "rocketx4":
+  [274] pushsymb 207 ............................ <#rocketx4>
+  [276] pushint8 2 .............................. <2>
+  [278] pusharglist 2 ........................... <[#rocketx4: 2]>
+  [280] pushproplist ............................ <[#rocketx4: 2]>
+  [281] setlocal 1 .............................. vweapons = [#rocketx4: 2]
+  [283] pushsymb 207 ............................ <#rocketx4>
+  [285] setlocal 2 .............................. vpweapon = #rocketx4
+  [287] jmp [550]
+  [290] peek 0
+  [292] pushcons 15 ............................. <"remotemine">
+  [294] eq
+  [295] jmpifz [314] ............................ (case) "remotemine":
+  [298] pushsymb 223 ............................ <#remotemine>
+  [300] pushint8 3 .............................. <3>
+  [302] pusharglist 2 ........................... <[#remotemine: 3]>
+  [304] pushproplist ............................ <[#remotemine: 3]>
+  [305] setlocal 1 .............................. vweapons = [#remotemine: 3]
+  [307] pushsymb 223 ............................ <#remotemine>
+  [309] setlocal 2 .............................. vpweapon = #remotemine
+  [311] jmp [550]
+  [314] peek 0
+  [316] pushcons 16 ............................. <"sonicgun">
+  [318] eq
+  [319] jmpifz [340] ............................ (case) "sonicgun":
+  [322] pushsymb 343 ............................ <#sonicgun>
+  [325] pushint8 4 .............................. <4>
+  [327] pusharglist 2 ........................... <[#sonicgun: 4]>
+  [329] pushproplist ............................ <[#sonicgun: 4]>
+  [330] setlocal 1 .............................. vweapons = [#sonicgun: 4]
+  [332] pushsymb 343 ............................ <#sonicgun>
+  [335] setlocal 2 .............................. vpweapon = #sonicgun
+  [337] jmp [550]
+  [340] peek 0
+  [342] pushcons 17 ............................. <"guidedmissile">
+  [344] eq
+  [345] jmpifz [364] ............................ (case) "guidedmissile":
+  [348] pushsymb 210 ............................ <#guidedmissile>
+  [350] pushint8 3 .............................. <3>
+  [352] pusharglist 2 ........................... <[#guidedmissile: 3]>
+  [354] pushproplist ............................ <[#guidedmissile: 3]>
+  [355] setlocal 1 .............................. vweapons = [#guidedmissile: 3]
+  [357] pushsymb 210 ............................ <#guidedmissile>
+  [359] setlocal 2 .............................. vpweapon = #guidedmissile
+  [361] jmp [550]
+  [364] peek 0
+  [366] pushcons 18 ............................. <"thrusters">
+  [368] eq
+  [369] jmpifz [391] ............................ (case) "thrusters":
+  [372] pushsymb 344 ............................ <#thrusters>
+  [375] pushint16 400 ........................... <400>
+  [378] pusharglist 2 ........................... <[#thrusters: 400]>
+  [380] pushproplist ............................ <[#thrusters: 400]>
+  [381] setlocal 1 .............................. vweapons = [#thrusters: 400]
+  [383] pushsymb 344 ............................ <#thrusters>
+  [386] setlocal 2 .............................. vpweapon = #thrusters
+  [388] jmp [550]
+  [391] peek 0
+  [393] pushcons 19 ............................. <"mortar">
+  [395] eq
+  [396] jmpifz [415] ............................ (case) "mortar":
+  [399] pushsymb 211 ............................ <#mortar>
+  [401] pushint8 5 .............................. <5>
+  [403] pusharglist 2 ........................... <[#mortar: 5]>
+  [405] pushproplist ............................ <[#mortar: 5]>
+  [406] setlocal 1 .............................. vweapons = [#mortar: 5]
+  [408] pushsymb 211 ............................ <#mortar>
+  [410] setlocal 2 .............................. vpweapon = #mortar
+  [412] jmp [550]
+  [415] peek 0
+  [417] pushcons 20 ............................. <"airstrike">
+  [419] eq
+  [420] jmpifz [441] ............................ (case) "airstrike":
+  [423] pushsymb 345 ............................ <#airstrike>
+  [426] pushint8 1 .............................. <1>
+  [428] pusharglist 2 ........................... <[#airstrike: 1]>
+  [430] pushproplist ............................ <[#airstrike: 1]>
+  [431] setlocal 1 .............................. vweapons = [#airstrike: 1]
+  [433] pushsymb 345 ............................ <#airstrike>
+  [436] setlocal 2 .............................. vpweapon = #airstrike
+  [438] jmp [550]
+  [441] peek 0
+  [443] pushcons 21 ............................. <"rcbomb">
+  [445] eq
+  [446] jmpifz [466] ............................ (case) "rcbomb":
+  [449] pushsymb 213 ............................ <#rcbomb>
+  [451] pushint16 1000 .......................... <1000>
+  [454] pusharglist 2 ........................... <[#rcbomb: 1000]>
+  [456] pushproplist ............................ <[#rcbomb: 1000]>
+  [457] setlocal 1 .............................. vweapons = [#rcbomb: 1000]
+  [459] pushsymb 213 ............................ <#rcbomb>
+  [461] setlocal 2 .............................. vpweapon = #rcbomb
+  [463] jmp [550]
+  [466] peek 0
+  [468] pushcons 22 ............................. <"rcrocket">
+  [470] eq
+  [471] jmpifz [491] ............................ (case) "rcrocket":
+  [474] pushsymb 217 ............................ <#rcrocket>
+  [476] pushint16 1200 .......................... <1200>
+  [479] pusharglist 2 ........................... <[#rcrocket: 1200]>
+  [481] pushproplist ............................ <[#rcrocket: 1200]>
+  [482] setlocal 1 .............................. vweapons = [#rcrocket: 1200]
+  [484] pushsymb 217 ............................ <#rcrocket>
+  [486] setlocal 2 .............................. vpweapon = #rcrocket
+  [488] jmp [550]
+  [491] peek 0
+  [493] pushcons 23 ............................. <"health">
+  [495] eq
+  [496] jmpifz [515] ............................ (case) "health":
+  [499] pushsymb 216 ............................ <#health>
+  [501] pushint8 3 .............................. <3>
+  [503] pusharglist 2 ........................... <[#health: 3]>
+  [505] pushproplist ............................ <[#health: 3]>
+  [506] setlocal 1 .............................. vweapons = [#health: 3]
+  [508] pushsymb 216 ............................ <#health>
+  [510] setlocal 2 .............................. vpweapon = #health
+  [512] jmp [550]
+  [515] peek 0
+  [517] pushcons 24 ............................. <"stealth">
+  [519] eq
+  [520] jmpifz [542] ............................ (case) "stealth":
+  [523] pushsymb 323 ............................ <#stealth>
+  [526] pushint16 250 ........................... <250>
+  [529] pusharglist 2 ........................... <[#stealth: 250]>
+  [531] pushproplist ............................ <[#stealth: 250]>
+  [532] setlocal 1 .............................. vweapons = [#stealth: 250]
+  [534] pushsymb 323 ............................ <#stealth>
+  [537] setlocal 2 .............................. vpweapon = #stealth
+  [539] jmp [550]
+  [542] peek 0
+  [544] pushcons 27 ............................. <EMPTY>
+  [546] eq
+  [547] jmpifz [550] ............................ (case) EMPTY:
+  [550] pop 1 ................................... end case
+  [552] getglobal 83 ............................ <goody>
+  [554] getlocal 1 .............................. <vweapons>
+  [556] setobjprop 573 .......................... goody.weapons = vweapons
+  [559] getglobal 83 ............................ <goody>
+  [561] getlocal 2 .............................. <vpweapon>
+  [563] setobjprop 315 .......................... goody.pweapon = vpweapon
+  [566] getglobal 83 ............................ <goody>
+  [568] getglobal 83 ............................ <goody>
+  [570] getchainedprop 573 ...................... <goody.weapons>
+  [573] pusharglist 1 ........................... <goody.weapons>
+  [575] objcall 130 ............................. <goody.weapons.duplicate()>
+  [577] setobjprop 574 .......................... goody.chambers = goody.weapons.duplicate()
+  [580] getglobal 83 ............................ <goody>
+  [582] getchainedprop 586 ...................... <goody.weaponry>
+  [585] getchainedprop 588 ...................... <goody.weaponry.pweaplist>
+  [588] getglobal 83 ............................ <goody>
+  [590] getobjprop 315 .......................... <goody.pweapon>
+  [593] pusharglist 2 ........................... <goody.weaponry.pweaplist, goody.pweapon>
+  [595] objcall 111 ............................. <goody.weaponry.pweaplist.getOne(goody.pweapon)>
+  [597] setlocal 3 .............................. vpos = goody.weaponry.pweaplist.getOne(goody.pweapon)
+  [599] pushcons 28 ............................. <"73mm gun">
+  [601] pushcons 29 ............................. <"720mm gun">
+  [603] pushcons 30 ............................. <"Tactical Nuke">
+  [605] pushcons 31 ............................. <"Rocket">
+  [607] pushcons 32 ............................. <"Proximity Mine">
+  [609] pushcons 33 ............................. <"Speed Boost">
+  [611] pushcons 34 ............................. <"Laser Gun">
+  [613] pushcons 35 ............................. <"Twin 73's">
+  [615] pushcons 36 ............................. <"Tankbuster">
+  [617] pushcons 37 ............................. <"Remote Mine">
+  [619] pushcons 38 ............................. <"Sonic Blaster">
+  [621] pushcons 39 ............................. <"Guided Missile">
+  [623] pushcons 40 ............................. <"Jet Pack">
+  [625] pushcons 41 ............................. <"Mortars">
+  [627] pushcons 42 ............................. <"Air Strike">
+  [629] pushcons 43 ............................. <"Remote Bomb">
+  [631] pushcons 44 ............................. <"Remote Rocket">
+  [633] pushcons 45 ............................. <"Repair Pack">
+  [635] pushcons 46 ............................. <"Stealth Cloak">
+  [637] pusharglist 19 .......................... <["73mm gun", "720mm gun", "Tactical Nuke", "Rocket", "Proximity Mine", "Speed Boost", "Laser Gun", "Twin 73's", "Tankbuster", "Remote Mine", "Sonic Blaster", "Guided Missile", "Jet Pack", "Mortars", "Air Strike", "Remote Bomb", "Remote Rocket", "Repair Pack", "Stealth Cloak"]>
+  [639] pushlist ................................ <["73mm gun", "720mm gun", "Tactical Nuke", "Rocket", "Proximity Mine", "Speed Boost", "Laser Gun", "Twin 73's", "Tankbuster", "Remote Mine", "Sonic Blaster", "Guided Missile", "Jet Pack", "Mortars", "Air Strike", "Remote Bomb", "Remote Rocket", "Repair Pack", "Stealth Cloak"]>
+  [640] setlocal 4 .............................. vpickdescs = ["73mm gun", "720mm gun", "Tactical Nuke", "Rocket", "Proximity Mine", "Speed Boost", "Laser Gun", "Twin 73's", "Tankbuster", "Remote Mine", "Sonic Blaster", "Guided Missile", "Jet Pack", "Mortars", "Air Strike", "Remote Bomb", "Remote Rocket", "Repair Pack", "Stealth Cloak"]
+  [642] pushcons 47 ............................. <"ingamefeedback">
+  [644] pusharglist 1 ........................... <"ingamefeedback">
+  [646] extcall 303 ............................. <script("ingamefeedback")>
+  [649] getglobal 83 ............................ <goody>
+  [651] getobjprop 105 .......................... <goody.pos>
+  [653] pushcons 48 ............................. <"*">
+  [655] getlocal 4 .............................. <vpickdescs>
+  [657] getlocal 3 .............................. <vpos>
+  [659] pusharglist 2 ........................... <vpickdescs, vpos>
+  [661] objcall 73 .............................. <vpickdescs[vpos]>
+  [663] joinstr ................................. <"*" & vpickdescs[vpos]>
+  [664] pushcons 48 ............................. <"*">
+  [666] joinstr ................................. <"*" & vpickdescs[vpos] & "*">
+  [667] pushint8 1 .............................. <1>
+  [669] pusharglist 4 ........................... <script("ingamefeedback"), goody.pos, "*" & vpickdescs[vpos] & "*", 1>
+  [671] objcall 265 ............................. <script("ingamefeedback").new(goody.pos, "*" & vpickdescs[vpos] & "*", 1)>
+  [674] setlocal 5 .............................. vfeed = script("ingamefeedback").new(goody.pos, "*" & vpickdescs[vpos] & "*", 1)
+  [676] getglobal 83 ............................ <goody>
+  [678] getchainedprop 586 ...................... <goody.weaponry>
+  [681] getprop 332 ............................. <ptype>
+  [684] pusharglistnoret 2 ...................... <goody.weaponry, ptype>
+  [686] objcall 587 ............................. goody.weaponry.reload(ptype)
+  [689] pushzero ................................ <0>
+  [690] setprop 358 ............................. pstate = 0
+  [693] ret
+end
+
+on stepFrame me
+  [  0] getglobal 83 ............................ <goody>
+  [  2] pusharglist 1 ........................... <goody>
+  [  4] extcall 55 .............................. <voidp(goody)>
+  [  6] not ..................................... <not voidp(goody)>
+  [  7] jmpifz [216] ............................ if not voidp(goody) then / else
+  [ 10] getprop 543 ............................. <prot>
+  [ 13] pushint8 2 .............................. <2>
+  [ 15] add ..................................... <prot + 2>
+  [ 16] setprop 543 ............................. prot = prot + 2
+  [ 19] getprop 472 ............................. <pmod>
+  [ 22] pushzero ................................ <0>
+  [ 23] pushint8 5 .............................. <5>
+  [ 25] pushzero ................................ <0>
+  [ 26] pusharglist 3 ........................... <0, 5, 0>
+  [ 28] extcall 46 .............................. <vector(0, 5, 0)>
+  [ 30] pushsymb 811 ............................ <#self>
+  [ 33] pusharglistnoret 3 ...................... <pmod, vector(0, 5, 0), #self>
+  [ 35] objcall 718 ............................. pmod.rotate(vector(0, 5, 0), #self)
+  [ 38] getprop 358 ............................. <pstate>
+  [ 41] pushint8 1 .............................. <1>
+  [ 43] eq ...................................... <pstate = 1>
+  [ 44] jmpifz [ 71] ............................ if pstate = 1 then / else
+  [ 47] getprop 1245 ............................ <plocked>
+  [ 50] pushint8 1 .............................. <1>
+  [ 52] eq ...................................... <plocked = 1>
+  [ 53] jmpifz [ 68] ............................ if plocked = 1 then
+  [ 56] getparam 0 .............................. <me>
+  [ 58] pusharglistnoret 1 ...................... <me>
+  [ 60] localcall 1 ............................. distboy(me)
+  [ 62] getprop 543 ............................. <prot>
+  [ 65] setprop 1256 ............................ pmax = prot
+  [ 68] jmp [213]
+  [ 71] pushint8 2 .............................. <2>
+  [ 73] getprop 543 ............................. <prot>
+  [ 76] getprop 1256 ............................ <pmax>
+  [ 79] sub ..................................... <prot - pmax>
+  [ 80] pushcons 49 ............................. <0.10000000000000001>
+  [ 82] mul ..................................... <(prot - pmax) * 0.10000000000000001>
+  [ 83] sub ..................................... <2 - ((prot - pmax) * 0.10000000000000001)>
+  [ 84] setlocal 0 .............................. vsca = 2 - ((prot - pmax) * 0.10000000000000001)
+  [ 86] getlocal 0 .............................. <vsca>
+  [ 88] pushzero ................................ <0>
+  [ 89] gt ...................................... <vsca > 0>
+  [ 90] jmpifz [146] ............................ if vsca > 0 then / else
+  [ 93] getprop 472 ............................. <pmod>
+  [ 96] getchainedprop 38 ....................... <pmod.transform>
+  [ 98] getlocal 0 .............................. <vsca>
+  [100] getlocal 0 .............................. <vsca>
+  [102] getlocal 0 .............................. <vsca>
+  [104] pusharglist 3 ........................... <vsca, vsca, vsca>
+  [106] extcall 46 .............................. <vector(vsca, vsca, vsca)>
+  [108] setobjprop 47 ........................... pmod.transform.scale = vector(vsca, vsca, vsca)
+  [110] getprop 472 ............................. <pmod>
+  [113] getchainedprop 38 ....................... <pmod.transform>
+  [115] getprop 472 ............................. <pmod>
+  [118] getchainedprop 38 ....................... <pmod.transform>
+  [120] getobjprop 48 ........................... <pmod.transform.position>
+  [122] getglobal 83 ............................ <goody>
+  [124] getobjprop 105 .......................... <goody.pos>
+  [126] getprop 472 ............................. <pmod>
+  [129] getchainedprop 38 ....................... <pmod.transform>
+  [131] getobjprop 48 ........................... <pmod.transform.position>
+  [133] sub ..................................... <goody.pos - pmod.transform.position>
+  [134] pushfloat32 0.5 ......................... <0.5>
+  [139] mul ..................................... <(goody.pos - pmod.transform.position) * 0.5>
+  [140] add ..................................... <pmod.transform.position + ((goody.pos - pmod.transform.position) * 0.5)>
+  [141] setobjprop 48 ........................... pmod.transform.position = pmod.transform.position + ((goody.pos - pmod.transform.position) * 0.5)
+  [143] jmp [155]
+  [146] getprop 472 ............................. <pmod>
+  [149] pushsymb 677 ............................ <#none>
+  [152] setobjprop 628 .......................... pmod.visibility = #none
+  [155] getprop 543 ............................. <prot>
+  [158] getprop 1256 ............................ <pmax>
+  [161] pushint16 500 ........................... <500>
+  [164] add ..................................... <pmax + 500>
+  [165] gt ...................................... <prot > (pmax + 500)>
+  [166] jmpifz [213] ............................ if prot > (pmax + 500) then
+  [169] pushint8 1 .............................. <1>
+  [171] setprop 358 ............................. pstate = 1
+  [174] getprop 472 ............................. <pmod>
+  [177] getchainedprop 38 ....................... <pmod.transform>
+  [179] pushint8 1 .............................. <1>
+  [181] pushint8 1 .............................. <1>
+  [183] pushint8 1 .............................. <1>
+  [185] pusharglist 3 ........................... <1, 1, 1>
+  [187] extcall 46 .............................. <vector(1, 1, 1)>
+  [189] pushint8 2 .............................. <2>
+  [191] mul ..................................... <vector(1, 1, 1) * 2>
+  [192] setobjprop 47 ........................... pmod.transform.scale = vector(1, 1, 1) * 2
+  [194] getprop 472 ............................. <pmod>
+  [197] getchainedprop 38 ....................... <pmod.transform>
+  [199] getprop 1246 ............................ <pstartpos>
+  [202] setobjprop 48 ........................... pmod.transform.position = pstartpos
+  [204] getprop 472 ............................. <pmod>
+  [207] pushsymb 873 ............................ <#both>
+  [210] setobjprop 628 .......................... pmod.visibility = #both
+  [213] jmp [222]
+  [216] getparam 0 .............................. <me>
+  [218] pusharglistnoret 1 ...................... <me>
+  [220] localcall 3 ............................. die(me)
+  [222] ret
+end
+
+on die me
+  [  0] pushsymb 164 ............................ <#plane>
+  [  2] getprop 472 ............................. <pmod>
+  [  5] pusharglistnoret 2 ...................... <#plane, pmod>
+  [  7] extcall 29 .............................. storemodel(#plane, pmod)
+  [  9] getmovieprop 71 ......................... <the actorList>
+  [ 11] getparam 0 .............................. <me>
+  [ 13] pusharglistnoret 2 ...................... <the actorList, me>
+  [ 15] objcall 227 ............................. (the actorList).deleteOne(me)
+  [ 17] ret
+end

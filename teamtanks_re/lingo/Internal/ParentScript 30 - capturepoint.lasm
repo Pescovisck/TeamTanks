@@ -1,0 +1,641 @@
+property pmod, pglow, poldglow, pglowmod, ptarglow, ptype, pmussteps, plight, povtex, pcapchange, pcatching, pcaught, poldframe
+global gmem, gteam, gcappoints, goody, gsmokes, gmodinc
+
+on new me, nmod, nteam
+  [  0] getparam 0 .............................. <me>
+  [  2] pusharglistnoret 1 ...................... <me>
+  [  4] localcall 5 ............................. resetglows(me)
+  [  6] getparam 1 .............................. <nmod>
+  [  8] setprop 472 ............................. pmod = nmod
+  [ 11] pushint8 15 ............................. <15>
+  [ 13] setprop 858 ............................. pmussteps = 15
+  [ 16] getprop 472 ............................. <pmod>
+  [ 19] pusharglistnoret 1 ...................... <pmod>
+  [ 21] objcall 228 ............................. pmod.addToWorld()
+  [ 23] getprop 472 ............................. <pmod>
+  [ 26] pushsymb 562 ............................ <#shaderList>
+  [ 29] pushint8 3 .............................. <3>
+  [ 31] getglobal 56 ............................ <gmem>
+  [ 33] pushcons 0 .............................. <"glowbase">
+  [ 35] getparam 1 .............................. <nmod>
+  [ 37] getobjprop 416 .......................... <nmod.name>
+  [ 40] joinstr ................................. <"glowbase" & nmod.name>
+  [ 41] pushsymb 113 ............................ <#standard>
+  [ 43] pusharglist 3 ........................... <gmem, "glowbase" & nmod.name, #standard>
+  [ 45] objcall 114 ............................. <gmem.newShader("glowbase" & nmod.name, #standard)>
+  [ 47] pusharglistnoret 4 ...................... <pmod, #shaderList, 3, gmem.newShader("glowbase" & nmod.name, #standard)>
+  [ 49] objcall 142 ............................. pmod.shaderList[3] = gmem.newShader("glowbase" & nmod.name, #standard)
+  [ 51] getprop 472 ............................. <pmod>
+  [ 54] pushsymb 562 ............................ <#shaderList>
+  [ 57] pushint8 3 .............................. <3>
+  [ 59] pusharglist 3 ........................... <pmod, #shaderList, 3>
+  [ 61] objcall 650 ............................. <pmod.shaderList[3]>
+  [ 64] getprop 1259 ............................ <pglow>
+  [ 67] pushint8 1 .............................. <1>
+  [ 69] pusharglist 2 ........................... <pglow, 1>
+  [ 71] objcall 73 .............................. <pglow[1]>
+  [ 73] getprop 1259 ............................ <pglow>
+  [ 76] pushint8 2 .............................. <2>
+  [ 78] pusharglist 2 ........................... <pglow, 2>
+  [ 80] objcall 73 .............................. <pglow[2]>
+  [ 82] getprop 1259 ............................ <pglow>
+  [ 85] pushint8 3 .............................. <3>
+  [ 87] pusharglist 2 ........................... <pglow, 3>
+  [ 89] objcall 73 .............................. <pglow[3]>
+  [ 91] pusharglist 3 ........................... <pglow[1], pglow[2], pglow[3]>
+  [ 93] extcall 115 ............................. <rgb(pglow[1], pglow[2], pglow[3])>
+  [ 95] setobjprop 116 .......................... pmod.shaderList[3].emissive = rgb(pglow[1], pglow[2], pglow[3])
+  [ 97] getprop 472 ............................. <pmod>
+  [100] pushsymb 562 ............................ <#shaderList>
+  [103] pushint8 3 .............................. <3>
+  [105] pusharglist 3 ........................... <pmod, #shaderList, 3>
+  [107] objcall 650 ............................. <pmod.shaderList[3]>
+  [110] pushzero ................................ <0>
+  [111] setobjprop 233 .......................... pmod.shaderList[3].shininess = 0
+  [113] getprop 472 ............................. <pmod>
+  [116] pushsymb 562 ............................ <#shaderList>
+  [119] pushint8 3 .............................. <3>
+  [121] pusharglist 3 ........................... <pmod, #shaderList, 3>
+  [123] objcall 650 ............................. <pmod.shaderList[3]>
+  [126] pushcons 1 .............................. <"white">
+  [128] pusharglist 1 ........................... <"white">
+  [130] extcall 13 .............................. <texy("white")>
+  [132] setobjprop 57 ........................... pmod.shaderList[3].texture = texy("white")
+  [134] getprop 472 ............................. <pmod>
+  [137] getchainedprop 38 ....................... <pmod.transform>
+  [139] getobjprop 48 ........................... <pmod.transform.position>
+  [141] setlocal 0 .............................. pos = pmod.transform.position
+  [143] getglobal 77 ............................ <gmodinc>
+  [145] pushint8 1 .............................. <1>
+  [147] add ..................................... <gmodinc + 1>
+  [148] setglobal 77 ............................ gmodinc = gmodinc + 1
+  [150] getglobal 56 ............................ <gmem>
+  [152] pushcons 2 .............................. <"glow">
+  [154] pusharglist 2 ........................... <gmem, "glow">
+  [156] objcall 225 ............................. <gmem.model("glow")>
+  [158] pushcons 2 .............................. <"glow">
+  [160] getglobal 77 ............................ <gmodinc>
+  [162] joinstr ................................. <"glow" & gmodinc>
+  [163] pusharglist 2 ........................... <gmem.model("glow"), "glow" & gmodinc>
+  [165] objcall 872 ............................. <gmem.model("glow").clone("glow" & gmodinc)>
+  [168] setprop 1260 ............................ pglowmod = gmem.model("glow").clone("glow" & gmodinc)
+  [171] getprop 1260 ............................ <pglowmod>
+  [174] getglobal 56 ............................ <gmem>
+  [176] pushcons 2 .............................. <"glow">
+  [178] getparam 1 .............................. <nmod>
+  [180] getobjprop 416 .......................... <nmod.name>
+  [183] joinstr ................................. <"glow" & nmod.name>
+  [184] pushsymb 113 ............................ <#standard>
+  [186] pusharglist 3 ........................... <gmem, "glow" & nmod.name, #standard>
+  [188] objcall 114 ............................. <gmem.newShader("glow" & nmod.name, #standard)>
+  [190] setobjprop 562 .......................... pglowmod.shaderList = gmem.newShader("glow" & nmod.name, #standard)
+  [193] getprop 1260 ............................ <pglowmod>
+  [196] getchainedprop 562 ...................... <pglowmod.shaderList>
+  [199] pushcons 2 .............................. <"glow">
+  [201] pushint8 1 .............................. <1>
+  [203] pusharglist 2 ........................... <"glow", 1>
+  [205] extcall 13 .............................. <texy("glow", 1)>
+  [207] setobjprop 57 ........................... pglowmod.shaderList.texture = texy("glow", 1)
+  [209] getprop 1260 ............................ <pglowmod>
+  [212] getchainedprop 562 ...................... <pglowmod.shaderList>
+  [215] getprop 1259 ............................ <pglow>
+  [218] pushint8 1 .............................. <1>
+  [220] pusharglist 2 ........................... <pglow, 1>
+  [222] objcall 73 .............................. <pglow[1]>
+  [224] getprop 1259 ............................ <pglow>
+  [227] pushint8 2 .............................. <2>
+  [229] pusharglist 2 ........................... <pglow, 2>
+  [231] objcall 73 .............................. <pglow[2]>
+  [233] getprop 1259 ............................ <pglow>
+  [236] pushint8 3 .............................. <3>
+  [238] pusharglist 2 ........................... <pglow, 3>
+  [240] objcall 73 .............................. <pglow[3]>
+  [242] pusharglist 3 ........................... <pglow[1], pglow[2], pglow[3]>
+  [244] extcall 115 ............................. <rgb(pglow[1], pglow[2], pglow[3])>
+  [246] setobjprop 116 .......................... pglowmod.shaderList.emissive = rgb(pglow[1], pglow[2], pglow[3])
+  [248] getprop 1260 ............................ <pglowmod>
+  [251] getchainedprop 562 ...................... <pglowmod.shaderList>
+  [254] pushzero ................................ <0>
+  [255] pushzero ................................ <0>
+  [256] pushzero ................................ <0>
+  [257] pusharglist 3 ........................... <0, 0, 0>
+  [259] extcall 115 ............................. <rgb(0, 0, 0)>
+  [261] setobjprop 117 .......................... pglowmod.shaderList.specular = rgb(0, 0, 0)
+  [263] getprop 1260 ............................ <pglowmod>
+  [266] getchainedprop 562 ...................... <pglowmod.shaderList>
+  [269] pushzero ................................ <0>
+  [270] setobjprop 233 .......................... pglowmod.shaderList.shininess = 0
+  [272] getprop 1260 ............................ <pglowmod>
+  [275] getchainedprop 38 ....................... <pglowmod.transform>
+  [277] getprop 472 ............................. <pmod>
+  [280] getchainedprop 38 ....................... <pmod.transform>
+  [282] getobjprop 48 ........................... <pmod.transform.position>
+  [284] setobjprop 48 ........................... pglowmod.transform.position = pmod.transform.position
+  [286] getprop 1260 ............................ <pglowmod>
+  [289] pushsymb 873 ............................ <#both>
+  [292] setobjprop 628 .......................... pglowmod.visibility = #both
+  [295] getprop 1260 ............................ <pglowmod>
+  [298] getglobal 608 ........................... <gsmokes>
+  [301] setobjprop 609 .......................... pglowmod.parent = gsmokes
+  [304] getprop 1260 ............................ <pglowmod>
+  [307] getchainedprop 112 ...................... <pglowmod.shader>
+  [309] getchainedprop 57 ....................... <pglowmod.shader.texture>
+  [311] pushint8 1 .............................. <1>
+  [313] setobjprop 237 .......................... pglowmod.shader.texture.nearFiltering = 1
+  [315] getprop 1260 ............................ <pglowmod>
+  [318] getchainedprop 112 ...................... <pglowmod.shader>
+  [320] getchainedprop 57 ....................... <pglowmod.shader.texture>
+  [322] pushsymb 125 ............................ <#rgba8888>
+  [324] setobjprop 126 .......................... pglowmod.shader.texture.renderFormat = #rgba8888
+  [326] getprop 1260 ............................ <pglowmod>
+  [329] getchainedprop 112 ...................... <pglowmod.shader>
+  [331] pushint8 100 ............................ <100>
+  [333] setobjprop 151 .......................... pglowmod.shader.blend = 100
+  [335] getglobal 56 ............................ <gmem>
+  [337] pushcons 3 .............................. <"light">
+  [339] getprop 472 ............................. <pmod>
+  [342] getobjprop 416 .......................... <pmod.name>
+  [345] joinstr ................................. <"light" & pmod.name>
+  [346] pushsymb 627 ............................ <#point>
+  [349] pusharglist 3 ........................... <gmem, "light" & pmod.name, #point>
+  [351] objcall 939 ............................. <gmem.newLight("light" & pmod.name, #point)>
+  [354] setprop 1088 ............................ plight = gmem.newLight("light" & pmod.name, #point)
+  [357] getprop 1088 ............................ <plight>
+  [360] getchainedprop 38 ....................... <plight.transform>
+  [362] getprop 472 ............................. <pmod>
+  [365] getchainedprop 38 ....................... <pmod.transform>
+  [367] getobjprop 48 ........................... <pmod.transform.position>
+  [369] pushzero ................................ <0>
+  [370] pushzero ................................ <0>
+  [371] pushint16 300 ........................... <300>
+  [374] pusharglist 3 ........................... <0, 0, 300>
+  [376] extcall 46 .............................. <vector(0, 0, 300)>
+  [378] add ..................................... <pmod.transform.position + vector(0, 0, 300)>
+  [379] setobjprop 48 ........................... plight.transform.position = pmod.transform.position + vector(0, 0, 300)
+  [381] getprop 1088 ............................ <plight>
+  [384] pushzero ................................ <0>
+  [385] pushcons 4 .............................. <0.004>
+  [387] pushzero ................................ <0>
+  [388] pusharglist 3 ........................... <0, 0.004, 0>
+  [390] extcall 46 .............................. <vector(0, 0.004, 0)>
+  [392] setobjprop 1089 ......................... plight.attenuation = vector(0, 0.004, 0)
+  [395] pusharglist 0 ........................... <[]>
+  [397] pushlist ................................ <[]>
+  [398] setprop 776 ............................. pcapchange = []
+  [401] pushzero ................................ <0>
+  [402] setprop 1261 ............................ pcatching = 0
+  [405] pushzero ................................ <0>
+  [406] setprop 1262 ............................ pcaught = 0
+  [409] pushint8 50 ............................. <50>
+  [411] setprop 1263 ............................ poldframe = 50
+  [414] getmovieprop 71 ......................... <the actorList>
+  [416] getparam 0 .............................. <me>
+  [418] pusharglistnoret 2 ...................... <the actorList, me>
+  [420] objcall 154 ............................. (the actorList).add(me)
+  [422] getparam 0 .............................. <me>
+  [424] pusharglistnoret 1 ...................... <me>
+  [426] extcall 40 .............................. return me
+  [428] ret
+end
+
+on stepFrame me
+  [  0] getprop 1260 ............................ <pglowmod>
+  [  3] getchainedprop 112 ...................... <pglowmod.shader>
+  [  5] getchainedprop 235 ...................... <pglowmod.shader.textureTransform>
+  [  7] getchainedprop 48 ....................... <pglowmod.shader.textureTransform.position>
+  [  9] getprop 1260 ............................ <pglowmod>
+  [ 12] getchainedprop 112 ...................... <pglowmod.shader>
+  [ 14] getchainedprop 235 ...................... <pglowmod.shader.textureTransform>
+  [ 16] getchainedprop 48 ....................... <pglowmod.shader.textureTransform.position>
+  [ 18] getobjprop 92 ........................... <pglowmod.shader.textureTransform.position.y>
+  [ 20] pushcons 5 .............................. <0.01>
+  [ 22] add ..................................... <pglowmod.shader.textureTransform.position.y + 0.01>
+  [ 23] setobjprop 92 ........................... pglowmod.shader.textureTransform.position.y = pglowmod.shader.textureTransform.position.y + 0.01
+  [ 25] getprop 1260 ............................ <pglowmod>
+  [ 28] getchainedprop 112 ...................... <pglowmod.shader>
+  [ 30] getchainedprop 235 ...................... <pglowmod.shader.textureTransform>
+  [ 32] getchainedprop 48 ....................... <pglowmod.shader.textureTransform.position>
+  [ 34] pushint8 10 ............................. <10>
+  [ 36] pusharglist 1 ........................... <10>
+  [ 38] extcall 402 ............................. <random(10)>
+  [ 41] pushcons 6 .............................. <0.10000000000000001>
+  [ 43] mul ..................................... <random(10) * 0.10000000000000001>
+  [ 44] setobjprop 90 ........................... pglowmod.shader.textureTransform.position.x = random(10) * 0.10000000000000001
+  [ 46] pusharglist 0 ........................... <>
+  [ 48] extcall 11 .............................. <checkgoody()>
+  [ 50] jmpifz [121] ............................ if checkgoody() then
+  [ 53] getglobal 83 ............................ <goody>
+  [ 55] getchainedprop 105 ...................... <goody.pos>
+  [ 57] getprop 472 ............................. <pmod>
+  [ 60] getchainedprop 38 ....................... <pmod.transform>
+  [ 62] getobjprop 48 ........................... <pmod.transform.position>
+  [ 64] pusharglist 2 ........................... <goody.pos, pmod.transform.position>
+  [ 66] objcall 98 .............................. <goody.pos.distanceTo(pmod.transform.position)>
+  [ 68] getglobal 83 ............................ <goody>
+  [ 70] getobjprop 160 .......................... <goody.bsp>
+  [ 72] pushint8 9 .............................. <9>
+  [ 74] mul ..................................... <goody.bsp * 9>
+  [ 75] lt ...................................... <goody.pos.distanceTo(pmod.transform.position) < (goody.bsp * 9)>
+  [ 76] jmpifz [111] ............................ if goody.pos.distanceTo(pmod.transform.position) < (goody.bsp * 9) then / else
+  [ 79] getglobal 83 ............................ <goody>
+  [ 81] pushint8 1 .............................. <1>
+  [ 83] setobjprop 352 .......................... goody.pcapture = 1
+  [ 86] pushint8 1 .............................. <1>
+  [ 88] setprop 1261 ............................ pcatching = 1
+  [ 91] pushint8 2 .............................. <2>
+  [ 93] getglobal 320 ........................... <gcappoints>
+  [ 96] getparam 0 .............................. <me>
+  [ 98] pusharglist 2 ........................... <gcappoints, me>
+  [100] objcall 111 ............................. <gcappoints.getOne(me)>
+  [102] pusharglist 2 ........................... <[2, gcappoints.getOne(me)]>
+  [104] pushlist ................................ <[2, gcappoints.getOne(me)]>
+  [105] setprop 776 ............................. pcapchange = [2, gcappoints.getOne(me)]
+  [108] jmp [121]
+  [111] pusharglist 0 ........................... <[]>
+  [113] pushlist ................................ <[]>
+  [114] setprop 776 ............................. pcapchange = []
+  [117] pushzero ................................ <0>
+  [118] setprop 1261 ............................ pcatching = 0
+  [121] getparam 0 .............................. <me>
+  [123] pusharglistnoret 1 ...................... <me>
+  [125] localcall 2 ............................. doglows(me)
+  [127] ret
+end
+
+on doglows me
+  [  0] pushint8 1 .............................. <1>
+  [  2] setlocal 0
+  [  4] getlocal 0
+  [  6] getprop 1259 ............................ <pglow>
+  [  9] getobjprop 72 ........................... <pglow.count>
+  [ 11] lteq
+  [ 12] jmpifz [ 66] ............................ repeat with i = 1 to pglow.count
+  [ 15] getprop 1259 ............................ <pglow>
+  [ 18] getlocal 0 .............................. <i>
+  [ 20] getprop 1259 ............................ <pglow>
+  [ 23] getlocal 0 .............................. <i>
+  [ 25] pusharglist 2 ........................... <pglow, i>
+  [ 27] objcall 73 .............................. <pglow[i]>
+  [ 29] getprop 335 ............................. <ptarglow>
+  [ 32] getlocal 0 .............................. <i>
+  [ 34] pusharglist 2 ........................... <ptarglow, i>
+  [ 36] objcall 73 .............................. <ptarglow[i]>
+  [ 38] getprop 1259 ............................ <pglow>
+  [ 41] getlocal 0 .............................. <i>
+  [ 43] pusharglist 2 ........................... <pglow, i>
+  [ 45] objcall 73 .............................. <pglow[i]>
+  [ 47] sub ..................................... <ptarglow[i] - pglow[i]>
+  [ 48] pushcons 7 .............................. <0.03>
+  [ 50] mul ..................................... <(ptarglow[i] - pglow[i]) * 0.03>
+  [ 51] add ..................................... <pglow[i] + ((ptarglow[i] - pglow[i]) * 0.03)>
+  [ 52] pusharglistnoret 3 ...................... <pglow, i, pglow[i] + ((ptarglow[i] - pglow[i]) * 0.03)>
+  [ 54] objcall 1043 ............................ pglow[i] = pglow[i] + ((ptarglow[i] - pglow[i]) * 0.03)
+  [ 57] pushint8 1
+  [ 59] getlocal 0
+  [ 61] add
+  [ 62] setlocal 0
+  [ 64] endrepeat [  4]
+  [ 66] getprop 1259 ............................ <pglow>
+  [ 69] pushint8 1 .............................. <1>
+  [ 71] pusharglist 2 ........................... <pglow, 1>
+  [ 73] objcall 73 .............................. <pglow[1]>
+  [ 75] pusharglist 1 ........................... <pglow[1]>
+  [ 77] extcall 96 .............................. <integer(pglow[1])>
+  [ 79] getprop 1259 ............................ <pglow>
+  [ 82] pushint8 2 .............................. <2>
+  [ 84] pusharglist 2 ........................... <pglow, 2>
+  [ 86] objcall 73 .............................. <pglow[2]>
+  [ 88] pusharglist 1 ........................... <pglow[2]>
+  [ 90] extcall 96 .............................. <integer(pglow[2])>
+  [ 92] getprop 1259 ............................ <pglow>
+  [ 95] pushint8 3 .............................. <3>
+  [ 97] pusharglist 2 ........................... <pglow, 3>
+  [ 99] objcall 73 .............................. <pglow[3]>
+  [101] pusharglist 1 ........................... <pglow[3]>
+  [103] extcall 96 .............................. <integer(pglow[3])>
+  [105] pusharglist 3 ........................... <integer(pglow[1]), integer(pglow[2]), integer(pglow[3])>
+  [107] extcall 115 ............................. <rgb(integer(pglow[1]), integer(pglow[2]), integer(pglow[3]))>
+  [109] setlocal 1 .............................. vglow = rgb(integer(pglow[1]), integer(pglow[2]), integer(pglow[3]))
+  [111] getprop 1088 ............................ <plight>
+  [114] getprop 1259 ............................ <pglow>
+  [117] pushint8 1 .............................. <1>
+  [119] pusharglist 2 ........................... <pglow, 1>
+  [121] objcall 73 .............................. <pglow[1]>
+  [123] pusharglist 1 ........................... <pglow[1]>
+  [125] extcall 96 .............................. <integer(pglow[1])>
+  [127] getprop 1259 ............................ <pglow>
+  [130] pushint8 2 .............................. <2>
+  [132] pusharglist 2 ........................... <pglow, 2>
+  [134] objcall 73 .............................. <pglow[2]>
+  [136] pusharglist 1 ........................... <pglow[2]>
+  [138] extcall 96 .............................. <integer(pglow[2])>
+  [140] getprop 1259 ............................ <pglow>
+  [143] pushint8 3 .............................. <3>
+  [145] pusharglist 2 ........................... <pglow, 3>
+  [147] objcall 73 .............................. <pglow[3]>
+  [149] pusharglist 1 ........................... <pglow[3]>
+  [151] extcall 96 .............................. <integer(pglow[3])>
+  [153] pusharglist 3 ........................... <integer(pglow[1]), integer(pglow[2]), integer(pglow[3])>
+  [155] extcall 115 ............................. <rgb(integer(pglow[1]), integer(pglow[2]), integer(pglow[3]))>
+  [157] setobjprop 409 .......................... plight.color = rgb(integer(pglow[1]), integer(pglow[2]), integer(pglow[3]))
+  [160] getprop 472 ............................. <pmod>
+  [163] pushsymb 562 ............................ <#shaderList>
+  [166] pushint8 3 .............................. <3>
+  [168] pusharglist 3 ........................... <pmod, #shaderList, 3>
+  [170] objcall 650 ............................. <pmod.shaderList[3]>
+  [173] getlocal 1 .............................. <vglow>
+  [175] setobjprop 116 .......................... pmod.shaderList[3].emissive = vglow
+  [177] getprop 1260 ............................ <pglowmod>
+  [180] getchainedprop 562 ...................... <pglowmod.shaderList>
+  [183] getlocal 1 .............................. <vglow>
+  [185] setobjprop 116 .......................... pglowmod.shaderList.emissive = vglow
+  [187] getprop 1264 ............................ <poldglow>
+  [190] pushint8 3 .............................. <3>
+  [192] pusharglist 2 ........................... <poldglow, 3>
+  [194] objcall 73 .............................. <poldglow[3]>
+  [196] pushfloat32 2.5 ......................... <2.5>
+  [201] div ..................................... <poldglow[3] / 2.5>
+  [202] pusharglist 1 ........................... <poldglow[3] / 2.5>
+  [204] extcall 96 .............................. <integer(poldglow[3] / 2.5)>
+  [206] getprop 335 ............................. <ptarglow>
+  [209] pushint8 3 .............................. <3>
+  [211] pusharglist 2 ........................... <ptarglow, 3>
+  [213] objcall 73 .............................. <ptarglow[3]>
+  [215] pushfloat32 2.5 ......................... <2.5>
+  [220] div ..................................... <ptarglow[3] / 2.5>
+  [221] pusharglist 1 ........................... <ptarglow[3] / 2.5>
+  [223] extcall 96 .............................. <integer(ptarglow[3] / 2.5)>
+  [225] nteq .................................... <integer(poldglow[3] / 2.5) <> integer(ptarglow[3] / 2.5)>
+  [226] jmpifz [366] ............................ if integer(poldglow[3] / 2.5) <> integer(ptarglow[3] / 2.5) then
+  [229] getprop 335 ............................. <ptarglow>
+  [232] setprop 1264 ............................ poldglow = ptarglow
+  [235] pushcons 8 .............................. <"cp_red">
+  [237] pusharglist 1 ........................... <"cp_red">
+  [239] extcall 52 .............................. <member("cp_red")>
+  [241] getchainedprop 133 ...................... <member("cp_red").image>
+  [243] pusharglist 1 ........................... <member("cp_red").image>
+  [245] objcall 130 ............................. <member("cp_red").image.duplicate()>
+  [247] setlocal 2 .............................. img = member("cp_red").image.duplicate()
+  [249] getlocal 2 .............................. <img>
+  [251] pushcons 9 .............................. <"cp_blue">
+  [253] pusharglist 1 ........................... <"cp_blue">
+  [255] extcall 52 .............................. <member("cp_blue")>
+  [257] getobjprop 133 .......................... <member("cp_blue").image>
+  [259] pushzero ................................ <0>
+  [260] pushzero ................................ <0>
+  [261] pushcons 10 ............................. <0.63>
+  [263] getprop 335 ............................. <ptarglow>
+  [266] pushint8 3 .............................. <3>
+  [268] pusharglist 2 ........................... <ptarglow, 3>
+  [270] objcall 73 .............................. <ptarglow[3]>
+  [272] pushfloat32 2.5 ......................... <2.5>
+  [277] div ..................................... <ptarglow[3] / 2.5>
+  [278] pusharglist 1 ........................... <ptarglow[3] / 2.5>
+  [280] extcall 96 .............................. <integer(ptarglow[3] / 2.5)>
+  [282] mul ..................................... <0.63 * integer(ptarglow[3] / 2.5)>
+  [283] pushint8 127 ............................ <127>
+  [285] pusharglist 4 ........................... <0, 0, 0.63 * integer(ptarglow[3] / 2.5), 127>
+  [287] extcall 647 ............................. <rect(0, 0, 0.63 * integer(ptarglow[3] / 2.5), 127)>
+  [290] pushzero ................................ <0>
+  [291] pushzero ................................ <0>
+  [292] pushcons 10 ............................. <0.63>
+  [294] getprop 335 ............................. <ptarglow>
+  [297] pushint8 3 .............................. <3>
+  [299] pusharglist 2 ........................... <ptarglow, 3>
+  [301] objcall 73 .............................. <ptarglow[3]>
+  [303] pushfloat32 2.5 ......................... <2.5>
+  [308] div ..................................... <ptarglow[3] / 2.5>
+  [309] pusharglist 1 ........................... <ptarglow[3] / 2.5>
+  [311] extcall 96 .............................. <integer(ptarglow[3] / 2.5)>
+  [313] mul ..................................... <0.63 * integer(ptarglow[3] / 2.5)>
+  [314] pushint8 127 ............................ <127>
+  [316] pusharglist 4 ........................... <0, 0, 0.63 * integer(ptarglow[3] / 2.5), 127>
+  [318] extcall 647 ............................. <rect(0, 0, 0.63 * integer(ptarglow[3] / 2.5), 127)>
+  [321] pushsymb 653 ............................ <#useFastQuads>
+  [324] pushint8 1 .............................. <1>
+  [326] pusharglist 2 ........................... <[#useFastQuads: 1]>
+  [328] pushproplist ............................ <[#useFastQuads: 1]>
+  [329] pusharglistnoret 5 ...................... <img, member("cp_blue").image, rect(0, 0, 0.63 * integer(ptarglow[3] / 2.5), 127), rect(0, 0, 0.63 * integer(ptarglow[3] / 2.5), 127), [#useFastQuads: 1]>
+  [331] objcall 654 ............................. img.copyPixels(member("cp_blue").image, rect(0, 0, 0.63 * integer(ptarglow[3] / 2.5), 127), rect(0, 0, 0.63 * integer(ptarglow[3] / 2.5), 127), [#useFastQuads: 1])
+  [334] pushcons 11 ............................. <"cp">
+  [336] pusharglist 1 ........................... <"cp">
+  [338] extcall 52 .............................. <member("cp")>
+  [340] getlocal 2 .............................. <img>
+  [342] setobjprop 133 .......................... member("cp").image = img
+  [344] getprop 655 ............................. <povtex>
+  [347] pusharglist 1 ........................... <povtex>
+  [349] extcall 55 .............................. <voidp(povtex)>
+  [351] not ..................................... <not voidp(povtex)>
+  [352] jmpifz [366] ............................ if not voidp(povtex) then
+  [355] getprop 655 ............................. <povtex>
+  [358] pushcons 11 ............................. <"cp">
+  [360] pusharglist 1 ........................... <"cp">
+  [362] extcall 52 .............................. <member("cp")>
+  [364] setobjprop 52 ........................... povtex.member = member("cp")
+  [366] ret
+end
+
+on pushglows me, nteam, nval
+  [  0] pushcons 12 ............................. <EMPTY>
+  [  2] setlocal 0 .............................. pteams = EMPTY
+  [  4] getparam 1 .............................. <nteam>
+  [  6] pusharglist 1 ........................... <nteam>
+  [  8] extcall 59 .............................. <string(nteam)>
+  [ 10] pushcons 13 ............................. <"red">
+  [ 12] eq ...................................... <string(nteam) = "red">
+  [ 13] jmpifz [ 30] ............................ if string(nteam) = "red" then / else
+  [ 16] getparam 2 .............................. <nval>
+  [ 18] pushzero ................................ <0>
+  [ 19] getparam 2 .............................. <nval>
+  [ 21] inv ..................................... <-nval>
+  [ 22] pusharglist 3 ........................... <[nval, 0, -nval]>
+  [ 24] pushlist ................................ <[nval, 0, -nval]>
+  [ 25] setlocal 1 .............................. ppushglow = [nval, 0, -nval]
+  [ 27] jmp [ 41]
+  [ 30] getparam 2 .............................. <nval>
+  [ 32] inv ..................................... <-nval>
+  [ 33] pushzero ................................ <0>
+  [ 34] getparam 2 .............................. <nval>
+  [ 36] pusharglist 3 ........................... <[-nval, 0, nval]>
+  [ 38] pushlist ................................ <[-nval, 0, nval]>
+  [ 39] setlocal 1 .............................. ppushglow = [-nval, 0, nval]
+  [ 41] getprop 335 ............................. <ptarglow>
+  [ 44] getlocal 1 .............................. <ppushglow>
+  [ 46] add ..................................... <ptarglow + ppushglow>
+  [ 47] setprop 335 ............................. ptarglow = ptarglow + ppushglow
+  [ 50] pushint8 1 .............................. <1>
+  [ 52] setlocal 2
+  [ 54] getlocal 2
+  [ 56] getprop 335 ............................. <ptarglow>
+  [ 59] getobjprop 72 ........................... <ptarglow.count>
+  [ 61] lteq
+  [ 62] jmpifz [131] ............................ repeat with i = 1 to ptarglow.count
+  [ 65] getprop 335 ............................. <ptarglow>
+  [ 68] getlocal 2 .............................. <i>
+  [ 70] pusharglist 2 ........................... <ptarglow, i>
+  [ 72] objcall 73 .............................. <ptarglow[i]>
+  [ 74] pushint16 255 ........................... <255>
+  [ 77] gt ...................................... <ptarglow[i] > 255>
+  [ 78] jmpifz [ 97] ............................ if ptarglow[i] > 255 then
+  [ 81] getprop 335 ............................. <ptarglow>
+  [ 84] getlocal 2 .............................. <i>
+  [ 86] pushint16 255 ........................... <255>
+  [ 89] pusharglistnoret 3 ...................... <ptarglow, i, 255>
+  [ 91] objcall 1043 ............................ ptarglow[i] = 255
+  [ 94] jmp [122] ............................... next repeat
+  [ 97] getprop 335 ............................. <ptarglow>
+  [100] getlocal 2 .............................. <i>
+  [102] pusharglist 2 ........................... <ptarglow, i>
+  [104] objcall 73 .............................. <ptarglow[i]>
+  [106] pushzero ................................ <0>
+  [107] lt ...................................... <ptarglow[i] < 0>
+  [108] jmpifz [122] ............................ if ptarglow[i] < 0 then
+  [111] getprop 335 ............................. <ptarglow>
+  [114] getlocal 2 .............................. <i>
+  [116] pushzero ................................ <0>
+  [117] pusharglistnoret 3 ...................... <ptarglow, i, 0>
+  [119] objcall 1043 ............................ ptarglow[i] = 0
+  [122] pushint8 1
+  [124] getlocal 2
+  [126] add
+  [127] setlocal 2
+  [129] endrepeat [ 54]
+  [131] getparam 1 .............................. <nteam>
+  [133] getglobal 83 ............................ <goody>
+  [135] getobjprop 300 .......................... <goody.pteam>
+  [138] eq ...................................... <nteam = goody.pteam>
+  [139] getprop 1261 ............................ <pcatching>
+  [142] pushint8 1 .............................. <1>
+  [144] eq ...................................... <pcatching = 1>
+  [145] and ..................................... <(nteam = goody.pteam) and (pcatching = 1)>
+  [146] jmpifz [316] ............................ if (nteam = goody.pteam) and (pcatching = 1) then
+  [149] getprop 335 ............................. <ptarglow>
+  [152] pushint8 3 .............................. <3>
+  [154] pusharglist 2 ........................... <ptarglow, 3>
+  [156] objcall 73 .............................. <ptarglow[3]>
+  [158] pushfloat32 2.5 ......................... <2.5>
+  [163] div ..................................... <ptarglow[3] / 2.5>
+  [164] pusharglist 1 ........................... <ptarglow[3] / 2.5>
+  [166] extcall 96 .............................. <integer(ptarglow[3] / 2.5)>
+  [168] pushint8 1 .............................. <1>
+  [170] eq ...................................... <integer(ptarglow[3] / 2.5) = 1>
+  [171] getprop 335 ............................. <ptarglow>
+  [174] pushint8 3 .............................. <3>
+  [176] pusharglist 2 ........................... <ptarglow, 3>
+  [178] objcall 73 .............................. <ptarglow[3]>
+  [180] pushfloat32 2.5 ......................... <2.5>
+  [185] div ..................................... <ptarglow[3] / 2.5>
+  [186] pusharglist 1 ........................... <ptarglow[3] / 2.5>
+  [188] extcall 96 .............................. <integer(ptarglow[3] / 2.5)>
+  [190] pushint8 100 ............................ <100>
+  [192] eq ...................................... <integer(ptarglow[3] / 2.5) = 100>
+  [193] or ...................................... <(integer(ptarglow[3] / 2.5) = 1) or (integer(ptarglow[3] / 2.5) = 100)>
+  [194] jmpifz [232] ............................ if (integer(ptarglow[3] / 2.5) = 1) or (integer(ptarglow[3] / 2.5) = 100) then / else
+  [197] getprop 1262 ............................ <pcaught>
+  [200] pushzero ................................ <0>
+  [201] eq ...................................... <pcaught = 0>
+  [202] jmpifz [229] ............................ if pcaught = 0 then
+  [205] getglobal 83 ............................ <goody>
+  [207] getchainedprop 350 ...................... <goody.pstats>
+  [210] getglobal 83 ............................ <goody>
+  [212] getchainedprop 350 ...................... <goody.pstats>
+  [215] getobjprop 1015 ......................... <goody.pstats.pcaptures>
+  [218] pushint8 1 .............................. <1>
+  [220] add ..................................... <goody.pstats.pcaptures + 1>
+  [221] setobjprop 1015 ......................... goody.pstats.pcaptures = goody.pstats.pcaptures + 1
+  [224] pushint8 1 .............................. <1>
+  [226] setprop 1262 ............................ pcaught = 1
+  [229] jmp [236]
+  [232] pushzero ................................ <0>
+  [233] setprop 1262 ............................ pcaught = 0
+  [236] getprop 1263 ............................ <poldframe>
+  [239] getprop 335 ............................. <ptarglow>
+  [242] pushint8 3 .............................. <3>
+  [244] pusharglist 2 ........................... <ptarglow, 3>
+  [246] objcall 73 .............................. <ptarglow[3]>
+  [248] pushfloat32 2.5 ......................... <2.5>
+  [253] div ..................................... <ptarglow[3] / 2.5>
+  [254] pusharglist 1 ........................... <ptarglow[3] / 2.5>
+  [256] extcall 96 .............................. <integer(ptarglow[3] / 2.5)>
+  [258] nteq .................................... <poldframe <> integer(ptarglow[3] / 2.5)>
+  [259] jmpifz [316] ............................ if poldframe <> integer(ptarglow[3] / 2.5) then
+  [262] pushcons 14 ............................. <"ingamefeedback">
+  [264] pusharglist 1 ........................... <"ingamefeedback">
+  [266] extcall 303 ............................. <script("ingamefeedback")>
+  [269] getglobal 83 ............................ <goody>
+  [271] getobjprop 105 .......................... <goody.pos>
+  [273] pushcons 15 ............................. <"*2*">
+  [275] pushint8 1 .............................. <1>
+  [277] pusharglistnoret 4 ...................... <script("ingamefeedback"), goody.pos, "*2*", 1>
+  [279] objcall 265 ............................. script("ingamefeedback").new(goody.pos, "*2*", 1)
+  [282] getglobal 83 ............................ <goody>
+  [284] pushint8 2 .............................. <2>
+  [286] pusharglist 1 ........................... <2>
+  [288] extcall 96 .............................. <integer(2)>
+  [290] pusharglistnoret 2 ...................... <goody, integer(2)>
+  [292] objcall 4 ............................... goody.setscore(integer(2))
+  [294] getprop 335 ............................. <ptarglow>
+  [297] pushint8 3 .............................. <3>
+  [299] pusharglist 2 ........................... <ptarglow, 3>
+  [301] objcall 73 .............................. <ptarglow[3]>
+  [303] pushfloat32 2.5 ......................... <2.5>
+  [308] div ..................................... <ptarglow[3] / 2.5>
+  [309] pusharglist 1 ........................... <ptarglow[3] / 2.5>
+  [311] extcall 96 .............................. <integer(ptarglow[3] / 2.5)>
+  [313] setprop 1263 ............................ poldframe = integer(ptarglow[3] / 2.5)
+  [316] ret
+end
+
+on updateglows me, vsend
+  [  0] getparam 1 .............................. <vsend>
+  [  2] pushsymb 289 ............................ <#subject>
+  [  5] pushcons 16 ............................. <"capupdate">
+  [  7] pushsymb 290 ............................ <#content>
+  [ 10] pushsymb 334 ............................ <#glow>
+  [ 13] getprop 335 ............................. <ptarglow>
+  [ 16] pushsymb 333 ............................ <#id>
+  [ 19] getglobal 320 ........................... <gcappoints>
+  [ 22] getparam 0 .............................. <me>
+  [ 24] pusharglist 2 ........................... <gcappoints, me>
+  [ 26] objcall 111 ............................. <gcappoints.getOne(me)>
+  [ 28] pusharglist 4 ........................... <[#glow: ptarglow, #id: gcappoints.getOne(me)]>
+  [ 30] pushproplist ............................ <[#glow: ptarglow, #id: gcappoints.getOne(me)]>
+  [ 31] pusharglist 4 ........................... <[#subject: "capupdate", #content: [#glow: ptarglow, #id: gcappoints.getOne(me)]]>
+  [ 33] pushproplist ............................ <[#subject: "capupdate", #content: [#glow: ptarglow, #id: gcappoints.getOne(me)]]>
+  [ 34] pusharglistnoret 2 ...................... <vsend, [#subject: "capupdate", #content: [#glow: ptarglow, #id: gcappoints.getOne(me)]]>
+  [ 36] extcall 251 ............................. submitone(vsend, [#subject: "capupdate", #content: [#glow: ptarglow, #id: gcappoints.getOne(me)]])
+  [ 38] ret
+end
+
+on resetglows me
+  [  0] pushint16 300 ........................... <300>
+  [  3] pushint16 300 ........................... <300>
+  [  6] pushint16 300 ........................... <300>
+  [  9] pusharglist 3 ........................... <[300, 300, 300]>
+  [ 11] pushlist ................................ <[300, 300, 300]>
+  [ 12] setprop 1264 ............................ poldglow = [300, 300, 300]
+  [ 15] pushint8 127 ............................ <127>
+  [ 17] pushzero ................................ <0>
+  [ 18] pushint8 127 ............................ <127>
+  [ 20] pusharglist 3 ........................... <[127, 0, 127]>
+  [ 22] pushlist ................................ <[127, 0, 127]>
+  [ 23] setprop 1259 ............................ pglow = [127, 0, 127]
+  [ 26] getprop 1259 ............................ <pglow>
+  [ 29] setprop 335 ............................. ptarglow = pglow
+  [ 32] ret
+end
+
+on die me
+  [  0] getparam 0 .............................. <me>
+  [  2] pusharglistnoret 1 ...................... <me>
+  [  4] localcall 7 ............................. Remove(me)
+  [  6] ret
+end
+
+on Remove me
+  [  0] getmovieprop 71 ......................... <the actorList>
+  [  2] getparam 0 .............................. <me>
+  [  4] pusharglistnoret 2 ...................... <the actorList, me>
+  [  6] objcall 227 ............................. (the actorList).deleteOne(me)
+  [  8] ret
+end

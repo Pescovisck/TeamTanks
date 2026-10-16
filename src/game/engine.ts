@@ -1,0 +1,2123 @@
+import * as THREE from "three"
+import { Audio } from "./audio"
+import {
+  BOT_NAMES,
+  BSP,
+  CAPTURE_RADIUS,
+  DEATH_SCORE,
+  KILL_SCORE,
+  MAX_HEALTH,
+  PICKUP_SUBSTITUTE,
+  SPAWN_PROTECT,
+  WEAPONS,
+  type MapDef,
+  type WeaponId,
+} from "./data"
+import {
+  buildSky,
+  buildTerrain,
+  loadLevel,
+  terrainAt,
+  type Level,
+} from "./level"
+import {
+  buildCapturePoint,
+  buildDebrisPiece,
+  buildPickup,
+  buildProjectileMesh,
+  buildProp,
+  buildSpawnPad,
+  buildTank,
+  preloadModels,
+  tex,
+  TEAM_COLORS,
+  updateTankWeaponRig,
+  type CapRig,
+  type TankRig,
+} from "./models"
+import { MultiplayerSession, type NetMessage } from "./multiplayer"
+
+export type Team = "red" | "blue"
+export type Difficulty = "rookie" | "regular" | "veteran"
+
+export type GameOptions = {
+  map: MapDef
+  minutes: number
+  teamSize: number
+  difficulty: Difficulty
+  playerName: string
+  playerTeam: Team
+  roomCode?: string
+}
+
+export type FeedItem = { id: number; text: string; team?: Team; t: number }
+export type Popup = {
+  id: number
+  text: string
+  t: number
+  kind: "trick" | "damage" | "info"
+}
+
+export type HudState = {
+  health: number
+  weapon: WeaponId | null
+  ammo: number
+  uber: number
+  superT: number
+  speedT: number
+  stealthT: number
+  timeLeft: number
+  caps: number[] // 0 = red, 255 = blue
+  feed: FeedItem[]
+  popups: Popup[]
+  dead: boolean
+  respawnIn: number
+  spawnProtect: boolean
+  hitMarker: number
+  hurtDir: number | null
+  scoreboard: {
+    name: string
+    team: Team
+    score: number
+    kills: number
+    deaths: number
+    isPlayer: boolean
+    isRemote?: boolean
+  }[]
+  minimap: { x: number; z: number; team: Team; isPlayer: boolean; yaw: number }[]
+  minimapCaps: { x: number; z: number; v: number }[]
+  over: null | { winner: Team | "draw"; blueShare: number }
+  locked: boolean
+  speed: number
+  netStatus?: {
+    roomCode: string
+    connected: boolean
+    isHost: boolean
+    peers: number
+  } | null
+}
+
+type Tank = {
+  id: number
+  name: string
+  team: Team
+  isPlayer: boolean
+  isRemote?: boolean
+  lastNetSeen?: number
+  rig: TankRig
+  pos: THREE.Vector3
+  vel: THREE.Vector3
+  q: THREE.Quaternion
+  angVel: THREE.Vector3
+  onFloor: boolean
+  health: number
+  weapon: WeaponId | null
+  ammo: number
+  cooldown: number
+  jumpCd: number
+  aimYaw: number
+  aimPitch: number
+  spawnProtect: number
+  speedT: number
+  stealthT: number
+  superT: number
+  uber: number
+  dead: boolean
+  respawnT: number
+  score: number
+  kills: number
+  deaths: number
+  trickAngle: number
+  trickKey: string
+  airFrames: number
+  input: { throttle: number; turn: number; fire: boolean; jump: boolean }
+  ai: {
+    target: Tank | null
+    goal: THREE.Vector3 | null
+    think: number
+    stuck: number
+    reaction: number
+    strafe: number
+  }
+  mines: Projectile[]
+}
+
+type Projectile = {
+  kind: "shell" | "rocket" | "lob" | "homing" | "mine" | "bomb"
+  weapon: WeaponId
+  owner: Tank
+  pos: THREE.Vector3
+  vel: THREE.Vector3
+  life: number
+  obj: THREE.Object3D
+  target?: Tank | null
+  armed?: number
+  gravity: number
+  trail: number
+}
+
+type Effect = {
+  obj: THREE.Object3D
+  life: number
+  max: number
+  keepGeometry?: boolean
+  update?: (e: Effect, k: number) => void
+  dispose?: () => void
+}
+
+type Pickup = {
+  kind: string
+  weapon: WeaponId
+  pos: THREE.Vector3
+  obj: THREE.Object3D
+  respawn: number
+}
+type Cap = { pos: THREE.Vector3; v: number; rig: CapRig }
+
+const DT = 1 / 60
+const GRAVITY = 2100
+const UP = new THREE.Vector3(0, 1, 0)
+const tmpV = new THREE.Vector3()
+const tmpV2 = new THREE.Vector3()
+const tmpQ = new THREE.Quaternion()
+const tmpM = new THREE.Matrix4()
+
+const DIFF = {
+  rookie: { spread: 0.11, reaction: 45, fireScale: 1.8, aggro: 2600 },
+  regular: { spread: 0.06, reaction: 25, fireScale: 1.25, aggro: 3400 },
+  veteran: { spread: 0.03, reaction: 12, fireScale: 1, aggro: 4200 },
+}
+
+function disposeTree(o: THREE.Object3D) {
+  o.traverse((c) => {
+    const m = c as THREE.Mesh
+    if (m.geometry && !(c instanceof THREE.Sprite)) m.geometry.dispose()
+  })
+}
+
+function wrapAngle(a: number) {
+  while (a > Math.PI) a -= Math.PI * 2
+  while (a < -Math.PI) a += Math.PI * 2
+  return a
+}
+
+export class Game {
+  opts: GameOptions
+  canvas: HTMLCanvasElement
+  onHud: (s: HudState) => void
+  renderer!: THREE.WebGLRenderer
+  scene = new THREE.Scene()
+  camera = new THREE.PerspectiveCamera(62, 1, 10, 60000)
+  level!: Level
+  colliders: THREE.Object3D[] = []
+  sun!: THREE.DirectionalLight
+  audio = new Audio()
+  tanks: Tank[] = []
+  player!: Tank
+  projectiles: Projectile[] = []
+  effects: Effect[] = []
+  pickups: Pickup[] = []
+  caps: Cap[] = []
+  feed: FeedItem[] = []
+  popups: Popup[] = []
+  frame = 0
+  timeLeft: number
+  over: HudState["over"] = null
+  keys = new Set<string>()
+  mouseDown = false
+  locked = false
+  running = false
+  raf = 0
+  acc = 0
+  last = 0
+  uid = 1
+  hitMarker = 0
+  hurtDir: number | null = null
+  hurtT = 0
+  shake = 0
+  camPos = new THREE.Vector3()
+  camLook = new THREE.Vector3()
+  raycaster = new THREE.Raycaster()
+  bangTextures: Record<string, { tex: THREE.Texture; grid: number }> = {}
+  puffMat!: THREE.SpriteMaterial
+  disposers: (() => void)[] = []
+  disposed = false
+  mp: MultiplayerSession | null = null
+  netStatus: HudState["netStatus"] = null
+
+  constructor(
+    canvas: HTMLCanvasElement,
+    opts: GameOptions,
+    onHud: (s: HudState) => void,
+  ) {
+    this.canvas = canvas
+    this.opts = opts
+    this.onHud = onHud
+    this.timeLeft = opts.minutes * 60
+  }
+
+  async init(onProgress?: (msg: string) => void) {
+    onProgress?.("Decoding W3D models & building level")
+    const r = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      antialias: true,
+      powerPreference: "high-performance",
+    })
+    r.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    r.shadowMap.enabled = true
+    r.shadowMap.type = THREE.PCFSoftShadowMap
+    r.outputColorSpace = THREE.SRGBColorSpace
+    r.toneMapping = THREE.ACESFilmicToneMapping
+    r.toneMappingExposure = 1.05
+    this.renderer = r
+    const [level] = await Promise.all([
+      loadLevel(this.opts.map),
+      preloadModels(),
+    ])
+    this.level = level
+    const l = this.level
+
+    onProgress?.("Raising terrain")
+    this.scene.add(await buildTerrain(l))
+    const horizon = await buildSky(l, this.scene)
+    this.scene.fog = new THREE.Fog(horizon, l.width * 0.45, l.width * 1.25)
+    this.scene.background = horizon
+
+    this.scene.add(new THREE.HemisphereLight("#dfe8ff", "#5a4a38", 1.1))
+    const sun = new THREE.DirectionalLight("#fff3e0", 2.2)
+    sun.castShadow = true
+    sun.shadow.mapSize.set(2048, 2048)
+    const sc = sun.shadow.camera
+    sc.left = sc.bottom = -2200
+    sc.right = sc.top = 2200
+    sc.near = 100
+    sc.far = 20000
+    sun.shadow.bias = -0.0004
+    this.scene.add(sun, sun.target)
+    this.sun = sun
+
+    onProgress?.("Placing ramps and spawns")
+    for (const p of l.props) {
+      const o = buildProp(p.kind)
+      o.position.copy(p.pos).add(new THREE.Vector3(0, -5, 0))
+      o.rotation.y = -p.yaw // Lingo Z-up rotation flips sign in Y-up space
+      this.scene.add(o)
+      if (o.userData.collider) this.colliders.push(o.userData.collider)
+    }
+    for (const s of l.spawns) {
+      const pad = buildSpawnPad(s.team)
+      pad.position.copy(s.pos)
+      pad.position.y = terrainAt(l, s.pos.x, s.pos.z) - 4
+      pad.rotation.y = -s.yaw
+      this.scene.add(pad)
+    }
+    for (const c of l.caps) {
+      const rig = buildCapturePoint()
+      rig.group.position.copy(c)
+      this.scene.add(rig.group)
+      this.caps.push({ pos: c.clone(), v: 127, rig })
+    }
+    for (const p of l.pickups) {
+      const weapon = (PICKUP_SUBSTITUTE[p.kind] ?? p.kind) as WeaponId
+      if (!WEAPONS[weapon]) continue
+      const obj = buildPickup(WEAPONS[weapon].icon)
+      obj.position.copy(p.pos)
+      this.scene.add(obj)
+      this.pickups.push({
+        kind: p.kind,
+        weapon,
+        pos: p.pos.clone(),
+        obj,
+        respawn: 0,
+      })
+    }
+    this.buildFence()
+
+    // bangs.ls animates a sprite sheet: 4x4 frames (nook 8x8)
+    for (const [name, grid] of [
+      ["bangrocket", 4],
+      ["bangnook", 8],
+      ["bangmine", 4],
+      ["bangbgun", 4],
+      ["bangbang", 4],
+      ["bangairstrike", 4],
+      ["bangdead", 4],
+    ] as const) {
+      this.bangTextures[name] = { tex: tex(name), grid }
+    }
+    this.puffMat = new THREE.SpriteMaterial({
+      map: tex("pufft"),
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.6,
+    })
+
+    onProgress?.("Fuelling tanks")
+    const pTeam = this.opts.playerTeam
+    this.player = this.addTank(this.opts.playerName, pTeam, true)
+    const names = [...BOT_NAMES].sort(() => Math.random() - 0.5)
+    for (let i = 0; i < this.opts.teamSize - 1; i++)
+      this.addTank(names.pop()!, pTeam, false)
+    for (let i = 0; i < this.opts.teamSize; i++)
+      this.addTank(names.pop()!, pTeam === "red" ? "blue" : "red", false)
+    for (const t of this.tanks) this.respawn(t, true)
+
+    // Initialize P2P + BroadcastChannel Multiplayer if roomCode is provided
+    const room = this.opts.roomCode?.trim()
+    if (room) {
+      this.netStatus = {
+        roomCode: room,
+        connected: false,
+        isHost: false,
+        peers: 0,
+      }
+      this.mp = new MultiplayerSession(
+        `${this.opts.map.id}_${room}`,
+        this.player.name,
+        this.player.team,
+        (msg) => this.onNetMessage(msg),
+        (st) => {
+          this.netStatus = { roomCode: room, ...st }
+          this.emitHud()
+        },
+      )
+    }
+
+    // sounds stream in the background; play() skips clips that are not decoded yet
+    void this.audio.load()
+    if (this.disposed) throw new Error("disposed")
+    this.scene.updateMatrixWorld(true)
+    this.bindInput()
+    this.resize()
+    this.pushFeed(
+      room
+        ? `Joined P2P room "${room}" on ${this.opts.map.name}.`
+        : "TeamTanks loaded. Hold the capture points.",
+    )
+  }
+
+  onNetMessage(msg: NetMessage) {
+    if (msg.subject === "where") {
+      const s = msg.state
+      let rt = this.tanks.find((t) => t.isRemote && t.name === s.name)
+      if (!rt) {
+        rt = this.addTank(s.name, s.team, false, true)
+        this.pushFeed(`${s.name} joined the battle`, s.team)
+      }
+      rt.lastNetSeen = this.frame
+      rt.team = s.team
+      rt.pos.set(s.pos[0], s.pos[1], s.pos[2])
+      rt.q.set(s.quat[0], s.quat[1], s.quat[2], s.quat[3])
+      rt.vel.set(s.vel[0], s.vel[1], s.vel[2])
+      rt.aimYaw = s.turretYaw
+      rt.aimPitch = s.gunPitch
+      rt.weapon = s.weapon
+      rt.health = s.hp
+      rt.score = s.score
+      rt.superT = s.superActive ? Math.max(rt.superT, 10) : 0
+      rt.stealthT = s.stealthActive ? Math.max(rt.stealthT, 10) : 0
+      rt.speedT = s.thrustActive ? Math.max(rt.speedT, 10) : 0
+      rt.dead = s.hp <= 0
+      rt.rig.root.visible = !rt.dead
+    } else if (msg.subject === "fire") {
+      const shooter = this.tanks.find((t) => t.name === msg.sender)
+      if (!shooter) return
+      const pos = new THREE.Vector3(msg.pos[0], msg.pos[1], msg.pos[2])
+      const dir = new THREE.Vector3(msg.dir[0], msg.dir[1], msg.dir[2])
+      const w = WEAPONS[msg.weapon]
+      if (!w) return
+      if (w.kind === "hitscan") {
+        this.hitscan(shooter, pos, dir, w.id)
+      } else if (w.kind === "shell") {
+        this.spawnProjectile(
+          shooter,
+          "shell",
+          w.id,
+          pos,
+          dir.multiplyScalar(w.speed!),
+          0.25,
+          120,
+        )
+        this.audio.play("bgun", pos, 0.7)
+      } else if (w.kind === "rocket") {
+        this.spawnProjectile(
+          shooter,
+          "rocket",
+          w.id,
+          pos,
+          dir.multiplyScalar(w.speed!),
+          0,
+          200,
+        )
+        this.audio.play("rocket", pos, 0.7)
+      } else if (w.kind === "lob") {
+        this.spawnProjectile(
+          shooter,
+          "lob",
+          w.id,
+          pos,
+          dir.multiplyScalar(w.speed!),
+          0.7,
+          400,
+        )
+        this.audio.play(w.id === "nook" ? "grenade" : "mortar", pos, 0.7)
+      } else if (w.kind === "homing") {
+        this.spawnProjectile(
+          shooter,
+          "homing",
+          w.id,
+          pos,
+          dir.multiplyScalar(w.speed!),
+          0,
+          300,
+        )
+        this.audio.play("rocket", pos, 0.7, 1.15)
+      } else if (w.kind === "mine") {
+        const m = this.spawnProjectile(
+          shooter,
+          "mine",
+          w.id,
+          pos,
+          new THREE.Vector3(),
+          0,
+          3600,
+        )
+        m.armed = 60
+        shooter.mines.push(m)
+      } else if (w.kind === "airstrike") {
+        this.airstrike(shooter, this.aimPoint(pos, dir, 7000))
+      }
+    } else if (msg.subject === "cappoint") {
+      const cap = this.caps[msg.id]
+      if (cap) cap.v = msg.val
+    } else if (msg.subject === "left") {
+      const idx = this.tanks.findIndex(
+        (t) => t.isRemote && t.name === msg.sender,
+      )
+      if (idx >= 0) {
+        const rt = this.tanks[idx]
+        this.scene.remove(rt.rig.root)
+        this.tanks.splice(idx, 1)
+        this.pushFeed(`${msg.sender} left the room`, rt.team)
+      }
+    }
+  }
+
+  /** Marks the physbox boundary (sortphysbox: width * 0.99). */
+  buildFence() {
+    const l = this.level
+    const mat = new THREE.MeshStandardMaterial({
+      color: "#f2c230",
+      emissive: "#3a2a00",
+      roughness: 0.5,
+    })
+    const n = 28
+    const inst = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(24, 120, 24),
+      mat,
+      n * 4,
+    )
+    let k = 0
+    const lim = l.half * 0.99
+    for (let s = 0; s < 4; s++) {
+      for (let i = 0; i < n; i++) {
+        const t = -lim + (i / (n - 1)) * lim * 2
+        const x = s < 2 ? t : s === 2 ? -lim : lim
+        const z = s < 2 ? (s === 0 ? -lim : lim) : t
+        tmpM.makeTranslation(x, terrainAt(l, x, z) + 60, z)
+        inst.setMatrixAt(k++, tmpM)
+      }
+    }
+    this.scene.add(inst)
+  }
+
+  addTank(
+    name: string,
+    team: Team,
+    isPlayer: boolean,
+    isRemote = false,
+  ): Tank {
+    const rig = buildTank(team)
+    this.scene.add(rig.root)
+    const d = DIFF[this.opts.difficulty]
+    const t: Tank = {
+      id: this.uid++,
+      name,
+      team,
+      isPlayer,
+      isRemote,
+      lastNetSeen: this.frame,
+      rig,
+      pos: new THREE.Vector3(),
+      vel: new THREE.Vector3(),
+      q: new THREE.Quaternion(),
+      angVel: new THREE.Vector3(),
+      onFloor: false,
+      health: MAX_HEALTH,
+      weapon: "mgun",
+      ammo: WEAPONS.mgun.ammo,
+      cooldown: 0,
+      jumpCd: 0,
+      aimYaw: 0,
+      aimPitch: 0.05,
+      spawnProtect: 0,
+      speedT: 0,
+      stealthT: 0,
+      superT: 0,
+      uber: 0,
+      dead: false,
+      respawnT: 0,
+      score: 0,
+      kills: 0,
+      deaths: 0,
+      trickAngle: 0,
+      trickKey: "",
+      airFrames: 0,
+      input: { throttle: 0, turn: 0, fire: false, jump: false },
+      ai: {
+        target: null,
+        goal: null,
+        think: Math.random() * 30,
+        stuck: 0,
+        reaction: d.reaction,
+        strafe: Math.random() < 0.5 ? -1 : 1,
+      },
+      mines: [],
+    }
+    this.tanks.push(t)
+    return t
+  }
+
+  /** goody.repos: drop onto a random team spawn, facing the map centre, with spawn protection. */
+  respawn(t: Tank, initial = false) {
+    const spots = this.level.spawns.filter((s) => s.team === t.team)
+    const s = spots[Math.floor(Math.random() * spots.length)]
+    // each team has a single spawn pad, so fan tanks out around it instead of stacking them
+    const mates = this.tanks.filter((o) => o.team === t.team)
+    const slot = mates.indexOf(t)
+    const ang =
+      (slot / Math.max(1, mates.length)) * Math.PI * 2 + Math.random() * 0.6
+    const r = 260 + Math.random() * 120
+    t.pos
+      .copy(s ? s.pos : new THREE.Vector3())
+      .add(new THREE.Vector3(Math.cos(ang) * r, 0, Math.sin(ang) * r))
+    const lim = this.level.half * 0.95
+    t.pos.x = THREE.MathUtils.clamp(t.pos.x, -lim, lim)
+    t.pos.z = THREE.MathUtils.clamp(t.pos.z, -lim, lim)
+    t.pos.y = terrainAt(this.level, t.pos.x, t.pos.z) + 120
+    t.vel.set(0, 0, 0)
+    t.angVel.set(0, 0, 0)
+    const yaw = Math.atan2(t.pos.x, t.pos.z)
+    t.q.setFromAxisAngle(UP, yaw)
+    t.aimYaw = yaw
+    t.aimPitch = 0.05
+    t.health = MAX_HEALTH
+    t.weapon = "mgun"
+    t.ammo = WEAPONS.mgun.ammo
+    t.dead = false
+    t.rig.root.visible = true
+    t.spawnProtect = SPAWN_PROTECT
+    t.speedT = t.stealthT = 0
+    t.trickAngle = 0
+    t.airFrames = 0
+    updateTankWeaponRig(t.rig, t.weapon)
+    if (!initial && t.isPlayer) this.audio.play("reload", undefined, 0.6)
+  }
+
+  // ---------------------------------------------------------------- input
+  bindInput() {
+    const kd = (e: KeyboardEvent) => {
+      if (
+        [
+          "Space",
+          "ArrowUp",
+          "ArrowDown",
+          "ArrowLeft",
+          "ArrowRight",
+          "Tab",
+        ].includes(e.code)
+      )
+        e.preventDefault()
+      this.keys.add(e.code)
+      this.audio.resume()
+      if (e.code === "KeyM") this.audio.setMuted(!this.audio.muted)
+      if (e.code === "KeyR" && !e.repeat && !this.player.dead && !this.over) {
+        this.pushFeed(`${this.player.name} respawns`) // killer "Re spawn"
+        this.respawn(this.player)
+      }
+    }
+    const ku = (e: KeyboardEvent) => this.keys.delete(e.code)
+    const md = (e: MouseEvent) => {
+      this.audio.resume()
+      if (!this.locked) {
+        this.requestLock()
+        return
+      }
+      if (e.button === 0) this.mouseDown = true
+    }
+    const mu = (e: MouseEvent) => {
+      if (e.button === 0) this.mouseDown = false
+    }
+    const mm = (e: MouseEvent) => {
+      if (!this.locked || this.player.dead || this.over) return
+      this.player.aimYaw -= e.movementX * 0.0024
+      this.player.aimPitch = THREE.MathUtils.clamp(
+        this.player.aimPitch - e.movementY * 0.0018,
+        -0.3,
+        0.55,
+      )
+    }
+    const pl = () => {
+      this.locked = document.pointerLockElement === this.canvas
+      if (!this.locked) this.mouseDown = false
+      this.emitHud()
+    }
+    const rs = () => this.resize()
+    const blur = () => {
+      this.keys.clear()
+      this.mouseDown = false
+    }
+    window.addEventListener("keydown", kd)
+    window.addEventListener("keyup", ku)
+    this.canvas.addEventListener("mousedown", md)
+    window.addEventListener("mouseup", mu)
+    window.addEventListener("mousemove", mm)
+    document.addEventListener("pointerlockchange", pl)
+    window.addEventListener("resize", rs)
+    window.addEventListener("blur", blur)
+    this.disposers.push(() => {
+      window.removeEventListener("keydown", kd)
+      window.removeEventListener("keyup", ku)
+      this.canvas.removeEventListener("mousedown", md)
+      window.removeEventListener("mouseup", mu)
+      window.removeEventListener("mousemove", mm)
+      document.removeEventListener("pointerlockchange", pl)
+      window.removeEventListener("resize", rs)
+      window.removeEventListener("blur", blur)
+    })
+  }
+
+  resize() {
+    const w = this.canvas.clientWidth || window.innerWidth
+    const h = this.canvas.clientHeight || window.innerHeight
+    this.renderer.setSize(w, h, false)
+    this.camera.aspect = w / h
+    this.camera.updateProjectionMatrix()
+  }
+
+  requestLock() {
+    try {
+      const r =
+        this.canvas.requestPointerLock?.() as unknown as Promise<void> | undefined
+      r?.catch?.(() => {})
+    } catch {
+      // pointer lock can be refused (e.g. inside some iframes); keyboard still works
+    }
+  }
+
+  start() {
+    this.running = true
+    this.last = performance.now()
+    const loop = (now: number) => {
+      if (!this.running) return
+      this.raf = requestAnimationFrame(loop)
+      this.acc += Math.min(0.1, (now - this.last) / 1000)
+      this.last = now
+      let steps = 0
+      while (this.acc >= DT && steps < 6) {
+        this.step()
+        this.acc -= DT
+        steps++
+      }
+      this.render()
+    }
+    this.raf = requestAnimationFrame(loop)
+  }
+
+  dispose() {
+    this.disposed = true
+    this.running = false
+    cancelAnimationFrame(this.raf)
+    this.disposers.forEach((d) => d())
+    this.mp?.dispose()
+    if (document.pointerLockElement === this.canvas) document.exitPointerLock()
+    void this.audio.ctx.close()
+    this.renderer?.dispose()
+  }
+
+  // ---------------------------------------------------------------- simulation
+  step() {
+    this.frame++
+    if (!this.over) {
+      this.timeLeft -= DT
+      if (this.timeLeft <= 0) this.endRound()
+    }
+    const p = this.player
+    const k = this.keys
+    if (!this.over) {
+      p.input.throttle =
+        (k.has("KeyW") || k.has("ArrowUp") ? 1 : 0) -
+        (k.has("KeyS") || k.has("ArrowDown") ? 1 : 0)
+      p.input.turn =
+        (k.has("KeyA") || k.has("ArrowLeft") ? 1 : 0) -
+        (k.has("KeyD") || k.has("ArrowRight") ? 1 : 0)
+      p.input.fire = this.mouseDown || k.has("KeyF") || k.has("ControlLeft")
+      p.input.jump = k.has("Space")
+      // keyboard aim fallback (Q/E turn the turret, Z/X tilt the barrel)
+      if (k.has("KeyQ")) p.aimYaw += 0.035
+      if (k.has("KeyE")) p.aimYaw -= 0.035
+      if (k.has("KeyZ")) p.aimPitch = Math.min(0.55, p.aimPitch + 0.012)
+      if (k.has("KeyX")) p.aimPitch = Math.max(-0.3, p.aimPitch - 0.012)
+    } else {
+      p.input = { throttle: 0, turn: 0, fire: false, jump: false }
+    }
+
+    for (const t of this.tanks) {
+      if (t.isRemote) {
+        // Interpolate remote tank position smoothly
+        t.pos.addScaledVector(t.vel, DT * 0.5)
+        continue
+      }
+      if (t.dead) {
+        if (--t.respawnT <= 0 && !this.over) this.respawn(t)
+        continue
+      }
+      if (!t.isPlayer) this.think(t)
+      this.physics(t)
+      this.weapons(t)
+      if (t.spawnProtect > 0) t.spawnProtect--
+      if (t.speedT > 0) t.speedT--
+      if (t.stealthT > 0) t.stealthT--
+      if (t.superT > 0 && --t.superT === 0) {
+        t.uber = 0
+        if (t.isPlayer) this.audio.play("super", undefined, 0.6)
+      }
+    }
+
+    // Broadcast local player state to P2P room every 3 frames (20 Hz)
+    if (this.mp && this.frame % 3 === 0) {
+      this.mp.send({
+        subject: "where",
+        sender: p.name,
+        state: {
+          name: p.name,
+          team: p.team,
+          pos: [p.pos.x, p.pos.y, p.pos.z],
+          quat: [p.q.x, p.q.y, p.q.z, p.q.w],
+          vel: [p.vel.x, p.vel.y, p.vel.z],
+          turretYaw: p.aimYaw,
+          gunPitch: p.aimPitch,
+          weapon: p.weapon ?? "mgun",
+          hp: p.dead ? 0 : p.health,
+          score: p.score,
+          superActive: p.superT > 0,
+          stealthActive: p.stealthT > 0,
+          thrustActive: p.speedT > 0,
+        },
+      })
+    }
+
+    this.collideTanks()
+    this.stepProjectiles()
+    this.stepPickups()
+    if (this.frame % 16 === 0) this.stepCaps()
+    this.stepEffects()
+    if (this.hitMarker > 0) this.hitMarker--
+    if (this.hurtT > 0 && --this.hurtT === 0) this.hurtDir = null
+    if (this.frame % 4 === 0) this.emitHud()
+  }
+
+  /** Terrain height, raised by any ramp under (x, z). */
+  groundAt(x: number, z: number, y: number, n: THREE.Vector3) {
+    let h = terrainAt(this.level, x, z, n)
+    if (this.colliders.length) {
+      this.raycaster.set(tmpV2.set(x, y + 150, z), tmpV.set(0, -1, 0))
+      this.raycaster.far = 400
+      const hit = this.raycaster.intersectObjects(this.colliders, false)[0]
+      if (hit && hit.point.y > h && hit.face) {
+        h = hit.point.y
+        n.copy(hit.face.normal).transformDirection(hit.object.matrixWorld)
+        if (n.y < 0) n.negate()
+      }
+    }
+    return h
+  }
+
+  /** Arcade take on goody.movecar: surface-aligned drive, 0.99 velocity damping, reverse-steer, impulse jumps with flips. */
+  physics(t: Tank) {
+    const l = this.level
+    const n = new THREE.Vector3()
+    const h = this.groundAt(t.pos.x, t.pos.z, t.pos.y, n)
+    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(t.q)
+    const dist = t.pos.y - (h + 5)
+    const upright = up.dot(n)
+    const wasAir = !t.onFloor
+    t.onFloor = dist <= 6 && t.vel.dot(n) < 260 && upright > 0.35
+
+    if (t.jumpCd > 0) t.jumpCd--
+    const boost = t.speedT > 0 ? 2.1 : 1
+    const maxSpeed = 1250 * boost * (t.superT > 0 ? 1.15 : 1)
+
+    if (t.onFloor) {
+      if (wasAir && t.airFrames > 10) this.land(t)
+      t.airFrames = 0
+      t.pos.y = Math.max(t.pos.y, h + 5)
+      const vn = t.vel.dot(n)
+      if (vn < 0) t.vel.addScaledVector(n, -vn)
+      const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(t.q)
+      fwd.addScaledVector(n, -fwd.dot(n)).normalize()
+      const right = new THREE.Vector3().crossVectors(fwd, n).normalize()
+      tmpM.makeBasis(right, n, fwd.clone().negate())
+      tmpQ.setFromRotationMatrix(tmpM)
+      t.q.slerp(tmpQ, 0.3)
+      t.angVel.set(0, 0, 0)
+
+      const along = t.vel.dot(fwd)
+      const thr = t.input.throttle
+      if (
+        thr !== 0 &&
+        (Math.abs(along) < maxSpeed || Math.sign(along) !== Math.sign(thr))
+      ) {
+        const braking =
+          Math.sign(along) !== Math.sign(thr) && Math.abs(along) > 30
+        t.vel.addScaledVector(
+          fwd,
+          thr * 2600 * boost * DT * (braking ? 1.6 : 1),
+        )
+      }
+      // vturn reverses when driving backwards and is zero when stationary
+      const dir = along < -20 ? -1 : along > 20 ? 1 : 0
+      const steer =
+        t.input.turn * dir * 2.4 * Math.min(1, Math.abs(along) / 260 + 0.25)
+      if (steer) t.q.premultiply(tmpQ.setFromAxisAngle(n, steer * DT))
+      const lat = tmpV2
+        .copy(t.vel)
+        .addScaledVector(fwd, -along)
+        .addScaledVector(n, -t.vel.dot(n))
+      t.vel.addScaledVector(
+        lat,
+        -(1 - Math.exp(-DT * (5 + l.def.friction * 30))),
+      )
+      t.vel.multiplyScalar(thr === 0 ? 0.985 : 0.995)
+      t.vel.y -= GRAVITY * DT * 0.6
+      // goody.jump: impulse along the tank's up axis; forward+jump is a back flip, sideways a roll
+      if (t.input.jump && t.jumpCd === 0) {
+        const pow = t.superT > 0 ? 1.45 : 1
+        t.vel.addScaledVector(n, 1050 * pow)
+        if (thr !== 0) {
+          t.angVel.copy(right).multiplyScalar(thr * 6.6 * pow)
+          t.trickKey = thr > 0 ? "Back" : "Front"
+        } else if (t.input.turn !== 0) {
+          t.angVel.copy(fwd).multiplyScalar(t.input.turn * 6.6 * pow)
+          t.trickKey = t.input.turn > 0 ? "Backside" : "Frontside"
+        } else {
+          t.trickKey = ""
+        }
+        t.trickAngle = 0
+        t.jumpCd = 60
+        t.onFloor = false
+        this.audio.play("airblast", t.pos, 0.45, 0.9 + Math.random() * 0.2)
+      }
+    } else {
+      t.airFrames++
+      t.vel.y -= GRAVITY * DT
+      const w = t.angVel.length()
+      if (w > 0.0001) {
+        t.q.premultiply(
+          tmpQ.setFromAxisAngle(tmpV2.copy(t.angVel).divideScalar(w), w * DT),
+        )
+        t.trickAngle += THREE.MathUtils.radToDeg(w * DT)
+      }
+      t.angVel.multiplyScalar(0.997)
+      // upside-down on the ground: hop and right itself
+      if (dist <= 8 && upright <= 0.35) {
+        t.pos.y = h + 8
+        const axis = new THREE.Vector3().crossVectors(up, n)
+        if (axis.lengthSq() < 1e-4) axis.set(1, 0, 0).applyQuaternion(t.q)
+        t.angVel.copy(axis.normalize()).multiplyScalar(5)
+        t.vel.y = Math.max(t.vel.y, 380)
+        t.vel.multiplyScalar(0.92)
+        if (this.frame % 30 === 0) this.audio.play("crash", t.pos, 0.4)
+        t.trickAngle = 0
+      }
+    }
+    t.pos.addScaledVector(t.vel, DT)
+    const ground = terrainAt(l, t.pos.x, t.pos.z)
+    if (t.pos.y < ground + 2) {
+      t.pos.y = ground + 2
+      if (t.vel.y < 0) t.vel.y = 0
+    }
+    const lim = l.half * 0.985
+    for (const ax of ["x", "z"] as const) {
+      if (Math.abs(t.pos[ax]) > lim) {
+        t.pos[ax] = Math.sign(t.pos[ax]) * lim
+        t.vel[ax] *= -0.4
+      }
+    }
+  }
+
+  /** calctrick/whattrick: rotation/180 -> tier; uber += tier^2 * 3; uber > 100 -> supercharge for 600 frames. */
+  land(t: Tank) {
+    const halfTurns = Math.floor(t.trickAngle / 180 + 0.25)
+    const tier =
+      halfTurns >= 8
+        ? 5
+        : halfTurns >= 6
+          ? 4
+          : halfTurns >= 4
+            ? 3
+            : halfTurns >= 2
+              ? 2
+              : halfTurns >= 1
+                ? 1
+                : 0
+    const names = ["", "", "flip", "double flip", "triple flip", "quad flip"]
+    if (t.uber > 100 && t.superT === 0) {
+      t.superT = 600
+      this.audio.play("powerup", t.pos, 0.8)
+      if (t.isPlayer) this.popup("SUPERCHARGED", "trick")
+      this.pushFeed(`${t.name} is supercharged`, t.team)
+    } else if (tier > 0) {
+      if (t.superT === 0) t.uber += tier * tier * 3
+      if (names[tier] && t.isPlayer)
+        this.popup(`${t.trickKey} ${names[tier]}`.trim(), "trick")
+    }
+    t.trickAngle = 0
+    this.audio.play("crash", t.pos, 0.18, 1.3)
+  }
+
+  collideTanks() {
+    const live = this.tanks.filter((t) => !t.dead)
+    for (let i = 0; i < live.length; i++) {
+      for (let j = i + 1; j < live.length; j++) {
+        const a = live[i],
+          b = live[j]
+        const d = tmpV.subVectors(b.pos, a.pos)
+        const len = d.length()
+        const min = BSP * 2.1
+        if (len > 0.01 && len < min) {
+          d.divideScalar(len)
+          const push = (min - len) / 2
+          a.pos.addScaledVector(d, -push)
+          b.pos.addScaledVector(d, push)
+          const rel = tmpV2.subVectors(b.vel, a.vel).dot(d)
+          if (rel < 0) {
+            a.vel.addScaledVector(d, rel * 0.8)
+            b.vel.addScaledVector(d, -rel * 0.8)
+            if (rel < -500) this.audio.play("crash", a.pos, 0.5)
+          }
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- AI
+  think(t: Tank) {
+    const d = DIFF[this.opts.difficulty]
+    const ai = t.ai
+    if (this.over) {
+      t.input = { throttle: 0, turn: 0, fire: false, jump: false }
+      return
+    }
+    if (--ai.think <= 0) {
+      ai.think = 20 + Math.random() * 20
+      let best: Tank | null = null
+      let bd = d.aggro
+      for (const o of this.tanks) {
+        if (o.team === t.team || o.dead) continue
+        const dist = o.pos.distanceTo(t.pos)
+        if (dist < (o.stealthT > 0 ? 450 : bd) && dist < bd) {
+          bd = dist
+          best = o
+        }
+      }
+      if (best !== ai.target) ai.reaction = d.reaction
+      ai.target = best
+      // goal: a contested capture point, an upgrade pickup if poorly armed, otherwise the enemy
+      const want = t.team === "blue" ? 255 : 0
+      let goal: THREE.Vector3 | null = null
+      let gd = Infinity
+      for (const c of this.caps) {
+        const need = Math.abs(want - c.v)
+        if (need < 24) continue
+        const dist = c.pos.distanceTo(t.pos) - need * 6
+        if (dist < gd) {
+          gd = dist
+          goal = c.pos
+        }
+      }
+      if (t.weapon === "mgun" || !t.weapon || t.health < 45 || !goal) {
+        for (const p of this.pickups) {
+          if (
+            p.respawn > 0 ||
+            p.weapon === "speed" ||
+            p.weapon === "thrusters" ||
+            p.weapon === "stealth"
+          )
+            continue
+          if (p.weapon === "health" && t.health > 60) continue
+          const dist =
+            p.pos.distanceTo(t.pos) * (p.weapon === "health" ? 0.6 : 1)
+          if (dist < (goal ? 2200 : 1e9) && dist < gd) {
+            gd = dist
+            goal = p.pos
+          }
+        }
+      }
+      if (ai.target && ai.target.pos.distanceTo(t.pos) < 1400)
+        goal = ai.target.pos
+      ai.goal = goal ?? ai.target?.pos ?? null
+      if (Math.random() < 0.08) ai.strafe *= -1
+    }
+
+    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(t.q)
+    const heading = Math.atan2(-fwd.x, -fwd.z)
+    if (ai.goal) {
+      const to = new THREE.Vector3().subVectors(ai.goal, t.pos)
+      const dist = Math.hypot(to.x, to.z)
+      let want = Math.atan2(-to.x, -to.z)
+      if (ai.target && ai.goal === ai.target.pos && dist < 900)
+        want += ai.strafe * 0.9 // circle-strafe
+      const diff = wrapAngle(want - heading)
+      t.input.turn = Math.abs(diff) > 0.08 ? Math.sign(diff) : 0
+      const atCap =
+        this.caps.some((c) => c.pos === ai.goal) && dist < CAPTURE_RADIUS * 0.6
+      t.input.throttle = atCap
+        ? this.frame % 90 < 45
+          ? 0.4
+          : -0.4
+        : Math.abs(diff) > 2.2 && dist < 700
+          ? -1
+          : 1
+    } else {
+      t.input.turn = Math.sin(this.frame * 0.01 + t.id) > 0.6 ? 1 : 0
+      t.input.throttle = 1
+    }
+    const sp = Math.hypot(t.vel.x, t.vel.z)
+    ai.stuck =
+      t.input.throttle !== 0 && sp < 120
+        ? ai.stuck + 1
+        : Math.max(0, ai.stuck - 2)
+    t.input.jump = ai.stuck > 70 || (t.onFloor && Math.random() < 0.0025)
+    if (ai.stuck > 70) {
+      t.input.throttle = -1
+      if (ai.stuck > 140) ai.stuck = 0
+    }
+
+    const tgt = ai.target
+    t.input.fire = false
+    if (tgt && !tgt.dead) {
+      const w = WEAPONS[t.weapon ?? "mgun"]
+      const aimAt = tgt.pos.clone().add(new THREE.Vector3(0, 30, 0))
+      const dist = aimAt.distanceTo(t.pos)
+      if (w.speed) aimAt.addScaledVector(tgt.vel, (dist / w.speed) * 0.8)
+      const to = aimAt.sub(t.pos.clone().add(new THREE.Vector3(0, 45, 0)))
+      const yaw = Math.atan2(-to.x, -to.z)
+      let pitch = Math.atan2(to.y, Math.hypot(to.x, to.z))
+      if (w.kind === "lob" && w.speed) {
+        const v = w.speed,
+          g = GRAVITY * 0.7,
+          x = Math.hypot(to.x, to.z),
+          y = to.y
+        const disc = v ** 4 - g * (g * x * x + 2 * y * v * v)
+        pitch = disc > 0 ? Math.atan((v * v - Math.sqrt(disc)) / (g * x)) : 0.6
+      }
+      t.aimYaw += wrapAngle(yaw - t.aimYaw) * 0.12
+      t.aimPitch +=
+        (THREE.MathUtils.clamp(pitch, -0.3, 0.9) - t.aimPitch) * 0.12
+      if (ai.reaction > 0) ai.reaction--
+      const range =
+        w.kind === "hitscan"
+          ? 2600
+          : w.kind === "sonic"
+            ? 700
+            : w.kind === "mine"
+              ? 500
+              : w.kind === "airstrike"
+                ? 3500
+                : 3800
+      const aligned = Math.abs(wrapAngle(yaw - t.aimYaw)) < 0.12
+      const useful =
+        !["heal", "boost", "cloak"].includes(w.kind) ||
+        (w.kind === "heal" ? t.health < 70 : true)
+      t.input.fire = ai.reaction <= 0 && dist < range && aligned && useful
+    } else {
+      t.aimYaw += wrapAngle(heading - t.aimYaw) * 0.05
+      t.aimPitch += (0.05 - t.aimPitch) * 0.05
+      if (t.weapon === "health" && t.health < 70) t.input.fire = true
+    }
+  }
+
+  // ---------------------------------------------------------------- weapons
+  muzzle(t: Tank) {
+    t.rig.root.position.copy(t.pos)
+    t.rig.root.quaternion.copy(t.q)
+    t.rig.root.updateMatrixWorld(true)
+    const pos = t.rig.muzzle.getWorldPosition(new THREE.Vector3())
+    const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(
+      t.rig.barrel.getWorldQuaternion(new THREE.Quaternion()),
+    )
+    return { pos, dir }
+  }
+
+  /** Direction from the muzzle to whatever is under the screen-centre crosshair. */
+  crosshairDir(from: THREE.Vector3) {
+    const camDir = this.camera.getWorldDirection(new THREE.Vector3())
+    const origin = this.camera.position
+    let best = 7000
+    for (const o of this.tanks) {
+      if (o.isPlayer || o.dead) continue
+      const c = new THREE.Vector3()
+        .copy(o.pos)
+        .add(new THREE.Vector3(0, 28, 0))
+        .sub(origin)
+      const along = c.dot(camDir)
+      if (along < 300 || along > best) continue
+      if (c.addScaledVector(camDir, -along).length() < BSP) best = along
+    }
+    for (let s = 300; s < best; s += 50) {
+      const p = origin.clone().addScaledVector(camDir, s)
+      if (p.y < terrainAt(this.level, p.x, p.z)) {
+        best = s
+        break
+      }
+    }
+    return origin.clone().addScaledVector(camDir, best).sub(from).normalize()
+  }
+
+  weapons(t: Tank) {
+    if (t.cooldown > 0) {
+      t.cooldown--
+      return
+    }
+    if (!t.input.fire || !t.weapon || this.over) return
+    const w = WEAPONS[t.weapon]
+    const diff = DIFF[this.opts.difficulty]
+    t.cooldown = Math.round(w.cooldown * (t.isPlayer ? 1 : diff.fireScale))
+    const { pos, dir: barrelDir } = this.muzzle(t)
+    const dir = t.isPlayer ? this.crosshairDir(pos) : barrelDir
+    const spread = t.isPlayer ? 0.012 : diff.spread
+
+    if (t.isPlayer && this.mp) {
+      this.mp.send({
+        subject: "fire",
+        sender: t.name,
+        team: t.team,
+        weapon: w.id,
+        pid: `${t.name}_${this.frame}`,
+        pos: [pos.x, pos.y, pos.z],
+        dir: [dir.x, dir.y, dir.z],
+      })
+    }
+
+    switch (w.kind) {
+      case "hitscan":
+        dir
+          .add(
+            new THREE.Vector3(
+              Math.random() - 0.5,
+              Math.random() - 0.5,
+              Math.random() - 0.5,
+            ).multiplyScalar(spread),
+          )
+          .normalize()
+        this.hitscan(t, pos, dir, w.id)
+        t.vel.addScaledVector(dir, w.id === "lasergun" ? -6 : -14) // bullettest recoil
+        break
+      case "shell":
+        this.spawnProjectile(
+          t,
+          "shell",
+          w.id,
+          pos,
+          dir.multiplyScalar(w.speed!),
+          0.25,
+          120,
+        )
+        this.audio.play("bgun", pos, 0.7)
+        this.flash(pos, 1.4)
+        break
+      case "rocket":
+        this.spawnProjectile(
+          t,
+          "rocket",
+          w.id,
+          pos,
+          dir.multiplyScalar(w.speed!),
+          0,
+          200,
+        )
+        this.audio.play("rocket", pos, 0.7)
+        break
+      case "lob":
+        this.spawnProjectile(
+          t,
+          "lob",
+          w.id,
+          pos,
+          dir.multiplyScalar(w.speed!),
+          0.7,
+          400,
+        )
+        this.audio.play(w.id === "nook" ? "grenade" : "mortar", pos, 0.7)
+        break
+      case "homing": {
+        const target = this.lockTarget(t, pos, dir)
+        this.spawnProjectile(
+          t,
+          "homing",
+          w.id,
+          pos,
+          dir.multiplyScalar(w.speed!),
+          0,
+          300,
+          target,
+        )
+        this.audio.play("rocket", pos, 0.7, 1.15)
+        break
+      }
+      case "mine": {
+        if (t.mines.length >= 6) this.removeProjectile(t.mines[0]) // pminelist: oldest mine goes
+        const back = new THREE.Vector3(0, 0, 1)
+          .applyQuaternion(t.q)
+          .multiplyScalar(80)
+          .add(t.pos)
+        back.y = terrainAt(this.level, back.x, back.z) + 8
+        const m = this.spawnProjectile(
+          t,
+          "mine",
+          w.id,
+          back,
+          new THREE.Vector3(),
+          0,
+          3600,
+        )
+        m.armed = 60
+        t.mines.push(m)
+        this.audio.play("minedrop", back, 0.6)
+        break
+      }
+      case "sonic":
+        this.explode(pos.clone().addScaledVector(dir, 320), w.power, t, w.id)
+        this.audio.play("bangmortar", pos, 0.8, 1.4)
+        break
+      case "airstrike":
+        this.airstrike(t, this.aimPoint(pos, dir, 7000))
+        break
+      case "boost":
+        t.speedT = 600
+        this.audio.play("speed", t.pos, 0.8)
+        if (t.isPlayer) this.popup(w.label.toUpperCase(), "info")
+        break
+      case "heal":
+        t.health = Math.min(MAX_HEALTH, t.health + 60)
+        this.audio.play("powerup", t.pos, 0.6, 1.2)
+        if (t.isPlayer) this.popup("+60 HEALTH", "info")
+        break
+      case "cloak":
+        t.stealthT = 720
+        if (t.isPlayer) this.popup("STEALTH", "info")
+        break
+    }
+    if (--t.ammo <= 0) {
+      // fall back to a short machine-gun clip; an empty machine gun leaves you unarmed until a pickup
+      t.weapon = t.weapon === "mgun" ? null : "mgun"
+      t.ammo = t.weapon ? 60 : 0
+    }
+    updateTankWeaponRig(t.rig, t.weapon)
+  }
+
+  hitscan(t: Tank, from: THREE.Vector3, dir: THREE.Vector3, weapon: WeaponId) {
+    const w = WEAPONS[weapon]
+    let best = 8000
+    let victim: Tank | null = null
+    for (const o of this.tanks) {
+      if (o === t || o.dead) continue
+      const c = new THREE.Vector3()
+        .copy(o.pos)
+        .add(new THREE.Vector3(0, 28, 0))
+        .sub(from)
+      const along = c.dot(dir)
+      if (along < 0 || along > best) continue
+      if (c.addScaledVector(dir, -along).length() < BSP * 0.95) {
+        best = along
+        victim = o
+      }
+    }
+    for (let s = 40; s < best; s += 45) {
+      const p = tmpV.copy(from).addScaledVector(dir, s)
+      if (p.y < terrainAt(this.level, p.x, p.z)) {
+        best = s
+        victim = null
+        break
+      }
+    }
+    const end = from.clone().addScaledVector(dir, best)
+    if (victim) {
+      this.damage(victim, w.power, t, weapon)
+      this.spark(end, "#ff4a2a")
+    } else if (best < 8000) {
+      this.spark(end, "#ffe7a0")
+    }
+    this.tracer(
+      from,
+      end,
+      weapon === "lasergun" ? "#ff3df5" : "#ffd36a",
+      weapon === "lasergun" ? 5 : 2.5,
+    )
+    this.flash(from, weapon === "lasergun" ? 0.7 : 1)
+    if (this.frame % (weapon === "lasergun" ? 6 : 2) === 0)
+      this.audio.play(
+        weapon === "lasergun" ? "laser" : "gunfire",
+        from,
+        0.35,
+        0.95 + Math.random() * 0.1,
+      )
+  }
+
+  lockTarget(t: Tank, pos: THREE.Vector3, dir: THREE.Vector3) {
+    let best: Tank | null = null
+    let bestDot = 0.86
+    for (const o of this.tanks) {
+      if (o.team === t.team || o.dead || o.stealthT > 0) continue
+      const d = tmpV.subVectors(o.pos, pos).normalize().dot(dir)
+      if (d > bestDot) {
+        bestDot = d
+        best = o
+      }
+    }
+    if (best && t.isPlayer) this.popup(`LOCKED: ${best.name}`, "info")
+    return best
+  }
+
+  aimPoint(from: THREE.Vector3, dir: THREE.Vector3, max: number) {
+    for (let s = 60; s < max; s += 60) {
+      const p = from.clone().addScaledVector(dir, s)
+      if (p.y < terrainAt(this.level, p.x, p.z)) return p
+    }
+    const p = from.clone().addScaledVector(dir, max)
+    p.y = terrainAt(this.level, p.x, p.z)
+    return p
+  }
+
+  /** airstrike.ls: a target marker, then bombs fall from the airship. */
+  airstrike(t: Tank, target: THREE.Vector3) {
+    const marker = new THREE.Mesh(
+      new THREE.CircleGeometry(260, 32),
+      new THREE.MeshBasicMaterial({
+        map: tex(`airstrike_target_${t.team}`),
+        transparent: true,
+        depthWrite: false,
+      }),
+    )
+    marker.rotation.x = -Math.PI / 2
+    marker.position.copy(target).add(new THREE.Vector3(0, 12, 0))
+    this.scene.add(marker)
+    this.effects.push({
+      obj: marker,
+      life: 150,
+      max: 150,
+      update: (e) => (e.obj.rotation.z += 0.05),
+    })
+    this.audio.play("c1", target, 0.6)
+    if (t.isPlayer) this.popup("AIRSTRIKE INBOUND", "info")
+    for (let i = 0; i < 6; i++) {
+      const off = new THREE.Vector3(
+        (Math.random() - 0.5) * 700,
+        2600 + i * 180,
+        (Math.random() - 0.5) * 700,
+      )
+      const p = this.spawnProjectile(
+        t,
+        "bomb",
+        "airstrike",
+        target.clone().add(off),
+        new THREE.Vector3(0, -600, 0),
+        1,
+        600,
+      )
+      p.armed = 70 + i * 10
+    }
+  }
+
+  spawnProjectile(
+    t: Tank,
+    kind: Projectile["kind"],
+    weapon: WeaponId,
+    pos: THREE.Vector3,
+    vel: THREE.Vector3,
+    gravity: number,
+    life: number,
+    target?: Tank | null,
+  ) {
+    const obj = buildProjectileMesh(kind, weapon, t.team)
+    obj.position.copy(pos)
+    this.scene.add(obj)
+    const p: Projectile = {
+      kind,
+      weapon,
+      owner: t,
+      pos: pos.clone(),
+      vel: vel.clone(),
+      life,
+      obj,
+      target,
+      gravity,
+      trail: 0,
+    }
+    this.projectiles.push(p)
+    return p
+  }
+
+  stepProjectiles() {
+    for (const p of [...this.projectiles]) {
+      if (!this.projectiles.includes(p)) continue
+      p.life--
+      if (p.kind === "mine") {
+        if (p.armed! > 0) p.armed!--
+        else {
+          const blink = p.obj.children[0]
+          if (blink) blink.visible = this.frame % 40 < 8
+          for (const o of this.tanks) {
+            if (o.dead || o.team === p.owner.team) continue
+            if (o.pos.distanceTo(p.pos) < 190) {
+              this.explode(p.pos, WEAPONS[p.weapon].power, p.owner, p.weapon, p)
+              break
+            }
+          }
+        }
+        if (p.life <= 0 && this.projectiles.includes(p))
+          this.removeProjectile(p)
+        continue
+      }
+      if (p.kind === "bomb" && p.armed! > 0) {
+        if (--p.armed! === 0) {
+          p.obj.visible = true
+          this.audio.play("c2", p.pos, 0.3)
+        }
+        continue
+      }
+      if (p.kind === "homing" && p.target && !p.target.dead) {
+        const want = tmpV
+          .copy(p.target.pos)
+          .add(tmpV2.set(0, 30, 0))
+          .sub(p.pos)
+          .normalize()
+          .multiplyScalar(p.vel.length())
+        p.vel.lerp(want, 0.06)
+      }
+      p.vel.y -= GRAVITY * p.gravity * DT
+      p.pos.addScaledVector(p.vel, DT)
+      p.obj.position.copy(p.pos)
+      if (p.vel.lengthSq() > 1) p.obj.lookAt(tmpV.copy(p.pos).sub(p.vel))
+      if (
+        (p.kind === "rocket" ||
+          p.kind === "homing" ||
+          (p.kind === "lob" && p.weapon === "nook")) &&
+        ++p.trail % 2 === 0
+      )
+        this.puff(p.pos, 60, 40)
+
+      let hit =
+        p.life <= 0 || p.pos.y <= terrainAt(this.level, p.pos.x, p.pos.z) + 4
+      if (
+        !hit &&
+        (Math.abs(p.pos.x) > this.level.half ||
+          Math.abs(p.pos.z) > this.level.half)
+      )
+        hit = true
+      if (!hit) {
+        for (const o of this.tanks) {
+          if (o.dead || o === p.owner) continue
+          if (
+            tmpV
+              .copy(o.pos)
+              .add(tmpV2.set(0, 28, 0))
+              .distanceTo(p.pos) <
+            BSP + 8
+          ) {
+            hit = true
+            break
+          }
+        }
+      }
+      if (hit)
+        this.explode(
+          p.pos.clone(),
+          WEAPONS[p.weapon].power,
+          p.owner,
+          p.weapon,
+          p,
+        )
+    }
+  }
+
+  removeProjectile(p: Projectile) {
+    const i = this.projectiles.indexOf(p)
+    if (i < 0) return
+    this.projectiles.splice(i, 1)
+    this.scene.remove(p.obj)
+    disposeTree(p.obj)
+    const m = p.owner.mines.indexOf(p)
+    if (m >= 0) p.owner.mines.splice(m, 1)
+  }
+
+  /** bangs.ls: zone = power*50, distrat = (zone - d)/zone, force = distrat*power*200, damage = force*0.02. */
+  explode(
+    pos: THREE.Vector3,
+    power: number,
+    owner: Tank,
+    weapon: WeaponId,
+    proj?: Projectile,
+  ) {
+    if (proj) this.removeProjectile(proj)
+    const zone = power * 50
+    for (const o of this.tanks) {
+      if (o.dead) continue
+      const centre = new THREE.Vector3()
+        .copy(o.pos)
+        .add(new THREE.Vector3(0, 25, 0))
+      const mag = centre.distanceTo(pos)
+      if (mag >= zone) continue
+      const distrat = (zone - mag) / zone
+      const force = distrat * power * 200
+      if (o.team !== owner.team || o === owner || weapon === "sonicgun") {
+        const delta = centre
+          .sub(pos.clone().add(new THREE.Vector3(0, -5, 0)))
+          .normalize()
+        const push = Math.min(
+          2400,
+          force * (weapon === "sonicgun" ? 7 : 1) * 0.32,
+        )
+        o.vel.addScaledVector(delta, push)
+        o.vel.y += push * 0.35
+        o.angVel.add(
+          new THREE.Vector3(
+            Math.random() - 0.5,
+            0,
+            Math.random() - 0.5,
+          ).multiplyScalar(push * 0.004),
+        )
+        if (push > 200) o.onFloor = false
+      }
+      this.damage(o, Math.floor(force * 0.02), owner, weapon)
+    }
+    const name =
+      weapon === "nook"
+        ? "bangnook"
+        : weapon === "proximitymine" || weapon === "remotemine"
+          ? "bangmine"
+          : weapon === "bgun"
+            ? "bangbgun"
+            : weapon === "rocketx4"
+              ? "bangbang"
+              : weapon === "mortar" || weapon === "airstrike"
+                ? "bangairstrike"
+                : "bangrocket"
+    this.bang(pos, name, zone * (weapon === "nook" ? 0.9 : 0.75))
+    const snd =
+      weapon === "nook"
+        ? "nook"
+        : weapon === "bgun"
+          ? "bgunbang"
+          : weapon === "mortar"
+            ? "bangmortar"
+            : weapon === "proximitymine" || weapon === "remotemine"
+              ? "reboom1"
+              : "bangrocket"
+    this.audio.play(snd, pos, weapon === "nook" ? 1 : 0.8)
+    const d = pos.distanceTo(this.player.pos)
+    this.shake = Math.max(
+      this.shake,
+      Math.max(0, 1 - d / (zone * 3)) * (power / 12),
+    )
+  }
+
+  /** goody.hurt: only enemies or yourself can hurt you; supercharge and spawn protection block damage. */
+  damage(o: Tank, amount: number, by: Tank, weapon: WeaponId) {
+    if (amount <= 0 || o.dead || this.over) return
+    if (o.team === by.team && o !== by) return
+    if (o.superT > 0 || o.spawnProtect > 0) return
+    o.uber = Math.max(0, o.uber - 0.1 * amount)
+    o.health -= amount
+    if (by !== o) {
+      const pts = by.superT > 0 ? amount * 2 : amount // scorehurt doubles while supercharged
+      by.score += pts
+      if (by.isPlayer) {
+        this.hitMarker = 8
+        this.popup(`*${pts}*`, "damage")
+      }
+    }
+    if (o.isPlayer) {
+      const to = tmpV.subVectors(by.pos, o.pos)
+      this.hurtDir = Math.atan2(-to.x, -to.z) - o.aimYaw
+      this.hurtT = 50
+      this.audio.play("crash", undefined, 0.35)
+    }
+    if (o.health < 0) this.kill(o, by, weapon)
+  }
+
+  kill(o: Tank, by: Tank, weapon: WeaponId) {
+    o.dead = true
+    o.deaths++
+    o.score += DEATH_SCORE
+    o.respawnT = 150
+    o.rig.root.visible = false
+    for (const m of [...o.mines]) this.removeProjectile(m)
+    if (by !== o) {
+      by.score += KILL_SCORE
+      by.kills++
+    }
+    this.pushFeed(
+      `${by.name} ${WEAPONS[weapon]?.verb ?? "gets"} ${o.name}`,
+      by.team,
+    )
+    this.bang(o.pos.clone().add(new THREE.Vector3(0, 40, 0)), "bangdead", 900)
+    this.audio.play("death", o.pos, 1)
+    this.wreck(o)
+  }
+
+  /** porkchop.ls: 9 original W3D debris pieces (p1..p9) tumble away with smoke trails. */
+  wreck(o: Tank) {
+    for (let i = 1; i <= 9; i++) {
+      const piece = buildDebrisPiece(i)
+      piece.position.copy(o.pos).add(new THREE.Vector3(0, 24, 0))
+      piece.quaternion.copy(o.q)
+      this.scene.add(piece)
+      const v = o.vel
+        .clone()
+        .add(
+          new THREE.Vector3(
+            (Math.random() - 0.5) * 650,
+            550 + Math.random() * 550,
+            (Math.random() - 0.5) * 650,
+          ),
+        )
+      const spin = new THREE.Vector3(
+        (Math.random() - 0.5) * 8,
+        (Math.random() - 0.5) * 8,
+        (Math.random() - 0.5) * 8,
+      )
+      this.effects.push({
+        obj: piece,
+        life: 160,
+        max: 160,
+        keepGeometry: true,
+        update: (e) => {
+          v.y -= GRAVITY * DT
+          e.obj.position.addScaledVector(v, DT)
+          const g = terrainAt(this.level, e.obj.position.x, e.obj.position.z)
+          if (e.obj.position.y < g) {
+            e.obj.position.y = g
+            v.multiplyScalar(0.4)
+            v.y = Math.abs(v.y) * 0.3
+            spin.multiplyScalar(0.5)
+          }
+          e.obj.rotation.x += spin.x * DT
+          e.obj.rotation.y += spin.y * DT
+          e.obj.rotation.z += spin.z * DT
+          if (i <= 3 && this.frame % 6 === 0)
+            this.puff(e.obj.position, 110, 75, "#333333")
+        },
+      })
+    }
+  }
+
+  stepPickups() {
+    for (const p of this.pickups) {
+      if (p.respawn > 0) {
+        if (--p.respawn === 0) p.obj.visible = true
+        continue
+      }
+      p.obj.rotation.y += 0.03
+      p.obj.position.y =
+        p.pos.y + 20 + Math.sin(this.frame * 0.05 + p.pos.x) * 10
+      for (const t of this.tanks) {
+        if (t.dead || t.pos.distanceTo(p.pos) > 120) continue
+        const w = WEAPONS[p.weapon]
+        if (w.kind === "heal") t.health = Math.min(MAX_HEALTH, t.health + 60)
+        else if (w.kind === "boost") t.speedT = 600
+        else if (w.kind === "cloak") t.stealthT = 720
+        else {
+          t.weapon = w.id
+          t.ammo = w.ammo
+          t.cooldown = 10
+          updateTankWeaponRig(t.rig, t.weapon)
+        }
+        if (t.isPlayer) {
+          this.popup(
+            w.kind === "heal" ? "+60 HEALTH" : w.label.toUpperCase(),
+            "info",
+          )
+          this.audio.play("pickup", undefined, 0.8)
+        }
+        p.respawn = 900
+        p.obj.visible = false
+        break
+      }
+    }
+  }
+
+  /** capturepoint.ls: each tank in range pushes the glow by 2 towards its team every 16 frames. */
+  stepCaps() {
+    for (let idx = 0; idx < this.caps.length; idx++) {
+      const c = this.caps[idx]
+      const before = c.v
+      for (const t of this.tanks) {
+        if (
+          t.dead ||
+          Math.hypot(t.pos.x - c.pos.x, t.pos.z - c.pos.z) > CAPTURE_RADIUS
+        )
+          continue
+        c.v = THREE.MathUtils.clamp(c.v + (t.team === "blue" ? 2 : -2), 0, 255)
+      }
+      if (before !== c.v && this.mp) {
+        this.mp.send({
+          subject: "cappoint",
+          sender: this.player.name,
+          id: idx,
+          team: this.player.team,
+          val: c.v,
+          tarGlow: [(255 - c.v) / 255, 0, c.v / 255],
+        })
+      }
+      if (before !== c.v && (c.v === 255 || c.v === 0)) {
+        const team: Team = c.v === 255 ? "blue" : "red"
+        this.pushFeed(
+          `${team === "blue" ? "Blue" : "Red"} captured a point`,
+          team,
+        )
+        this.audio.play(team === this.player.team ? "c3" : "c2", undefined, 0.7)
+      }
+    }
+  }
+
+  /** endgame.ls: sum of the blue channel vs 127 * count decides the round. */
+  endRound() {
+    const total = this.caps.reduce((s, c) => s + c.v, 0)
+    const mid = 127 * this.caps.length
+    const winner: Team | "draw" =
+      total > mid ? "blue" : total < mid ? "red" : "draw"
+    this.over = {
+      winner,
+      blueShare: this.caps.length ? total / (255 * this.caps.length) : 0.5,
+    }
+    this.audio.play(
+      winner === this.player.team ? "bugle" : "endwav",
+      undefined,
+      0.9,
+    )
+    if (document.pointerLockElement === this.canvas) document.exitPointerLock()
+    this.emitHud()
+  }
+
+  // ---------------------------------------------------------------- effects
+  bang(pos: THREE.Vector3, name: string, size: number) {
+    const src = this.bangTextures[name] ?? this.bangTextures.bangrocket
+    const t = src.tex.clone()
+    t.repeat.set(1 / src.grid, 1 / src.grid)
+    t.needsUpdate = true
+    const mat = new THREE.SpriteMaterial({
+      map: t,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+    const s = new THREE.Sprite(mat)
+    s.position.copy(pos)
+    s.scale.set(size, size, 1)
+    this.scene.add(s)
+    const frames = src.grid * src.grid
+    const max = name === "bangnook" ? 64 : 24
+    this.effects.push({
+      obj: s,
+      life: max,
+      max,
+      dispose: () => {
+        t.dispose()
+        mat.dispose()
+      },
+      update: (_e, k) => {
+        const f = Math.min(frames - 1, Math.floor((1 - k) * frames))
+        t.offset.set(
+          (f % src.grid) / src.grid,
+          1 - (Math.floor(f / src.grid) + 1) / src.grid,
+        )
+      },
+    })
+    const light = new THREE.PointLight("#ffd27a", 6, size * 3, 1.5)
+    light.position.copy(pos)
+    this.scene.add(light)
+    this.effects.push({
+      obj: light,
+      life: 14,
+      max: 14,
+      update: (e, k) => ((e.obj as THREE.PointLight).intensity = 6 * k),
+    })
+  }
+
+  puff(pos: THREE.Vector3, size: number, life: number, color = "#ffffff") {
+    const m = this.puffMat.clone()
+    m.color.set(color)
+    const s = new THREE.Sprite(m)
+    s.position.copy(pos)
+    s.scale.set(size, size, 1)
+    this.scene.add(s)
+    this.effects.push({
+      obj: s,
+      life,
+      max: life,
+      dispose: () => m.dispose(),
+      update: (e, k) => {
+        e.obj.scale.setScalar(size * (2 - k))
+        m.opacity = 0.5 * k
+        e.obj.position.y += 0.6
+      },
+    })
+  }
+
+  flash(pos: THREE.Vector3, scale: number) {
+    const m = new THREE.SpriteMaterial({
+      color: "#ffd27a",
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    const s = new THREE.Sprite(m)
+    s.position.copy(pos)
+    s.scale.setScalar(50 * scale)
+    this.scene.add(s)
+    this.effects.push({ obj: s, life: 3, max: 3, dispose: () => m.dispose() })
+  }
+
+  spark(pos: THREE.Vector3, color: string) {
+    const m = new THREE.SpriteMaterial({
+      color,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    const s = new THREE.Sprite(m)
+    s.position.copy(pos)
+    s.scale.setScalar(40)
+    this.scene.add(s)
+    this.effects.push({
+      obj: s,
+      life: 8,
+      max: 8,
+      dispose: () => m.dispose(),
+      update: (e, k) => e.obj.scale.setScalar(40 * k + 10),
+    })
+  }
+
+  tracer(a: THREE.Vector3, b: THREE.Vector3, color: string, width: number) {
+    const len = a.distanceTo(b)
+    const mat = new THREE.MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    const m = new THREE.Mesh(
+      new THREE.CylinderGeometry(width, width, len, 4, 1, true),
+      mat,
+    )
+    m.position.copy(a).add(b).multiplyScalar(0.5)
+    m.quaternion.setFromUnitVectors(UP, tmpV.subVectors(b, a).normalize())
+    this.scene.add(m)
+    this.effects.push({
+      obj: m,
+      life: 4,
+      max: 4,
+      dispose: () => mat.dispose(),
+      update: (_e, k) => (mat.opacity = 0.85 * k),
+    })
+  }
+
+  stepEffects() {
+    for (let i = this.effects.length - 1; i >= 0; i--) {
+      const e = this.effects[i]
+      e.life--
+      e.update?.(e, e.life / e.max)
+      if (e.life <= 0) {
+        this.scene.remove(e.obj)
+        if (!e.keepGeometry) disposeTree(e.obj)
+        e.dispose?.()
+        this.effects.splice(i, 1)
+      }
+    }
+  }
+
+  pushFeed(text: string, team?: Team) {
+    this.feed.push({ id: this.uid++, text, team, t: this.frame })
+    if (this.feed.length > 6) this.feed.shift()
+  }
+
+  popup(text: string, kind: Popup["kind"]) {
+    this.popups.push({ id: this.uid++, text, t: this.frame, kind })
+    if (this.popups.length > 5) this.popups.shift()
+  }
+
+  // ---------------------------------------------------------------- rendering
+  render() {
+    const p = this.player
+    for (const t of this.tanks) {
+      if (t.dead) continue
+      const r = t.rig
+      updateTankWeaponRig(r, t.weapon)
+      r.root.position.copy(t.pos)
+      r.root.quaternion.copy(t.q)
+      const fwd = tmpV.set(0, 0, -1).applyQuaternion(t.q)
+      const hullYaw = Math.atan2(-fwd.x, -fwd.z)
+      r.turret.rotation.y = wrapAngle(t.aimYaw - hullYaw)
+      r.barrel.rotation.x = t.aimPitch
+      const sp = t.vel.dot(fwd)
+      for (const w of r.wheels) w.rotation.x -= (sp / 17) * DT
+      for (const w of r.frontWheels)
+        (w.parent as THREE.Object3D).rotation.y = t.input.turn * 0.4
+      r.thrustMesh.visible = t.speedT > 0
+      const shieldMat = r.shield.material as THREE.MeshBasicMaterial
+      shieldMat.opacity =
+        t.spawnProtect > 0
+          ? 0.07 + 0.05 * Math.sin(this.frame * 0.3)
+          : t.superT > 0
+            ? 0.22 + 0.1 * Math.sin(this.frame * 0.5)
+            : 0
+      shieldMat.color.copy(
+        t.superT > 0 ? new THREE.Color("#fff27a") : TEAM_COLORS[t.team],
+      )
+      const cloaked = t.stealthT > 0
+      for (const m of r.materials) {
+        m.transparent = cloaked
+        m.opacity = cloaked
+          ? t.isPlayer || t.team === p.team
+            ? 0.35
+            : 0.06
+          : 1
+      }
+    }
+    for (const c of this.caps) {
+      const col = new THREE.Color().setRGB((255 - c.v) / 255, 0, c.v / 255)
+      const gm = c.rig.glow.material as THREE.MeshBasicMaterial
+      gm.color.copy(col)
+      c.rig.core.emissive.copy(col)
+      c.rig.light.color.copy(col)
+      c.rig.glow.rotation.y += 0.004
+      if (gm.map) gm.map.offset.y = (gm.map.offset.y + 0.003) % 1
+    }
+
+    // third-person camera behind the turret aim (goody.docams)
+    if (!this.over) {
+      const yaw = p.aimYaw
+      const back = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw))
+      const want = p.pos
+        .clone()
+        .addScaledVector(back, 430)
+        .add(new THREE.Vector3(0, 175 - p.aimPitch * 260, 0))
+      const g = terrainAt(this.level, want.x, want.z) + 60
+      if (want.y < g) want.y = g
+      const look = p.pos
+        .clone()
+        .addScaledVector(back, -700)
+        .add(new THREE.Vector3(0, 60 + p.aimPitch * 700, 0))
+      if (this.camPos.lengthSq() === 0) {
+        this.camPos.copy(want)
+        this.camLook.copy(look)
+      }
+      this.camPos.lerp(want, p.dead ? 0.03 : 0.22)
+      this.camLook.lerp(look, 0.3)
+    } else {
+      const a = this.frame * 0.003
+      this.camPos.lerp(
+        new THREE.Vector3(
+          Math.cos(a) * this.level.half,
+          this.level.maxHeight + 2400,
+          Math.sin(a) * this.level.half,
+        ),
+        0.01,
+      )
+      this.camLook.lerp(new THREE.Vector3(0, 0, 0), 0.02)
+    }
+    this.camera.position.copy(this.camPos)
+    if (this.shake > 0.01) {
+      this.camera.position.add(
+        new THREE.Vector3(
+          Math.random() - 0.5,
+          Math.random() - 0.5,
+          Math.random() - 0.5,
+        ).multiplyScalar(this.shake * 40),
+      )
+      this.shake *= 0.88
+    }
+    this.camera.lookAt(this.camLook)
+    const targetFov = p.speedT > 0 ? 72 : 62
+    if (Math.abs(this.camera.fov - targetFov) > 0.05) {
+      this.camera.fov += (targetFov - this.camera.fov) * 0.05
+      this.camera.updateProjectionMatrix()
+    }
+    this.audio.listener = p.pos
+
+    this.sun.position.copy(p.pos).add(new THREE.Vector3(2000, 8000, 1500))
+    this.sun.target.position.copy(p.pos)
+    this.renderer.render(this.scene, this.camera)
+  }
+
+  emitHud() {
+    const p = this.player
+    const now = this.frame
+    const l = this.level
+    this.feed = this.feed.filter((f) => now - f.t < 60 * 8)
+    this.popups = this.popups.filter((f) => now - f.t < 90)
+    this.onHud({
+      health: Math.max(0, p.health),
+      weapon: p.weapon,
+      ammo: p.ammo,
+      uber: Math.min(100, p.uber),
+      superT: p.superT,
+      speedT: p.speedT,
+      stealthT: p.stealthT,
+      timeLeft: Math.max(0, this.timeLeft),
+      caps: this.caps.map((c) => c.v),
+      feed: [...this.feed],
+      popups: [...this.popups],
+      dead: p.dead,
+      respawnIn: Math.ceil(p.respawnT / 60),
+      spawnProtect: p.spawnProtect > 0,
+      hitMarker: this.hitMarker,
+      hurtDir: this.hurtDir,
+      scoreboard: this.tanks
+        .map((t) => ({
+          name: t.name,
+          team: t.team,
+          score: t.score,
+          kills: t.kills,
+          deaths: t.deaths,
+          isPlayer: t.isPlayer,
+          isRemote: t.isRemote,
+        }))
+        .sort((a, b) => b.score - a.score),
+      minimap: this.tanks
+        .filter((t) => !t.dead && (t.team === p.team || t.stealthT === 0))
+        .map((t) => {
+          const f = new THREE.Vector3(0, 0, -1).applyQuaternion(t.q)
+          return {
+            x: (t.pos.x + l.half) / l.width,
+            z: (t.pos.z + l.half) / l.width,
+            team: t.team,
+            isPlayer: t.isPlayer,
+            yaw: Math.atan2(f.x, -f.z),
+          }
+        }),
+      minimapCaps: this.caps.map((c) => ({
+        x: (c.pos.x + l.half) / l.width,
+        z: (c.pos.z + l.half) / l.width,
+        v: c.v,
+      })),
+      over: this.over,
+      locked: this.locked,
+      speed: Math.round(Math.hypot(p.vel.x, p.vel.z)),
+      netStatus: this.netStatus,
+    })
+  }
+}

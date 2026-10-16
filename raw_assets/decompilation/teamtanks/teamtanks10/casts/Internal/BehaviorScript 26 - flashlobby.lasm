@@ -1,0 +1,2249 @@
+property pspr, pmem, pstager, purl, pnetid, pwebstep, pausetimer, pweaponstate
+global gmplayer, nom, mus, gmusmode, gmygroup, gmaxusers, gteam, gmousediff, ghelp, ggunmode, gisloggedin, gstats, gfilter, gsession
+
+on beginSprite me
+  [  0] pushint8 1 .............................. <1>
+  [  2] pushcons 0 .............................. <"renook">
+  [  4] pusharglistnoret 2 ...................... <1, "renook">
+  [  6] extcall 100 ............................. puppetSound(1, "renook")
+  [  8] pushint8 1 .............................. <1>
+  [ 10] pusharglist 1 ........................... <1>
+  [ 12] extcall 101 ............................. <sound(1)>
+  [ 14] pushint8 50 ............................. <50>
+  [ 16] setobjprop 104 .......................... sound(1).volume = 50
+  [ 18] pushcons 1 .............................. <"loggedin">
+  [ 20] pusharglist 1 ........................... <"loggedin">
+  [ 22] extcall 52 .............................. <member("loggedin")>
+  [ 24] getobjprop 54 ........................... <member("loggedin").text>
+  [ 26] pushcons 2 .............................. <EMPTY>
+  [ 28] nteq .................................... <member("loggedin").text <> EMPTY>
+  [ 29] jmpifz [ 70] ............................ if member("loggedin").text <> EMPTY then / else
+  [ 32] pushint8 1 .............................. <1>
+  [ 34] setglobal 191 ........................... gisloggedin = 1
+  [ 36] pushcons 1 .............................. <"loggedin">
+  [ 38] pusharglist 1 ........................... <"loggedin">
+  [ 40] extcall 52 .............................. <member("loggedin")>
+  [ 42] getobjprop 54 ........................... <member("loggedin").text>
+  [ 44] setglobal 190 ........................... gsession = member("loggedin").text
+  [ 46] pushcons 3 .............................. <"dataminer">
+  [ 48] pusharglist 1 ........................... <"dataminer">
+  [ 50] extcall 303 ............................. <script("dataminer")>
+  [ 53] pusharglist 1 ........................... <script("dataminer")>
+  [ 55] objcall 265 ............................. <script("dataminer").new()>
+  [ 58] setlocal 0 .............................. vdataload = script("dataminer").new()
+  [ 60] getlocal 0 .............................. <vdataload>
+  [ 62] pushcons 4 .............................. <"getmytank">
+  [ 64] setobjprop 358 .......................... vdataload.pstate = "getmytank"
+  [ 67] jmp [ 82]
+  [ 70] pushcons 3 .............................. <"dataminer">
+  [ 72] pusharglist 1 ........................... <"dataminer">
+  [ 74] extcall 303 ............................. <script("dataminer")>
+  [ 77] pusharglistnoret 1 ...................... <script("dataminer")>
+  [ 79] objcall 265 ............................. script("dataminer").new()
+  [ 82] getparam 0 .............................. <me>
+  [ 84] getobjprop 944 .......................... <me.spriteNum>
+  [ 87] pusharglist 1 ........................... <me.spriteNum>
+  [ 89] extcall 282 ............................. <sprite(me.spriteNum)>
+  [ 92] setprop 1117 ............................ pspr = sprite(me.spriteNum)
+  [ 95] pushint8 1 .............................. <1>
+  [ 97] setglobal 675 ........................... gmousediff = 1
+  [100] pushint8 1 .............................. <1>
+  [102] setglobal 651 ........................... ghelp = 1
+  [105] gettoplevelprop 195 ..................... <_player>
+  [107] pushcons 5 .............................. <"teamtanks">
+  [109] pusharglist 2 ........................... <_player, "teamtanks">
+  [111] objcall 594 ............................. <_player.getPref("teamtanks")>
+  [114] setlocal 1 .............................. vcheckpref = _player.getPref("teamtanks")
+  [116] getlocal 1 .............................. <vcheckpref>
+  [118] pushcons 6 .............................. <"0">
+  [120] nteq .................................... <vcheckpref <> "0">
+  [121] getlocal 1 .............................. <vcheckpref>
+  [123] pusharglist 1 ........................... <vcheckpref>
+  [125] extcall 55 .............................. <voidp(vcheckpref)>
+  [127] not ..................................... <not voidp(vcheckpref)>
+  [128] and ..................................... <(vcheckpref <> "0") and not voidp(vcheckpref)>
+  [129] pushcons 2 .............................. <EMPTY>
+  [131] getlocal 1 .............................. <vcheckpref>
+  [133] joinstr ................................. <EMPTY & vcheckpref>
+  [134] pushcons 2 .............................. <EMPTY>
+  [136] nteq .................................... <(EMPTY & vcheckpref) <> EMPTY>
+  [137] and ..................................... <(vcheckpref <> "0") and not voidp(vcheckpref) and ((EMPTY & vcheckpref) <> EMPTY)>
+  [138] jmpifz [274] ............................ if (vcheckpref <> "0") and not voidp(vcheckpref) and ((EMPTY & vcheckpref) <> EMPTY) then / else
+  [141] gettoplevelprop 195 ..................... <_player>
+  [143] pushcons 5 .............................. <"teamtanks">
+  [145] pusharglist 2 ........................... <_player, "teamtanks">
+  [147] objcall 594 ............................. <_player.getPref("teamtanks")>
+  [150] pusharglist 1 ........................... <_player.getPref("teamtanks")>
+  [152] extcall 62 .............................. <value(_player.getPref("teamtanks"))>
+  [154] setlocal 2 .............................. vprefs = value(_player.getPref("teamtanks"))
+  [156] getlocal 2 .............................. <vprefs>
+  [158] pushint8 1 .............................. <1>
+  [160] pusharglist 2 ........................... <vprefs, 1>
+  [162] objcall 73 .............................. <vprefs[1]>
+  [164] pusharglist 1 ........................... <vprefs[1]>
+  [166] extcall 97 .............................. <float(vprefs[1])>
+  [168] pushint8 100 ............................ <100>
+  [170] div ..................................... <float(vprefs[1]) / 100>
+  [171] pushfloat32 0.5 ......................... <0.5>
+  [176] add ..................................... <(float(vprefs[1]) / 100) + 0.5>
+  [177] setglobal 675 ........................... gmousediff = (float(vprefs[1]) / 100) + 0.5
+  [180] getlocal 2 .............................. <vprefs>
+  [182] pushint8 2 .............................. <2>
+  [184] pusharglist 2 ........................... <vprefs, 2>
+  [186] objcall 73 .............................. <vprefs[2]>
+  [188] setglobal 651 ........................... ghelp = vprefs[2]
+  [191] getlocal 2 .............................. <vprefs>
+  [193] getobjprop 72 ........................... <vprefs.count>
+  [195] pushint8 2 .............................. <2>
+  [197] gt ...................................... <vprefs.count > 2>
+  [198] jmpifz [241] ............................ if vprefs.count > 2 then / else
+  [201] getlocal 2 .............................. <vprefs>
+  [203] pushint8 3 .............................. <3>
+  [205] pusharglist 2 ........................... <vprefs, 3>
+  [207] objcall 73 .............................. <vprefs[3]>
+  [209] setglobal 625 ........................... ggunmode = vprefs[3]
+  [212] pushcons 7 .............................. <"_root.gunmode">
+  [214] getglobal 625 ........................... <ggunmode>
+  [217] pusharglist 1 ........................... <ggunmode>
+  [219] extcall 59 .............................. <string(ggunmode)>
+  [221] pusharglistnoret 2 ...................... <"_root.gunmode", string(ggunmode)>
+  [223] extcall 248 ............................. setflash("_root.gunmode", string(ggunmode))
+  [225] pushcons 8 .............................. <"_root.help">
+  [227] getglobal 651 ........................... <ghelp>
+  [230] pusharglist 1 ........................... <ghelp>
+  [232] extcall 59 .............................. <string(ghelp)>
+  [234] pusharglistnoret 2 ...................... <"_root.help", string(ghelp)>
+  [236] extcall 248 ............................. setflash("_root.help", string(ghelp))
+  [238] jmp [253]
+  [241] pushcons 8 .............................. <"_root.help">
+  [243] pushint8 1 .............................. <1>
+  [245] pusharglist 1 ........................... <1>
+  [247] extcall 59 .............................. <string(1)>
+  [249] pusharglistnoret 2 ...................... <"_root.help", string(1)>
+  [251] extcall 248 ............................. setflash("_root.help", string(1))
+  [253] pushcons 9 .............................. <"_root.mousediff">
+  [255] getlocal 2 .............................. <vprefs>
+  [257] pushint8 1 .............................. <1>
+  [259] pusharglist 2 ........................... <vprefs, 1>
+  [261] objcall 73 .............................. <vprefs[1]>
+  [263] pusharglist 1 ........................... <vprefs[1]>
+  [265] extcall 59 .............................. <string(vprefs[1])>
+  [267] pusharglistnoret 2 ...................... <"_root.mousediff", string(vprefs[1])>
+  [269] extcall 248 ............................. setflash("_root.mousediff", string(vprefs[1]))
+  [271] jmp [312]
+  [274] pushint8 1 .............................. <1>
+  [276] setglobal 675 ........................... gmousediff = 1
+  [279] pushint8 1 .............................. <1>
+  [281] setglobal 651 ........................... ghelp = 1
+  [284] pushzero ................................ <0>
+  [285] setglobal 625 ........................... ggunmode = 0
+  [288] pushcons 9 .............................. <"_root.mousediff">
+  [290] pushcons 10 ............................. <"50">
+  [292] pusharglistnoret 2 ...................... <"_root.mousediff", "50">
+  [294] extcall 248 ............................. setflash("_root.mousediff", "50")
+  [296] pushcons 8 .............................. <"_root.help">
+  [298] pushcons 11 ............................. <"1">
+  [300] pusharglistnoret 2 ...................... <"_root.help", "1">
+  [302] extcall 248 ............................. setflash("_root.help", "1")
+  [304] pushcons 7 .............................. <"_root.gunmode">
+  [306] pushcons 6 .............................. <"0">
+  [308] pusharglistnoret 2 ...................... <"_root.gunmode", "0">
+  [310] extcall 248 ............................. setflash("_root.gunmode", "0")
+  [312] getglobal 68 ............................ <gteam>
+  [314] pusharglist 1 ........................... <gteam>
+  [316] extcall 55 .............................. <voidp(gteam)>
+  [318] jmpifz [325] ............................ if voidp(gteam) then
+  [321] pushsymb 69 ............................. <#red>
+  [323] setglobal 68 ............................ gteam = #red
+  [325] pushcons 12 ............................. <"_root.who">
+  [327] getglobal 68 ............................ <gteam>
+  [329] pusharglist 1 ........................... <gteam>
+  [331] extcall 59 .............................. <string(gteam)>
+  [333] pusharglistnoret 2 ...................... <"_root.who", string(gteam)>
+  [335] extcall 248 ............................. setflash("_root.who", string(gteam))
+  [337] getglobal 67 ............................ <nom>
+  [339] pusharglist 0 ........................... <>
+  [341] extcall 66 .............................. <VOID>
+  [343] nteq .................................... <nom <> VOID>
+  [344] jmpifz [362] ............................ if nom <> VOID then / else
+  [347] pushcons 13 ............................. <"_root.codename">
+  [349] getglobal 67 ............................ <nom>
+  [351] pusharglist 1 ........................... <nom>
+  [353] extcall 59 .............................. <string(nom)>
+  [355] pusharglistnoret 2 ...................... <"_root.codename", string(nom)>
+  [357] extcall 248 ............................. setflash("_root.codename", string(nom))
+  [359] jmp [370]
+  [362] pushcons 13 ............................. <"_root.codename">
+  [364] pushcons 2 .............................. <EMPTY>
+  [366] pusharglistnoret 2 ...................... <"_root.codename", EMPTY>
+  [368] extcall 248 ............................. setflash("_root.codename", EMPTY)
+  [370] pushcons 14 ............................. <"http://www.gamevial.com/data/gamecomms.php">
+  [372] setprop 1012 ............................ purl = "http://www.gamevial.com/data/gamecomms.php"
+  [375] pushzero ................................ <0>
+  [376] setprop 1013 ............................ pnetid = 0
+  [379] pushzero ................................ <0>
+  [380] setprop 1118 ............................ pwebstep = 0
+  [383] pushzero ................................ <0>
+  [384] pushint8 8 .............................. <8>
+  [386] set 7 ................................... set the exitLock to 0
+  [388] ret
+end
+
+on exitFrame me
+  [  0] getglobal 278 ........................... <gmusmode>
+  [  3] pushcons 15 ............................. <"game">
+  [  5] eq ...................................... <gmusmode = "game">
+  [  6] jmpifz [ 18] ............................ if gmusmode = "game" then / else
+  [  9] pushint8 3 .............................. <3>
+  [ 11] pusharglistnoret 1 ...................... <3>
+  [ 13] extcall 193 ............................. go(3)
+  [ 15] jmp [4527]
+  [ 18] pushcons 16 ............................. <"_root.state">
+  [ 20] pusharglist 1 ........................... <"_root.state">
+  [ 22] extcall 249 ............................. <getflash("_root.state")>
+  [ 24] setlocal 0 .............................. vstate = getflash("_root.state")
+  [ 26] getlocal 0 .............................. <vstate>
+  [ 28] peek 0 .................................. case vstate of
+  [ 30] pushcons 17 ............................. <"exit">
+  [ 32] eq
+  [ 33] jmpifz [ 51] ............................ (case) "exit":
+  [ 36] pusharglistnoret 0 ...................... <>
+  [ 38] extcall 28 .............................. exitgame()
+  [ 40] pushcons 16 ............................. <"_root.state">
+  [ 42] pushcons 18 ............................. <"wait">
+  [ 44] pusharglistnoret 2 ...................... <"_root.state", "wait">
+  [ 46] extcall 248 ............................. setflash("_root.state", "wait")
+  [ 48] jmp [4455]
+  [ 51] peek 0
+  [ 53] pushcons 19 ............................. <"start">
+  [ 55] eq
+  [ 56] jmpifz [179] ............................ (case) "start":
+  [ 59] pushcons 20 ............................. <"datacal">
+  [ 61] pusharglist 1 ........................... <"datacal">
+  [ 63] extcall 52 .............................. <member("datacal")>
+  [ 65] getobjprop 54 ........................... <member("datacal").text>
+  [ 67] pushcons 2 .............................. <EMPTY>
+  [ 69] nteq .................................... <member("datacal").text <> EMPTY>
+  [ 70] jmpifz [176] ............................ if member("datacal").text <> EMPTY then
+  [ 73] pushcons 21 ............................. <"lasergun">
+  [ 75] pushcons 22 ............................. <"mgunx2">
+  [ 77] pushcons 23 ............................. <"rocketx4">
+  [ 79] pushcons 24 ............................. <"remotemine">
+  [ 81] pushcons 25 ............................. <"sonicgun">
+  [ 83] pushcons 26 ............................. <"guidedmissile">
+  [ 85] pushcons 27 ............................. <"thrusters">
+  [ 87] pushcons 28 ............................. <"mortar">
+  [ 89] pushcons 29 ............................. <"airstrike">
+  [ 91] pushcons 30 ............................. <"rcbomb">
+  [ 93] pushcons 31 ............................. <"rcrocket">
+  [ 95] pushcons 32 ............................. <"health">
+  [ 97] pushcons 33 ............................. <"stealth">
+  [ 99] pusharglist 13 .......................... <["lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth"]>
+  [101] pushlist ................................ <["lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth"]>
+  [102] setlocal 1 .............................. vallpremweaps = ["lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth"]
+  [104] pushcons 20 ............................. <"datacal">
+  [106] pusharglist 1 ........................... <"datacal">
+  [108] extcall 52 .............................. <member("datacal")>
+  [110] getobjprop 54 ........................... <member("datacal").text>
+  [112] setlocal 2 .............................. vnom = member("datacal").text
+  [114] pushcons 34 ............................. <";">
+  [116] setmovieprop 363 ........................ the itemDelimiter = ";"
+  [119] getlocal 2 .............................. <vnom>
+  [121] pushsymb 364 ............................ <#item>
+  [124] pushint8 3 .............................. <3>
+  [126] pusharglist 3 ........................... <vnom, #item, 3>
+  [128] objcall 122 ............................. <vnom.item[3]>
+  [130] pusharglist 1 ........................... <vnom.item[3]>
+  [132] extcall 96 .............................. <integer(vnom.item[3])>
+  [134] setlocal 3 .............................. vday = integer(vnom.item[3])
+  [136] getlocal 3 .............................. <vday>
+  [138] pushint8 13 ............................. <13>
+  [140] mod ..................................... <vday mod 13>
+  [141] setlocal 4 .............................. vnum = vday mod 13
+  [143] getlocal 4 .............................. <vnum>
+  [145] pushzero ................................ <0>
+  [146] eq ...................................... <vnum = 0>
+  [147] jmpifz [154] ............................ if vnum = 0 then
+  [150] pushint8 13 ............................. <13>
+  [152] setlocal 4 .............................. vnum = 13
+  [154] pushcons 35 ............................. <"_root.freebee">
+  [156] getlocal 1 .............................. <vallpremweaps>
+  [158] getlocal 4 .............................. <vnum>
+  [160] pusharglist 2 ........................... <vallpremweaps, vnum>
+  [162] objcall 73 .............................. <vallpremweaps[vnum]>
+  [164] pusharglistnoret 2 ...................... <"_root.freebee", vallpremweaps[vnum]>
+  [166] extcall 248 ............................. setflash("_root.freebee", vallpremweaps[vnum])
+  [168] pushcons 16 ............................. <"_root.state">
+  [170] pushcons 18 ............................. <"wait">
+  [172] pusharglistnoret 2 ...................... <"_root.state", "wait">
+  [174] extcall 248 ............................. setflash("_root.state", "wait")
+  [176] jmp [4455]
+  [179] peek 0
+  [181] pushcons 36 ............................. <"getcodename">
+  [183] eq
+  [184] jmpifz [203] ............................ (case) "getcodename":
+  [187] getglobal 191 ........................... <gisloggedin>
+  [189] jmpifz [200] ............................ if gisloggedin then
+  [192] pushcons 16 ............................. <"_root.state">
+  [194] pushcons 37 ............................. <"getroom">
+  [196] pusharglistnoret 2 ...................... <"_root.state", "getroom">
+  [198] extcall 248 ............................. setflash("_root.state", "getroom")
+  [200] jmp [4455]
+  [203] peek 0
+  [205] pushcons 38 ............................. <"weapons">
+  [207] eq
+  [208] jmpifz [1051] ........................... (case) "weapons":
+  [211] getprop 1117 ............................ <pspr>
+  [214] getchainedprop 586 ...................... <pspr.weaponry>
+  [217] getobjprop 1121 ......................... <pspr.weaponry.state>
+  [220] pusharglist 1 ........................... <pspr.weaponry.state>
+  [222] extcall 59 .............................. <string(pspr.weaponry.state)>
+  [224] setlocal 5 .............................. vweaponstate = string(pspr.weaponry.state)
+  [226] getlocal 5 .............................. <vweaponstate>
+  [228] peek 0 .................................. case vweaponstate of
+  [230] pushcons 39 ............................. <"init">
+  [232] eq
+  [233] jmpifz [601] ............................ (case) "init":
+  [236] pushcons 40 ............................. <"datame">
+  [238] pusharglist 1 ........................... <"datame">
+  [240] extcall 52 .............................. <member("datame")>
+  [242] getobjprop 54 ........................... <member("datame").text>
+  [244] pushcons 2 .............................. <EMPTY>
+  [246] nteq .................................... <member("datame").text <> EMPTY>
+  [247] jmpifz [292] ............................ if member("datame").text <> EMPTY then / else
+  [250] pushcons 34 ............................. <";">
+  [252] setmovieprop 363 ........................ the itemDelimiter = ";"
+  [255] pushcons 40 ............................. <"datame">
+  [257] pusharglist 1 ........................... <"datame">
+  [259] extcall 52 .............................. <member("datame")>
+  [261] getchainedprop 54 ....................... <member("datame").text>
+  [263] pushsymb 364 ............................ <#item>
+  [266] pushint8 2 .............................. <2>
+  [268] pusharglist 3 ........................... <member("datame").text, #item, 2>
+  [270] objcall 122 ............................. <member("datame").text.item[2]>
+  [272] setlocal 6 .............................. vbeans = member("datame").text.item[2]
+  [274] getprop 1117 ............................ <pspr>
+  [277] getchainedprop 586 ...................... <pspr.weaponry>
+  [280] getlocal 6 .............................. <vbeans>
+  [282] pusharglist 1 ........................... <vbeans>
+  [284] extcall 96 .............................. <integer(vbeans)>
+  [286] setobjprop 1122 ......................... pspr.weaponry.mycredits = integer(vbeans)
+  [289] jmp [306]
+  [292] getprop 1117 ............................ <pspr>
+  [295] getchainedprop 586 ...................... <pspr.weaponry>
+  [298] pushzero ................................ <0>
+  [299] pusharglist 1 ........................... <0>
+  [301] extcall 96 .............................. <integer(0)>
+  [303] setobjprop 1122 ......................... pspr.weaponry.mycredits = integer(0)
+  [306] pushcons 41 ............................. <"mgun">
+  [308] pushcons 42 ............................. <"bgun">
+  [310] pushcons 43 ............................. <"nook">
+  [312] pushcons 44 ............................. <"rocket">
+  [314] pushcons 45 ............................. <"proximitymine">
+  [316] pushcons 46 ............................. <"speed">
+  [318] pusharglist 6 ........................... <["mgun", "bgun", "nook", "rocket", "proximitymine", "speed"]>
+  [320] pushlist ................................ <["mgun", "bgun", "nook", "rocket", "proximitymine", "speed"]>
+  [321] setlocal 7 .............................. vweaplist = ["mgun", "bgun", "nook", "rocket", "proximitymine", "speed"]
+  [323] pushcons 47 ............................. <"dataweapons">
+  [325] pusharglist 1 ........................... <"dataweapons">
+  [327] extcall 52 .............................. <member("dataweapons")>
+  [329] getobjprop 54 ........................... <member("dataweapons").text>
+  [331] pushcons 2 .............................. <EMPTY>
+  [333] nteq .................................... <member("dataweapons").text <> EMPTY>
+  [334] jmpifz [457] ............................ if member("dataweapons").text <> EMPTY then
+  [337] pushcons 47 ............................. <"dataweapons">
+  [339] pusharglist 1 ........................... <"dataweapons">
+  [341] extcall 52 .............................. <member("dataweapons")>
+  [343] getobjprop 54 ........................... <member("dataweapons").text>
+  [345] setlocal 2 .............................. vnom = member("dataweapons").text
+  [347] pushcons 34 ............................. <";">
+  [349] setmovieprop 363 ........................ the itemDelimiter = ";"
+  [352] pusharglist 0 ........................... <[]>
+  [354] pushlist ................................ <[]>
+  [355] setlocal 8 .............................. vbits = []
+  [357] pushint8 2 .............................. <2>
+  [359] setlocal 9
+  [361] getlocal 9
+  [363] getlocal 2 .............................. <vnom>
+  [365] pushsymb 364 ............................ <#item>
+  [368] pusharglist 2 ........................... <vnom, #item>
+  [370] objcall 72 .............................. <vnom.item.count>
+  [372] lteq
+  [373] jmpifz [402] ............................ repeat with i = 2 to vnom.item.count
+  [376] getlocal 8 .............................. <vbits>
+  [378] getlocal 2 .............................. <vnom>
+  [380] pushsymb 364 ............................ <#item>
+  [383] getlocal 9 .............................. <i>
+  [385] pusharglist 3 ........................... <vnom, #item, i>
+  [387] objcall 122 ............................. <vnom.item[i]>
+  [389] pusharglistnoret 2 ...................... <vbits, vnom.item[i]>
+  [391] objcall 154 ............................. vbits.add(vnom.item[i])
+  [393] pushint8 1
+  [395] getlocal 9
+  [397] add
+  [398] setlocal 9
+  [400] endrepeat [361]
+  [402] pushcons 48 ............................. <":">
+  [404] setmovieprop 363 ........................ the itemDelimiter = ":"
+  [407] pushint8 1 .............................. <1>
+  [409] setlocal 9
+  [411] getlocal 9
+  [413] getlocal 8 .............................. <vbits>
+  [415] getobjprop 72 ........................... <vbits.count>
+  [417] lteq
+  [418] jmpifz [457] ............................ repeat with i = 1 to vbits.count
+  [421] getlocal 8 .............................. <vbits>
+  [423] getlocal 9 .............................. <i>
+  [425] pusharglist 2 ........................... <vbits, i>
+  [427] objcall 73 .............................. <vbits[i]>
+  [429] setlocal 10 ............................. vvnom = vbits[i]
+  [431] getlocal 7 .............................. <vweaplist>
+  [433] getlocal 10 ............................. <vvnom>
+  [435] pushsymb 364 ............................ <#item>
+  [438] pushint8 1 .............................. <1>
+  [440] pusharglist 3 ........................... <vvnom, #item, 1>
+  [442] objcall 122 ............................. <vvnom.item[1]>
+  [444] pusharglistnoret 2 ...................... <vweaplist, vvnom.item[1]>
+  [446] objcall 154 ............................. vweaplist.add(vvnom.item[1])
+  [448] pushint8 1
+  [450] getlocal 9
+  [452] add
+  [453] setlocal 9
+  [455] endrepeat [411]
+  [457] pushcons 41 ............................. <"mgun">
+  [459] pushcons 42 ............................. <"bgun">
+  [461] pushcons 43 ............................. <"nook">
+  [463] pushcons 44 ............................. <"rocket">
+  [465] pushcons 45 ............................. <"proximitymine">
+  [467] pushcons 46 ............................. <"speed">
+  [469] pushcons 21 ............................. <"lasergun">
+  [471] pushcons 22 ............................. <"mgunx2">
+  [473] pushcons 23 ............................. <"rocketx4">
+  [475] pushcons 24 ............................. <"remotemine">
+  [477] pushcons 25 ............................. <"sonicgun">
+  [479] pushcons 26 ............................. <"guidedmissile">
+  [481] pushcons 27 ............................. <"thrusters">
+  [483] pushcons 28 ............................. <"mortar">
+  [485] pushcons 29 ............................. <"airstrike">
+  [487] pushcons 30 ............................. <"rcbomb">
+  [489] pushcons 31 ............................. <"rcrocket">
+  [491] pushcons 32 ............................. <"health">
+  [493] pushcons 33 ............................. <"stealth">
+  [495] pushcons 49 ............................. <"blank">
+  [497] pusharglist 20 .......................... <["mgun", "bgun", "nook", "rocket", "proximitymine", "speed", "lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth", "blank"]>
+  [499] pushlist ................................ <["mgun", "bgun", "nook", "rocket", "proximitymine", "speed", "lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth", "blank"]>
+  [500] setlocal 11 ............................. vallweaps = ["mgun", "bgun", "nook", "rocket", "proximitymine", "speed", "lasergun", "mgunx2", "rocketx4", "remotemine", "sonicgun", "guidedmissile", "thrusters", "mortar", "airstrike", "rcbomb", "rcrocket", "health", "stealth", "blank"]
+  [502] pushint8 1 .............................. <1>
+  [504] setlocal 9
+  [506] getlocal 9
+  [508] getlocal 11 ............................. <vallweaps>
+  [510] getobjprop 72 ........................... <vallweaps.count>
+  [512] lteq
+  [513] jmpifz [576] ............................ repeat with i = 1 to vallweaps.count
+  [516] getlocal 7 .............................. <vweaplist>
+  [518] getlocal 11 ............................. <vallweaps>
+  [520] getlocal 9 .............................. <i>
+  [522] pusharglist 2 ........................... <vallweaps, i>
+  [524] objcall 73 .............................. <vallweaps[i]>
+  [526] pusharglist 2 ........................... <vweaplist, vallweaps[i]>
+  [528] objcall 111 ............................. <vweaplist.getOne(vallweaps[i])>
+  [530] jmpifz [552] ............................ if vweaplist.getOne(vallweaps[i]) then
+  [533] getprop 1117 ............................ <pspr>
+  [536] getchainedprop 586 ...................... <pspr.weaponry>
+  [539] getchainedprop 1123 ..................... <pspr.weaponry.vlocks>
+  [542] pushint8 1 .............................. <1>
+  [544] pusharglistnoret 2 ...................... <pspr.weaponry.vlocks, 1>
+  [546] objcall 731 ............................. pspr.weaponry.vlocks.push(1)
+  [549] jmp [567] ............................... next repeat
+  [552] getprop 1117 ............................ <pspr>
+  [555] getchainedprop 586 ...................... <pspr.weaponry>
+  [558] getchainedprop 1123 ..................... <pspr.weaponry.vlocks>
+  [561] pushzero ................................ <0>
+  [562] pusharglistnoret 2 ...................... <pspr.weaponry.vlocks, 0>
+  [564] objcall 731 ............................. pspr.weaponry.vlocks.push(0)
+  [567] pushint8 1
+  [569] getlocal 9
+  [571] add
+  [572] setlocal 9
+  [574] endrepeat [506]
+  [576] getprop 1117 ............................ <pspr>
+  [579] getchainedprop 586 ...................... <pspr.weaponry>
+  [582] pusharglistnoret 1 ...................... <pspr.weaponry>
+  [584] objcall 1124 ............................ pspr.weaponry.sortshop()
+  [587] getprop 1117 ............................ <pspr>
+  [590] getchainedprop 586 ...................... <pspr.weaponry>
+  [593] pushcons 50 ............................. <"shopping">
+  [595] setobjprop 1121 ......................... pspr.weaponry.state = "shopping"
+  [598] jmp [1026]
+  [601] peek 0
+  [603] pushcons 50 ............................. <"shopping">
+  [605] eq
+  [606] jmpifz [612] ............................ (case) "shopping":
+  [609] jmp [1026]
+  [612] peek 0
+  [614] pushcons 51 ............................. <"buycoins">
+  [616] eq
+  [617] jmpifz [684] ............................ (case) "buycoins":
+  [620] getprop 1117 ............................ <pspr>
+  [623] pushcons 52 ............................. <"_root.psubmit">
+  [625] pusharglist 2 ........................... <pspr, "_root.psubmit">
+  [627] extcall 286 ............................. <getVariable(pspr, "_root.psubmit")>
+  [630] pusharglist 1 ........................... <getVariable(pspr, "_root.psubmit")>
+  [632] extcall 59 .............................. <string(getVariable(pspr, "_root.psubmit"))>
+  [634] setlocal 12 ............................. psubmit = string(getVariable(pspr, "_root.psubmit"))
+  [636] getlocal 12 ............................. <psubmit>
+  [638] pushcons 53 ............................. <"true">
+  [640] eq ...................................... <psubmit = "true">
+  [641] jmpifz [681] ............................ if psubmit = "true" then
+  [644] pushcons 54 ............................. <"buy buy">
+  [646] pusharglistnoret 1 ...................... <"buy buy">
+  [648] extcall 121 ............................. alert("buy buy")
+  [650] pushcons 55 ............................. <"http://www.gamevial.com/data/shopzone.php">
+  [652] pushcons 56 ............................. <"_blank">
+  [654] pusharglistnoret 2 ...................... <"http://www.gamevial.com/data/shopzone.php", "_blank">
+  [656] extcall 189 ............................. gotoNetPage("http://www.gamevial.com/data/shopzone.php", "_blank")
+  [658] getprop 1117 ............................ <pspr>
+  [661] pushcons 52 ............................. <"_root.psubmit">
+  [663] pushcons 57 ............................. <"false">
+  [665] pusharglistnoret 3 ...................... <pspr, "_root.psubmit", "false">
+  [667] extcall 283 ............................. setVariable(pspr, "_root.psubmit", "false")
+  [670] getprop 1117 ............................ <pspr>
+  [673] getchainedprop 586 ...................... <pspr.weaponry>
+  [676] pushcons 2 .............................. <EMPTY>
+  [678] setobjprop 1121 ......................... pspr.weaponry.state = EMPTY
+  [681] jmp [1026]
+  [684] peek 0
+  [686] pushcons 58 ............................. <"buyweapons">
+  [688] eq
+  [689] jmpifz [1018] ........................... (case) "buyweapons":
+  [692] getprop 1118 ............................ <pwebstep>
+  [695] pushzero ................................ <0>
+  [696] eq ...................................... <pwebstep = 0>
+  [697] jmpifz [793] ............................ if pwebstep = 0 then / else
+  [700] getprop 1117 ............................ <pspr>
+  [703] pushcons 52 ............................. <"_root.psubmit">
+  [705] pusharglist 2 ........................... <pspr, "_root.psubmit">
+  [707] extcall 286 ............................. <getVariable(pspr, "_root.psubmit")>
+  [710] pusharglist 1 ........................... <getVariable(pspr, "_root.psubmit")>
+  [712] extcall 59 .............................. <string(getVariable(pspr, "_root.psubmit"))>
+  [714] setlocal 12 ............................. psubmit = string(getVariable(pspr, "_root.psubmit"))
+  [716] getlocal 12 ............................. <psubmit>
+  [718] pushcons 53 ............................. <"true">
+  [720] eq ...................................... <psubmit = "true">
+  [721] jmpifz [790] ............................ if psubmit = "true" then
+  [724] getprop 1117 ............................ <pspr>
+  [727] getchainedprop 586 ...................... <pspr.weaponry>
+  [730] getobjprop 385 .......................... <pspr.weaponry.vweaplist>
+  [733] pusharglist 1 ........................... <pspr.weaponry.vweaplist>
+  [735] extcall 59 .............................. <string(pspr.weaponry.vweaplist)>
+  [737] setlocal 13 ............................. vweaps = string(pspr.weaponry.vweaplist)
+  [739] pushcons 59 ............................. <"action">
+  [741] pushcons 60 ............................. <"purchase">
+  [743] pushcons 15 ............................. <"game">
+  [745] pushcons 5 .............................. <"teamtanks">
+  [747] pushcons 61 ............................. <"items">
+  [749] getlocal 13 ............................. <vweaps>
+  [751] pushcons 62 ............................. <"sessionID">
+  [753] getglobal 190 ........................... <gsession>
+  [755] pusharglist 8 ........................... <["action": "purchase", "game": "teamtanks", "items": vweaps, "sessionID": gsession]>
+  [757] pushproplist ............................ <["action": "purchase", "game": "teamtanks", "items": vweaps, "sessionID": gsession]>
+  [758] setlocal 14 ............................. vcont = ["action": "purchase", "game": "teamtanks", "items": vweaps, "sessionID": gsession]
+  [760] getprop 1012 ............................ <purl>
+  [763] getlocal 14 ............................. <vcont>
+  [765] pusharglist 2 ........................... <purl, vcont>
+  [767] extcall 1053 ............................ <postNetText(purl, vcont)>
+  [770] setprop 1013 ............................ pnetid = postNetText(purl, vcont)
+  [773] getprop 1117 ............................ <pspr>
+  [776] pushcons 52 ............................. <"_root.psubmit">
+  [778] pushcons 57 ............................. <"false">
+  [780] pusharglistnoret 3 ...................... <pspr, "_root.psubmit", "false">
+  [782] extcall 283 ............................. setVariable(pspr, "_root.psubmit", "false")
+  [785] pushint8 1 .............................. <1>
+  [787] setprop 1118 ............................ pwebstep = 1
+  [790] jmp [1015]
+  [793] getprop 1013 ............................ <pnetid>
+  [796] pusharglist 1 ........................... <pnetid>
+  [798] extcall 1020 ............................ <netDone(pnetid)>
+  [801] jmpifz [1011] ........................... if netDone(pnetid) then / else
+  [804] getprop 1013 ............................ <pnetid>
+  [807] pusharglist 1 ........................... <pnetid>
+  [809] extcall 1021 ............................ <netError(pnetid)>
+  [812] pushcons 63 ............................. <"OK">
+  [814] eq ...................................... <netError(pnetid) = "OK">
+  [815] jmpifz [989] ............................ if netError(pnetid) = "OK" then / else
+  [818] getprop 1013 ............................ <pnetid>
+  [821] pusharglist 1 ........................... <pnetid>
+  [823] extcall 1022 ............................ <netTextResult(pnetid)>
+  [826] setlocal 15 ............................. Msg = netTextResult(pnetid)
+  [828] pushcons 34 ............................. <";">
+  [830] setmovieprop 363 ........................ the itemDelimiter = ";"
+  [833] getlocal 15 ............................. <Msg>
+  [835] pushsymb 364 ............................ <#item>
+  [838] pushint8 1 .............................. <1>
+  [840] pusharglist 3 ........................... <Msg, #item, 1>
+  [842] objcall 122 ............................. <Msg.item[1]>
+  [844] pushcons 11 ............................. <"1">
+  [846] eq ...................................... <Msg.item[1] = "1">
+  [847] jmpifz [876] ............................ if Msg.item[1] = "1" then / else
+  [850] pushcons 47 ............................. <"dataweapons">
+  [852] pusharglist 1 ........................... <"dataweapons">
+  [854] extcall 52 .............................. <member("dataweapons")>
+  [856] getlocal 15 ............................. <Msg>
+  [858] setobjprop 54 ........................... member("dataweapons").text = Msg
+  [860] getprop 1117 ............................ <pspr>
+  [863] getchainedprop 586 ...................... <pspr.weaponry>
+  [866] pushint8 4 .............................. <4>
+  [868] pusharglistnoret 2 ...................... <pspr.weaponry, 4>
+  [870] objcall 1125 ............................ pspr.weaponry.gotoAndStop(4)
+  [873] jmp [982]
+  [876] pushcons 47 ............................. <"dataweapons">
+  [878] pusharglist 1 ........................... <"dataweapons">
+  [880] extcall 52 .............................. <member("dataweapons")>
+  [882] pushcons 2 .............................. <EMPTY>
+  [884] setobjprop 54 ........................... member("dataweapons").text = EMPTY
+  [886] getlocal 15 ............................. <Msg>
+  [888] pushsymb 364 ............................ <#item>
+  [891] pushint8 1 .............................. <1>
+  [893] pusharglist 3 ........................... <Msg, #item, 1>
+  [895] objcall 122 ............................. <Msg.item[1]>
+  [897] pushcons 6 .............................. <"0">
+  [899] eq ...................................... <Msg.item[1] = "0">
+  [900] jmpifz [982] ............................ if Msg.item[1] = "0" then
+  [903] getlocal 15 ............................. <Msg>
+  [905] pushsymb 364 ............................ <#item>
+  [908] pushint8 2 .............................. <2>
+  [910] pusharglist 3 ........................... <Msg, #item, 2>
+  [912] objcall 122 ............................. <Msg.item[2]>
+  [914] pushcons 64 ............................. <"notenoughbeans">
+  [916] eq ...................................... <Msg.item[2] = "notenoughbeans">
+  [917] jmpifz [936] ............................ if Msg.item[2] = "notenoughbeans" then / else
+  [920] getprop 1117 ............................ <pspr>
+  [923] getchainedprop 586 ...................... <pspr.weaponry>
+  [926] pushint8 5 .............................. <5>
+  [928] pusharglistnoret 2 ...................... <pspr.weaponry, 5>
+  [930] objcall 1125 ............................ pspr.weaponry.gotoAndStop(5)
+  [933] jmp [982]
+  [936] getlocal 15 ............................. <Msg>
+  [938] pushsymb 364 ............................ <#item>
+  [941] pushint8 2 .............................. <2>
+  [943] pusharglist 3 ........................... <Msg, #item, 2>
+  [945] objcall 122 ............................. <Msg.item[2]>
+  [947] pushcons 65 ............................. <"noitemsrequested">
+  [949] eq ...................................... <Msg.item[2] = "noitemsrequested">
+  [950] jmpifz [969] ............................ if Msg.item[2] = "noitemsrequested" then / else
+  [953] getprop 1117 ............................ <pspr>
+  [956] getchainedprop 586 ...................... <pspr.weaponry>
+  [959] pushint8 6 .............................. <6>
+  [961] pusharglistnoret 2 ...................... <pspr.weaponry, 6>
+  [963] objcall 1125 ............................ pspr.weaponry.gotoAndStop(6)
+  [966] jmp [982]
+  [969] getprop 1117 ............................ <pspr>
+  [972] getchainedprop 586 ...................... <pspr.weaponry>
+  [975] pushint8 7 .............................. <7>
+  [977] pusharglistnoret 2 ...................... <pspr.weaponry, 7>
+  [979] objcall 1125 ............................ pspr.weaponry.gotoAndStop(7)
+  [982] pushzero ................................ <0>
+  [983] setprop 1118 ............................ pwebstep = 0
+  [986] jmp [997]
+  [989] pushzero ................................ <0>
+  [990] setprop 1013 ............................ pnetid = 0
+  [993] pushzero ................................ <0>
+  [994] setprop 1118 ............................ pwebstep = 0
+  [997] getprop 1117 ............................ <pspr>
+  [1000] getchainedprop 586 ..................... <pspr.weaponry>
+  [1003] pushcons 2 ............................. <EMPTY>
+  [1005] setobjprop 1121 ........................ pspr.weaponry.state = EMPTY
+  [1008] jmp [1015]
+  [1011] pushcons 66 ............................ <"Connecting">
+  [1013] setlocal 16 ............................ presult = "Connecting"
+  [1015] jmp [1026]
+  [1018] peek 0
+  [1020] pushcons 2 ............................. <EMPTY>
+  [1022] eq
+  [1023] jmpifz [1026] .......................... (case) EMPTY:
+  [1026] pop 1 .................................. end case
+  [1028] pushcons 67 ............................ <"_root.weaponry.sales">
+  [1030] pusharglist 1 .......................... <"_root.weaponry.sales">
+  [1032] extcall 249 ............................ <getflash("_root.weaponry.sales")>
+  [1034] setlocal 17 ............................ vweap = getflash("_root.weaponry.sales")
+  [1036] pushint8 1 ............................. <1>
+  [1038] pushsymb 1126 .......................... <#setweap>
+  [1041] getlocal 17 ............................ <vweap>
+  [1043] pusharglistnoret 3 ..................... <1, #setweap, vweap>
+  [1045] extcall 1023 ........................... sendSprite(1, #setweap, vweap)
+  [1048] jmp [4455]
+  [1051] peek 0
+  [1053] pushcons 68 ............................ <"verifyname">
+  [1055] eq
+  [1056] jmpifz [1129] .......................... (case) "verifyname":
+  [1059] pushcons 69 ............................ <"#">
+  [1061] pushcons 12 ............................ <"_root.who">
+  [1063] pusharglist 1 .......................... <"_root.who">
+  [1065] extcall 249 ............................ <getflash("_root.who")>
+  [1067] joinstr ................................ <"#" & getflash("_root.who")>
+  [1068] pusharglist 1 .......................... <"#" & getflash("_root.who")>
+  [1070] extcall 62 ............................. <value("#" & getflash("_root.who"))>
+  [1072] setglobal 68 ........................... gteam = value("#" & getflash("_root.who"))
+  [1074] pushcons 13 ............................ <"_root.codename">
+  [1076] pusharglist 1 .......................... <"_root.codename">
+  [1078] extcall 249 ............................ <getflash("_root.codename")>
+  [1080] setglobal 67 ........................... nom = getflash("_root.codename")
+  [1082] getglobal 67 ........................... <nom>
+  [1084] pusharglist 1 .......................... <nom>
+  [1086] extcall 261 ............................ <VerifyUserName(nom)>
+  [1089] setglobal 67 ........................... nom = VerifyUserName(nom)
+  [1091] pushcons 13 ............................ <"_root.codename">
+  [1093] getglobal 67 ........................... <nom>
+  [1095] pusharglistnoret 2 ..................... <"_root.codename", nom>
+  [1097] extcall 248 ............................ setflash("_root.codename", nom)
+  [1099] getglobal 67 ........................... <nom>
+  [1101] pushcons 2 ............................. <EMPTY>
+  [1103] nteq ................................... <nom <> EMPTY>
+  [1104] jmpifz [1118] .......................... if nom <> EMPTY then / else
+  [1107] pushcons 16 ............................ <"_root.state">
+  [1109] pushcons 37 ............................ <"getroom">
+  [1111] pusharglistnoret 2 ..................... <"_root.state", "getroom">
+  [1113] extcall 248 ............................ setflash("_root.state", "getroom")
+  [1115] jmp [1126]
+  [1118] pushcons 16 ............................ <"_root.state">
+  [1120] pushcons 36 ............................ <"getcodename">
+  [1122] pusharglistnoret 2 ..................... <"_root.state", "getcodename">
+  [1124] extcall 248 ............................ setflash("_root.state", "getcodename")
+  [1126] jmp [4455]
+  [1129] peek 0
+  [1131] pushcons 37 ............................ <"getroom">
+  [1133] eq
+  [1134] jmpifz [1161] .......................... (case) "getroom":
+  [1137] getglobal 278 .......................... <gmusmode>
+  [1140] pushcons 19 ............................ <"start">
+  [1142] nteq ................................... <gmusmode <> "start">
+  [1143] jmpifz [1158] .......................... if gmusmode <> "start" then
+  [1146] pushcons 16 ............................ <"_root.state">
+  [1148] pushcons 18 ............................ <"wait">
+  [1150] pusharglistnoret 2 ..................... <"_root.state", "wait">
+  [1152] extcall 248 ............................ setflash("_root.state", "wait")
+  [1154] pusharglistnoret 0 ..................... <>
+  [1156] extcall 246 ............................ sconnect()
+  [1158] jmp [4455]
+  [1161] peek 0
+  [1163] pushcons 70 ............................ <"foundrooms">
+  [1165] eq
+  [1166] jmpifz [1178] .......................... (case) "foundrooms":
+  [1169] getparam 0 ............................. <me>
+  [1171] pusharglistnoret 1 ..................... <me>
+  [1173] localcall 2 ............................ jrooms(me)
+  [1175] jmp [4455]
+  [1178] peek 0
+  [1180] pushcons 71 ............................ <"joinrooms">
+  [1182] eq
+  [1183] jmpifz [1195] .......................... (case) "joinrooms":
+  [1186] getparam 0 ............................. <me>
+  [1188] pusharglistnoret 1 ..................... <me>
+  [1190] localcall 2 ............................ jrooms(me)
+  [1192] jmp [4455]
+  [1195] peek 0
+  [1197] pushcons 72 ............................ <"refresh">
+  [1199] eq
+  [1200] jmpifz [1228] .......................... (case) "refresh":
+  [1203] pushcons 73 ............................ <"getrooms">
+  [1205] setglobal 278 .......................... gmusmode = "getrooms"
+  [1208] pushcons 74 ............................ <"_root.filter">
+  [1210] pusharglist 1 .......................... <"_root.filter">
+  [1212] extcall 249 ............................ <getflash("_root.filter")>
+  [1214] setglobal 279 .......................... gfilter = getflash("_root.filter")
+  [1217] pushcons 16 ............................ <"_root.state">
+  [1219] pushcons 18 ............................ <"wait">
+  [1221] pusharglistnoret 2 ..................... <"_root.state", "wait">
+  [1223] extcall 248 ............................ setflash("_root.state", "wait")
+  [1225] jmp [4455]
+  [1228] peek 0
+  [1230] pushcons 75 ............................ <"savesettings">
+  [1232] eq
+  [1233] jmpifz [1344] .......................... (case) "savesettings":
+  [1236] gettoplevelprop 195 .................... <_player>
+  [1238] pushcons 5 ............................. <"teamtanks">
+  [1240] pushcons 76 ............................ <"[">
+  [1242] pushcons 9 ............................. <"_root.mousediff">
+  [1244] pusharglist 1 .......................... <"_root.mousediff">
+  [1246] extcall 249 ............................ <getflash("_root.mousediff")>
+  [1248] joinstr ................................ <"[" & getflash("_root.mousediff")>
+  [1249] pushcons 77 ............................ <",">
+  [1251] joinstr ................................ <"[" & getflash("_root.mousediff") & ",">
+  [1252] pushcons 8 ............................. <"_root.help">
+  [1254] pusharglist 1 .......................... <"_root.help">
+  [1256] extcall 249 ............................ <getflash("_root.help")>
+  [1258] joinstr ................................ <"[" & getflash("_root.mousediff") & "," & getflash("_root.help")>
+  [1259] pushcons 77 ............................ <",">
+  [1261] joinstr ................................ <"[" & getflash("_root.mousediff") & "," & getflash("_root.help") & ",">
+  [1262] pushcons 7 ............................. <"_root.gunmode">
+  [1264] pusharglist 1 .......................... <"_root.gunmode">
+  [1266] extcall 249 ............................ <getflash("_root.gunmode")>
+  [1268] joinstr ................................ <"[" & getflash("_root.mousediff") & "," & getflash("_root.help") & "," & getflash("_root.gunmode")>
+  [1269] pushcons 78 ............................ <"]">
+  [1271] joinstr ................................ <"[" & getflash("_root.mousediff") & "," & getflash("_root.help") & "," & getflash("_root.gunmode") & "]">
+  [1272] pusharglist 1 .......................... <"[" & getflash("_root.mousediff") & "," & getflash("_root.help") & "," & getflash("_root.gunmode") & "]">
+  [1274] extcall 59 ............................. <string("[" & getflash("_root.mousediff") & "," & getflash("_root.help") & "," & getflash("_root.gunmode") & "]")>
+  [1276] pusharglistnoret 3 ..................... <_player, "teamtanks", string("[" & getflash("_root.mousediff") & "," & getflash("_root.help") & "," & getflash("_root.gunmode") & "]")>
+  [1278] objcall 1127 ........................... _player.setPref("teamtanks", string("[" & getflash("_root.mousediff") & "," & getflash("_root.help") & "," & getflash("_root.gunmode") & "]"))
+  [1281] pushcons 9 ............................. <"_root.mousediff">
+  [1283] pusharglist 1 .......................... <"_root.mousediff">
+  [1285] extcall 249 ............................ <getflash("_root.mousediff")>
+  [1287] pusharglist 1 .......................... <getflash("_root.mousediff")>
+  [1289] extcall 96 ............................. <integer(getflash("_root.mousediff"))>
+  [1291] pusharglist 1 .......................... <integer(getflash("_root.mousediff"))>
+  [1293] extcall 97 ............................. <float(integer(getflash("_root.mousediff")))>
+  [1295] pushint8 100 ........................... <100>
+  [1297] div .................................... <float(integer(getflash("_root.mousediff"))) / 100>
+  [1298] pushfloat32 0.5 ........................ <0.5>
+  [1303] add .................................... <(float(integer(getflash("_root.mousediff"))) / 100) + 0.5>
+  [1304] setglobal 675 .......................... gmousediff = (float(integer(getflash("_root.mousediff"))) / 100) + 0.5
+  [1307] pushcons 8 ............................. <"_root.help">
+  [1309] pusharglist 1 .......................... <"_root.help">
+  [1311] extcall 249 ............................ <getflash("_root.help")>
+  [1313] pusharglist 1 .......................... <getflash("_root.help")>
+  [1315] extcall 96 ............................. <integer(getflash("_root.help"))>
+  [1317] setglobal 651 .......................... ghelp = integer(getflash("_root.help"))
+  [1320] pushcons 7 ............................. <"_root.gunmode">
+  [1322] pusharglist 1 .......................... <"_root.gunmode">
+  [1324] extcall 249 ............................ <getflash("_root.gunmode")>
+  [1326] pusharglist 1 .......................... <getflash("_root.gunmode")>
+  [1328] extcall 96 ............................. <integer(getflash("_root.gunmode"))>
+  [1330] setglobal 625 .......................... ggunmode = integer(getflash("_root.gunmode"))
+  [1333] pushcons 16 ............................ <"_root.state">
+  [1335] pushcons 18 ............................ <"wait">
+  [1337] pusharglistnoret 2 ..................... <"_root.state", "wait">
+  [1339] extcall 248 ............................ setflash("_root.state", "wait")
+  [1341] jmp [4455]
+  [1344] peek 0
+  [1346] pushcons 79 ............................ <"calender">
+  [1348] eq
+  [1349] jmpifz [1463] .......................... (case) "calender":
+  [1352] pushcons 20 ............................ <"datacal">
+  [1354] pusharglist 1 .......................... <"datacal">
+  [1356] extcall 52 ............................. <member("datacal")>
+  [1358] getobjprop 54 .......................... <member("datacal").text>
+  [1360] pushcons 2 ............................. <EMPTY>
+  [1362] nteq ................................... <member("datacal").text <> EMPTY>
+  [1363] jmpifz [1452] .......................... if member("datacal").text <> EMPTY then
+  [1366] pushcons 20 ............................ <"datacal">
+  [1368] pusharglist 1 .......................... <"datacal">
+  [1370] extcall 52 ............................. <member("datacal")>
+  [1372] getobjprop 54 .......................... <member("datacal").text>
+  [1374] setlocal 2 ............................. vnom = member("datacal").text
+  [1376] pushcons 34 ............................ <";">
+  [1378] setmovieprop 363 ....................... the itemDelimiter = ";"
+  [1381] getprop 1117 ........................... <pspr>
+  [1384] getchainedprop 1128 .................... <pspr.calender>
+  [1387] getlocal 2 ............................. <vnom>
+  [1389] pushsymb 364 ........................... <#item>
+  [1392] pushint8 1 ............................. <1>
+  [1394] pusharglist 3 .......................... <vnom, #item, 1>
+  [1396] objcall 122 ............................ <vnom.item[1]>
+  [1398] setobjprop 994 ......................... pspr.calender.vday = vnom.item[1]
+  [1401] getprop 1117 ........................... <pspr>
+  [1404] getchainedprop 1128 .................... <pspr.calender>
+  [1407] getlocal 2 ............................. <vnom>
+  [1409] pushsymb 364 ........................... <#item>
+  [1412] pushint8 2 ............................. <2>
+  [1414] pusharglist 3 .......................... <vnom, #item, 2>
+  [1416] objcall 122 ............................ <vnom.item[2]>
+  [1418] setobjprop 1129 ........................ pspr.calender.vdays_in_this_month = vnom.item[2]
+  [1421] getprop 1117 ........................... <pspr>
+  [1424] getchainedprop 1128 .................... <pspr.calender>
+  [1427] getlocal 2 ............................. <vnom>
+  [1429] pushsymb 364 ........................... <#item>
+  [1432] pushint8 3 ............................. <3>
+  [1434] pusharglist 3 .......................... <vnom, #item, 3>
+  [1436] objcall 122 ............................ <vnom.item[3]>
+  [1438] setobjprop 1130 ........................ pspr.calender.vbp = vnom.item[3]
+  [1441] getprop 1117 ........................... <pspr>
+  [1444] getchainedprop 1128 .................... <pspr.calender>
+  [1447] pusharglistnoret 1 ..................... <pspr.calender>
+  [1449] objcall 1131 ........................... pspr.calender.sortcal()
+  [1452] pushcons 16 ............................ <"_root.state">
+  [1454] pushcons 18 ............................ <"wait">
+  [1456] pusharglistnoret 2 ..................... <"_root.state", "wait">
+  [1458] extcall 248 ............................ setflash("_root.state", "wait")
+  [1460] jmp [4455]
+  [1463] peek 0
+  [1465] pushcons 80 ............................ <"mytank">
+  [1467] eq
+  [1468] jmpifz [1875] .......................... (case) "mytank":
+  [1471] getglobal 191 .......................... <gisloggedin>
+  [1473] jmpifz [1848] .......................... if gisloggedin then / else
+  [1476] pushcons 40 ............................ <"datame">
+  [1478] pusharglist 1 .......................... <"datame">
+  [1480] extcall 52 ............................. <member("datame")>
+  [1482] getobjprop 54 .......................... <member("datame").text>
+  [1484] setlocal 2 ............................. vnom = member("datame").text
+  [1486] pushcons 34 ............................ <";">
+  [1488] setmovieprop 363 ....................... the itemDelimiter = ";"
+  [1491] getprop 1117 ........................... <pspr>
+  [1494] getchainedprop 1132 .................... <pspr.mytank>
+  [1497] getlocal 2 ............................. <vnom>
+  [1499] pushsymb 364 ........................... <#item>
+  [1502] pushint8 1 ............................. <1>
+  [1504] pusharglist 3 .......................... <vnom, #item, 1>
+  [1506] objcall 122 ............................ <vnom.item[1]>
+  [1508] setobjprop 1133 ........................ pspr.mytank.mname = vnom.item[1]
+  [1511] pushcons 81 ............................ <"datamytank">
+  [1513] pusharglist 1 .......................... <"datamytank">
+  [1515] extcall 52 ............................. <member("datamytank")>
+  [1517] getobjprop 54 .......................... <member("datamytank").text>
+  [1519] setlocal 2 ............................. vnom = member("datamytank").text
+  [1521] pushcons 34 ............................ <";">
+  [1523] setmovieprop 363 ....................... the itemDelimiter = ";"
+  [1526] getlocal 2 ............................. <vnom>
+  [1528] pushsymb 364 ........................... <#item>
+  [1531] pushint8 1 ............................. <1>
+  [1533] pusharglist 3 .......................... <vnom, #item, 1>
+  [1535] objcall 122 ............................ <vnom.item[1]>
+  [1537] pusharglist 1 .......................... <vnom.item[1]>
+  [1539] extcall 96 ............................. <integer(vnom.item[1])>
+  [1541] setlocal 18 ............................ vrankpos = integer(vnom.item[1])
+  [1543] pushcons 82 ............................ <"Tank Private">
+  [1545] pushcons 83 ............................ <"Tank Gunner">
+  [1547] pushcons 84 ............................ <"Tank Commander">
+  [1549] pushcons 85 ............................ <"Tank Style Technician">
+  [1551] pushcons 86 ............................ <"Tank Captain">
+  [1553] pushcons 87 ............................ <"Chief Style Technician">
+  [1555] pushcons 88 ............................ <"Corporal">
+  [1557] pushcons 89 ............................ <"Sergeant">
+  [1559] pushcons 90 ............................ <"Gunnery Sergeant">
+  [1561] pushcons 91 ............................ <"Master Sergeant">
+  [1563] pushcons 92 ............................ <"Master Gunnary Sergeant">
+  [1565] pushcons 93 ............................ <"Sergeant Major">
+  [1567] pushcons 94 ............................ <"Veteran">
+  [1569] pushcons 95 ............................ <"Special Ops">
+  [1571] pusharglist 14 ......................... <["Tank Private", "Tank Gunner", "Tank Commander", "Tank Style Technician", "Tank Captain", "Chief Style Technician", "Corporal", "Sergeant", "Gunnery Sergeant", "Master Sergeant", "Master Gunnary Sergeant", "Sergeant Major", "Veteran", "Special Ops"]>
+  [1573] pushlist ............................... <["Tank Private", "Tank Gunner", "Tank Commander", "Tank Style Technician", "Tank Captain", "Chief Style Technician", "Corporal", "Sergeant", "Gunnery Sergeant", "Master Sergeant", "Master Gunnary Sergeant", "Sergeant Major", "Veteran", "Special Ops"]>
+  [1574] setlocal 19 ............................ vranks = ["Tank Private", "Tank Gunner", "Tank Commander", "Tank Style Technician", "Tank Captain", "Chief Style Technician", "Corporal", "Sergeant", "Gunnery Sergeant", "Master Sergeant", "Master Gunnary Sergeant", "Sergeant Major", "Veteran", "Special Ops"]
+  [1576] getlocal 19 ............................ <vranks>
+  [1578] getlocal 18 ............................ <vrankpos>
+  [1580] pusharglist 2 .......................... <vranks, vrankpos>
+  [1582] objcall 73 ............................. <vranks[vrankpos]>
+  [1584] setlocal 20 ............................ vrankname = vranks[vrankpos]
+  [1586] getprop 1117 ........................... <pspr>
+  [1589] getchainedprop 1132 .................... <pspr.mytank>
+  [1592] getlocal 20 ............................ <vrankname>
+  [1594] setobjprop 1134 ........................ pspr.mytank.mrank = vrankname
+  [1597] getprop 1117 ........................... <pspr>
+  [1600] getchainedprop 1132 .................... <pspr.mytank>
+  [1603] getchainedprop 1135 .................... <pspr.mytank.mrankclear>
+  [1606] getlocal 2 ............................. <vnom>
+  [1608] pushsymb 364 ........................... <#item>
+  [1611] pushint8 1 ............................. <1>
+  [1613] pusharglist 3 .......................... <vnom, #item, 1>
+  [1615] objcall 122 ............................ <vnom.item[1]>
+  [1617] pusharglistnoret 2 ..................... <pspr.mytank.mrankclear, vnom.item[1]>
+  [1619] objcall 1125 ........................... pspr.mytank.mrankclear.gotoAndStop(vnom.item[1])
+  [1622] getprop 1117 ........................... <pspr>
+  [1625] getchainedprop 1132 .................... <pspr.mytank>
+  [1628] getchainedprop 1136 .................... <pspr.mytank.mrankshad>
+  [1631] getlocal 2 ............................. <vnom>
+  [1633] pushsymb 364 ........................... <#item>
+  [1636] pushint8 1 ............................. <1>
+  [1638] pusharglist 3 .......................... <vnom, #item, 1>
+  [1640] objcall 122 ............................ <vnom.item[1]>
+  [1642] pusharglistnoret 2 ..................... <pspr.mytank.mrankshad, vnom.item[1]>
+  [1644] objcall 1125 ........................... pspr.mytank.mrankshad.gotoAndStop(vnom.item[1])
+  [1647] getprop 1117 ........................... <pspr>
+  [1650] getchainedprop 1132 .................... <pspr.mytank>
+  [1653] getlocal 2 ............................. <vnom>
+  [1655] pushsymb 364 ........................... <#item>
+  [1658] pushint8 2 ............................. <2>
+  [1660] pusharglist 3 .......................... <vnom, #item, 2>
+  [1662] objcall 122 ............................ <vnom.item[2]>
+  [1664] setobjprop 1137 ........................ pspr.mytank.mserial = vnom.item[2]
+  [1667] pushcons 47 ............................ <"dataweapons">
+  [1669] pusharglist 1 .......................... <"dataweapons">
+  [1671] extcall 52 ............................. <member("dataweapons")>
+  [1673] getobjprop 54 .......................... <member("dataweapons").text>
+  [1675] pushcons 2 ............................. <EMPTY>
+  [1677] nteq ................................... <member("dataweapons").text <> EMPTY>
+  [1678] jmpifz [1845] .......................... if member("dataweapons").text <> EMPTY then
+  [1681] pushcons 47 ............................ <"dataweapons">
+  [1683] pusharglist 1 .......................... <"dataweapons">
+  [1685] extcall 52 ............................. <member("dataweapons")>
+  [1687] getobjprop 54 .......................... <member("dataweapons").text>
+  [1689] setlocal 2 ............................. vnom = member("dataweapons").text
+  [1691] pushcons 34 ............................ <";">
+  [1693] setmovieprop 363 ....................... the itemDelimiter = ";"
+  [1696] pusharglist 0 .......................... <[]>
+  [1698] pushlist ............................... <[]>
+  [1699] setlocal 8 ............................. vbits = []
+  [1701] pushint8 2 ............................. <2>
+  [1703] setlocal 9
+  [1705] getlocal 9
+  [1707] getlocal 2 ............................. <vnom>
+  [1709] pushsymb 364 ........................... <#item>
+  [1712] pusharglist 2 .......................... <vnom, #item>
+  [1714] objcall 72 ............................. <vnom.item.count>
+  [1716] lteq
+  [1717] jmpifz [1746] .......................... repeat with i = 2 to vnom.item.count
+  [1720] getlocal 8 ............................. <vbits>
+  [1722] getlocal 2 ............................. <vnom>
+  [1724] pushsymb 364 ........................... <#item>
+  [1727] getlocal 9 ............................. <i>
+  [1729] pusharglist 3 .......................... <vnom, #item, i>
+  [1731] objcall 122 ............................ <vnom.item[i]>
+  [1733] pusharglistnoret 2 ..................... <vbits, vnom.item[i]>
+  [1735] objcall 154 ............................ vbits.add(vnom.item[i])
+  [1737] pushint8 1
+  [1739] getlocal 9
+  [1741] add
+  [1742] setlocal 9
+  [1744] endrepeat [1705]
+  [1746] pushcons 48 ............................ <":">
+  [1748] setmovieprop 363 ....................... the itemDelimiter = ":"
+  [1751] pushint8 1 ............................. <1>
+  [1753] setlocal 9
+  [1755] getlocal 9
+  [1757] getlocal 8 ............................. <vbits>
+  [1759] getobjprop 72 .......................... <vbits.count>
+  [1761] lteq
+  [1762] jmpifz [1834] .......................... repeat with i = 1 to vbits.count
+  [1765] getlocal 8 ............................. <vbits>
+  [1767] getlocal 9 ............................. <i>
+  [1769] pusharglist 2 .......................... <vbits, i>
+  [1771] objcall 73 ............................. <vbits[i]>
+  [1773] setlocal 10 ............................ vvnom = vbits[i]
+  [1775] getprop 1117 ........................... <pspr>
+  [1778] getchainedprop 1132 .................... <pspr.mytank>
+  [1781] getchainedprop 1138 .................... <pspr.mytank.myitems>
+  [1784] getlocal 10 ............................ <vvnom>
+  [1786] pushsymb 364 ........................... <#item>
+  [1789] pushint8 1 ............................. <1>
+  [1791] pusharglist 3 .......................... <vvnom, #item, 1>
+  [1793] objcall 122 ............................ <vvnom.item[1]>
+  [1795] pusharglistnoret 2 ..................... <pspr.mytank.myitems, vvnom.item[1]>
+  [1797] objcall 731 ............................ pspr.mytank.myitems.push(vvnom.item[1])
+  [1800] getprop 1117 ........................... <pspr>
+  [1803] getchainedprop 1132 .................... <pspr.mytank>
+  [1806] getchainedprop 1139 .................... <pspr.mytank.myitems_days>
+  [1809] getlocal 10 ............................ <vvnom>
+  [1811] pushsymb 364 ........................... <#item>
+  [1814] pushint8 2 ............................. <2>
+  [1816] pusharglist 3 .......................... <vvnom, #item, 2>
+  [1818] objcall 122 ............................ <vvnom.item[2]>
+  [1820] pusharglistnoret 2 ..................... <pspr.mytank.myitems_days, vvnom.item[2]>
+  [1822] objcall 731 ............................ pspr.mytank.myitems_days.push(vvnom.item[2])
+  [1825] pushint8 1
+  [1827] getlocal 9
+  [1829] add
+  [1830] setlocal 9
+  [1832] endrepeat [1755]
+  [1834] getprop 1117 ........................... <pspr>
+  [1837] getchainedprop 1132 .................... <pspr.mytank>
+  [1840] pusharglistnoret 1 ..................... <pspr.mytank>
+  [1842] objcall 1140 ........................... pspr.mytank.setitems()
+  [1845] jmp [1864]
+  [1848] getprop 1117 ........................... <pspr>
+  [1851] getchainedprop 1132 .................... <pspr.mytank>
+  [1854] getchainedprop 1141 .................... <pspr.mytank.blocker>
+  [1857] pushint8 2 ............................. <2>
+  [1859] pusharglistnoret 2 ..................... <pspr.mytank.blocker, 2>
+  [1861] objcall 1125 ........................... pspr.mytank.blocker.gotoAndStop(2)
+  [1864] pushcons 16 ............................ <"_root.state">
+  [1866] pushcons 18 ............................ <"wait">
+  [1868] pusharglistnoret 2 ..................... <"_root.state", "wait">
+  [1870] extcall 248 ............................ setflash("_root.state", "wait")
+  [1872] jmp [4455]
+  [1875] peek 0
+  [1877] pushcons 96 ............................ <"stats">
+  [1879] eq
+  [1880] jmpifz [2551] .......................... (case) "stats":
+  [1883] getglobal 191 .......................... <gisloggedin>
+  [1885] jmpifz [2524] .......................... if gisloggedin then / else
+  [1888] pushcons 97 ............................ <"datastats">
+  [1890] pusharglist 1 .......................... <"datastats">
+  [1892] extcall 52 ............................. <member("datastats")>
+  [1894] getobjprop 54 .......................... <member("datastats").text>
+  [1896] setlocal 21 ............................ vgetstats = member("datastats").text
+  [1898] getlocal 21 ............................ <vgetstats>
+  [1900] pusharglist 1 .......................... <vgetstats>
+  [1902] extcall 62 ............................. <value(vgetstats)>
+  [1904] setlocal 22 ............................ vstats = value(vgetstats)
+  [1906] getprop 1117 ........................... <pspr>
+  [1909] getchainedprop 1132 .................... <pspr.mytank>
+  [1912] getchainedprop 290 ..................... <pspr.mytank.content>
+  [1915] getobjprop 1142 ........................ <pspr.mytank.content.contentMain>
+  [1918] setlocal 23 ............................ vad = pspr.mytank.content.contentMain
+  [1920] getlocal 23 ............................ <vad>
+  [1922] getlocal 22 ............................ <vstats>
+  [1924] getobjprop 1028 ........................ <vstats.max_points>
+  [1927] setobjprop 1028 ........................ vad.max_points = vstats.max_points
+  [1930] getlocal 23 ............................ <vad>
+  [1932] getlocal 22 ............................ <vstats>
+  [1934] getobjprop 1029 ........................ <vstats.max_killed>
+  [1937] setobjprop 1029 ........................ vad.max_killed = vstats.max_killed
+  [1940] getlocal 23 ............................ <vad>
+  [1942] getlocal 22 ............................ <vstats>
+  [1944] getobjprop 1030 ........................ <vstats.total_killed>
+  [1947] setobjprop 1030 ........................ vad.total_killed = vstats.total_killed
+  [1950] getlocal 23 ............................ <vad>
+  [1952] getlocal 22 ............................ <vstats>
+  [1954] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [1957] getobjprop 338 ......................... <vstats.damage_to_enemy.mgun>
+  [1960] setobjprop 1143 ........................ vad.dte_mgun = vstats.damage_to_enemy.mgun
+  [1963] getlocal 23 ............................ <vad>
+  [1965] getlocal 22 ............................ <vstats>
+  [1967] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [1970] getobjprop 339 ......................... <vstats.damage_to_enemy.bgun>
+  [1973] setobjprop 1144 ........................ vad.dte_bgun = vstats.damage_to_enemy.bgun
+  [1976] getlocal 23 ............................ <vad>
+  [1978] getlocal 22 ............................ <vstats>
+  [1980] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [1983] getobjprop 208 ......................... <vstats.damage_to_enemy.nook>
+  [1985] setobjprop 1145 ........................ vad.dte_nook = vstats.damage_to_enemy.nook
+  [1988] getlocal 23 ............................ <vad>
+  [1990] getlocal 22 ............................ <vstats>
+  [1992] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [1995] getobjprop 206 ......................... <vstats.damage_to_enemy.rocket>
+  [1997] setobjprop 1146 ........................ vad.dte_rocket = vstats.damage_to_enemy.rocket
+  [2000] getlocal 23 ............................ <vad>
+  [2002] getlocal 22 ............................ <vstats>
+  [2004] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2007] getobjprop 222 ......................... <vstats.damage_to_enemy.proximitymine>
+  [2009] setobjprop 1147 ........................ vad.dte_proximitymine = vstats.damage_to_enemy.proximitymine
+  [2012] getlocal 23 ............................ <vad>
+  [2014] getlocal 22 ............................ <vstats>
+  [2016] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2019] getobjprop 340 ......................... <vstats.damage_to_enemy.speed>
+  [2022] setobjprop 1148 ........................ vad.dte_speed = vstats.damage_to_enemy.speed
+  [2025] getlocal 23 ............................ <vad>
+  [2027] getlocal 22 ............................ <vstats>
+  [2029] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2032] getobjprop 341 ......................... <vstats.damage_to_enemy.lasergun>
+  [2035] setobjprop 1149 ........................ vad.dte_lasergun = vstats.damage_to_enemy.lasergun
+  [2038] getlocal 23 ............................ <vad>
+  [2040] getlocal 22 ............................ <vstats>
+  [2042] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2045] getobjprop 342 ......................... <vstats.damage_to_enemy.mgunx2>
+  [2048] setobjprop 1150 ........................ vad.dte_mgunx2 = vstats.damage_to_enemy.mgunx2
+  [2051] getlocal 23 ............................ <vad>
+  [2053] getlocal 22 ............................ <vstats>
+  [2055] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2058] getobjprop 207 ......................... <vstats.damage_to_enemy.rocketx4>
+  [2060] setobjprop 1151 ........................ vad.dte_rocketx4 = vstats.damage_to_enemy.rocketx4
+  [2063] getlocal 23 ............................ <vad>
+  [2065] getlocal 22 ............................ <vstats>
+  [2067] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2070] getobjprop 223 ......................... <vstats.damage_to_enemy.remotemine>
+  [2072] setobjprop 1152 ........................ vad.dte_remotemine = vstats.damage_to_enemy.remotemine
+  [2075] getlocal 23 ............................ <vad>
+  [2077] getlocal 22 ............................ <vstats>
+  [2079] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2082] getobjprop 343 ......................... <vstats.damage_to_enemy.sonicgun>
+  [2085] setobjprop 1153 ........................ vad.dte_sonicgun = vstats.damage_to_enemy.sonicgun
+  [2088] getlocal 23 ............................ <vad>
+  [2090] getlocal 22 ............................ <vstats>
+  [2092] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2095] getobjprop 210 ......................... <vstats.damage_to_enemy.guidedmissile>
+  [2097] setobjprop 1154 ........................ vad.dte_guidedmissile = vstats.damage_to_enemy.guidedmissile
+  [2100] getlocal 23 ............................ <vad>
+  [2102] getlocal 22 ............................ <vstats>
+  [2104] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2107] getobjprop 344 ......................... <vstats.damage_to_enemy.thrusters>
+  [2110] setobjprop 1155 ........................ vad.dte_thrusters = vstats.damage_to_enemy.thrusters
+  [2113] getlocal 23 ............................ <vad>
+  [2115] getlocal 22 ............................ <vstats>
+  [2117] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2120] getobjprop 211 ......................... <vstats.damage_to_enemy.mortar>
+  [2122] setobjprop 1156 ........................ vad.dte_mortar = vstats.damage_to_enemy.mortar
+  [2125] getlocal 23 ............................ <vad>
+  [2127] getlocal 22 ............................ <vstats>
+  [2129] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2132] getobjprop 345 ......................... <vstats.damage_to_enemy.airstrike>
+  [2135] setobjprop 1157 ........................ vad.dte_airstrike = vstats.damage_to_enemy.airstrike
+  [2138] getlocal 23 ............................ <vad>
+  [2140] getlocal 22 ............................ <vstats>
+  [2142] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2145] getobjprop 213 ......................... <vstats.damage_to_enemy.rcbomb>
+  [2147] setobjprop 1158 ........................ vad.dte_rcbomb = vstats.damage_to_enemy.rcbomb
+  [2150] getlocal 23 ............................ <vad>
+  [2152] getlocal 22 ............................ <vstats>
+  [2154] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2157] getobjprop 217 ......................... <vstats.damage_to_enemy.rcrocket>
+  [2159] setobjprop 1159 ........................ vad.dte_rcrocket = vstats.damage_to_enemy.rcrocket
+  [2162] getlocal 23 ............................ <vad>
+  [2164] getlocal 22 ............................ <vstats>
+  [2166] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2169] getobjprop 216 ......................... <vstats.damage_to_enemy.health>
+  [2171] setobjprop 1160 ........................ vad.dte_health = vstats.damage_to_enemy.health
+  [2174] getlocal 23 ............................ <vad>
+  [2176] getlocal 22 ............................ <vstats>
+  [2178] getchainedprop 1031 .................... <vstats.damage_to_enemy>
+  [2181] getobjprop 323 ......................... <vstats.damage_to_enemy.stealth>
+  [2184] setobjprop 1161 ........................ vad.dte_stealth = vstats.damage_to_enemy.stealth
+  [2187] getlocal 23 ............................ <vad>
+  [2189] getlocal 22 ............................ <vstats>
+  [2191] getobjprop 1033 ........................ <vstats.total_deaths>
+  [2194] setobjprop 1033 ........................ vad.total_deaths = vstats.total_deaths
+  [2197] getlocal 23 ............................ <vad>
+  [2199] getlocal 22 ............................ <vstats>
+  [2201] getobjprop 1034 ........................ <vstats.total_respawns>
+  [2204] setobjprop 1034 ........................ vad.total_respawns = vstats.total_respawns
+  [2207] getlocal 23 ............................ <vad>
+  [2209] getlocal 22 ............................ <vstats>
+  [2211] getobjprop 1035 ........................ <vstats.max_captures>
+  [2214] setobjprop 1035 ........................ vad.max_captures = vstats.max_captures
+  [2217] getlocal 23 ............................ <vad>
+  [2219] getlocal 22 ............................ <vstats>
+  [2221] getobjprop 1036 ........................ <vstats.total_captures>
+  [2224] setobjprop 1036 ........................ vad.total_captures = vstats.total_captures
+  [2227] getlocal 23 ............................ <vad>
+  [2229] getlocal 22 ............................ <vstats>
+  [2231] getobjprop 1038 ........................ <vstats.battles_fought>
+  [2234] setobjprop 1038 ........................ vad.battles_fought = vstats.battles_fought
+  [2237] getlocal 23 ............................ <vad>
+  [2239] getlocal 22 ............................ <vstats>
+  [2241] getobjprop 1039 ........................ <vstats.max_airtime>
+  [2244] setobjprop 1039 ........................ vad.max_airtime = vstats.max_airtime
+  [2247] getlocal 23 ............................ <vad>
+  [2249] getlocal 22 ............................ <vstats>
+  [2251] getobjprop 1040 ........................ <vstats.max_tricksize>
+  [2254] setobjprop 1040 ........................ vad.max_tricksize = vstats.max_tricksize
+  [2257] getlocal 23 ............................ <vad>
+  [2259] getlocal 22 ............................ <vstats>
+  [2261] getobjprop 1041 ........................ <vstats.max_trickpulled>
+  [2264] setobjprop 1041 ........................ vad.max_trickpulled = vstats.max_trickpulled
+  [2267] getlocal 23 ............................ <vad>
+  [2269] getlocal 22 ............................ <vstats>
+  [2271] getobjprop 1042 ........................ <vstats.top_speed>
+  [2274] setobjprop 1042 ........................ vad.top_speed = vstats.top_speed
+  [2277] getlocal 23 ............................ <vad>
+  [2279] getlocal 22 ............................ <vstats>
+  [2281] getchainedprop 1044 .................... <vstats.accuracy>
+  [2284] getobjprop 338 ......................... <vstats.accuracy.mgun>
+  [2287] setobjprop 1162 ........................ vad.acc_mgun = vstats.accuracy.mgun
+  [2290] getlocal 23 ............................ <vad>
+  [2292] getlocal 22 ............................ <vstats>
+  [2294] getchainedprop 1044 .................... <vstats.accuracy>
+  [2297] getobjprop 339 ......................... <vstats.accuracy.bgun>
+  [2300] setobjprop 1163 ........................ vad.acc_bgun = vstats.accuracy.bgun
+  [2303] getlocal 23 ............................ <vad>
+  [2305] getlocal 22 ............................ <vstats>
+  [2307] getchainedprop 1044 .................... <vstats.accuracy>
+  [2310] getobjprop 208 ......................... <vstats.accuracy.nook>
+  [2312] setobjprop 1164 ........................ vad.acc_nook = vstats.accuracy.nook
+  [2315] getlocal 23 ............................ <vad>
+  [2317] getlocal 22 ............................ <vstats>
+  [2319] getchainedprop 1044 .................... <vstats.accuracy>
+  [2322] getobjprop 206 ......................... <vstats.accuracy.rocket>
+  [2324] setobjprop 1165 ........................ vad.acc_rocket = vstats.accuracy.rocket
+  [2327] getlocal 23 ............................ <vad>
+  [2329] getlocal 22 ............................ <vstats>
+  [2331] getchainedprop 1044 .................... <vstats.accuracy>
+  [2334] getobjprop 222 ......................... <vstats.accuracy.proximitymine>
+  [2336] setobjprop 1166 ........................ vad.acc_proximitymine = vstats.accuracy.proximitymine
+  [2339] getlocal 23 ............................ <vad>
+  [2341] getlocal 22 ............................ <vstats>
+  [2343] getchainedprop 1044 .................... <vstats.accuracy>
+  [2346] getobjprop 340 ......................... <vstats.accuracy.speed>
+  [2349] setobjprop 1167 ........................ vad.acc_speed = vstats.accuracy.speed
+  [2352] getlocal 23 ............................ <vad>
+  [2354] getlocal 22 ............................ <vstats>
+  [2356] getchainedprop 1044 .................... <vstats.accuracy>
+  [2359] getobjprop 341 ......................... <vstats.accuracy.lasergun>
+  [2362] setobjprop 1168 ........................ vad.acc_lasergun = vstats.accuracy.lasergun
+  [2365] getlocal 23 ............................ <vad>
+  [2367] getlocal 22 ............................ <vstats>
+  [2369] getchainedprop 1044 .................... <vstats.accuracy>
+  [2372] getobjprop 342 ......................... <vstats.accuracy.mgunx2>
+  [2375] setobjprop 1169 ........................ vad.acc_mgunx2 = vstats.accuracy.mgunx2
+  [2378] getlocal 23 ............................ <vad>
+  [2380] getlocal 22 ............................ <vstats>
+  [2382] getchainedprop 1044 .................... <vstats.accuracy>
+  [2385] getobjprop 207 ......................... <vstats.accuracy.rocketx4>
+  [2387] setobjprop 1170 ........................ vad.acc_rocketx4 = vstats.accuracy.rocketx4
+  [2390] getlocal 23 ............................ <vad>
+  [2392] getlocal 22 ............................ <vstats>
+  [2394] getchainedprop 1044 .................... <vstats.accuracy>
+  [2397] getobjprop 223 ......................... <vstats.accuracy.remotemine>
+  [2399] setobjprop 1171 ........................ vad.acc_remotemine = vstats.accuracy.remotemine
+  [2402] getlocal 23 ............................ <vad>
+  [2404] getlocal 22 ............................ <vstats>
+  [2406] getchainedprop 1044 .................... <vstats.accuracy>
+  [2409] getobjprop 343 ......................... <vstats.accuracy.sonicgun>
+  [2412] setobjprop 1172 ........................ vad.acc_sonicgun = vstats.accuracy.sonicgun
+  [2415] getlocal 23 ............................ <vad>
+  [2417] getlocal 22 ............................ <vstats>
+  [2419] getchainedprop 1044 .................... <vstats.accuracy>
+  [2422] getobjprop 210 ......................... <vstats.accuracy.guidedmissile>
+  [2424] setobjprop 1173 ........................ vad.acc_guidedmissile = vstats.accuracy.guidedmissile
+  [2427] getlocal 23 ............................ <vad>
+  [2429] getlocal 22 ............................ <vstats>
+  [2431] getchainedprop 1044 .................... <vstats.accuracy>
+  [2434] getobjprop 344 ......................... <vstats.accuracy.thrusters>
+  [2437] setobjprop 1174 ........................ vad.acc_thrusters = vstats.accuracy.thrusters
+  [2440] getlocal 23 ............................ <vad>
+  [2442] getlocal 22 ............................ <vstats>
+  [2444] getchainedprop 1044 .................... <vstats.accuracy>
+  [2447] getobjprop 211 ......................... <vstats.accuracy.mortar>
+  [2449] setobjprop 1175 ........................ vad.acc_mortar = vstats.accuracy.mortar
+  [2452] getlocal 23 ............................ <vad>
+  [2454] getlocal 22 ............................ <vstats>
+  [2456] getchainedprop 1044 .................... <vstats.accuracy>
+  [2459] getobjprop 345 ......................... <vstats.accuracy.airstrike>
+  [2462] setobjprop 1176 ........................ vad.acc_airstrike = vstats.accuracy.airstrike
+  [2465] getlocal 23 ............................ <vad>
+  [2467] getlocal 22 ............................ <vstats>
+  [2469] getchainedprop 1044 .................... <vstats.accuracy>
+  [2472] getobjprop 213 ......................... <vstats.accuracy.rcbomb>
+  [2474] setobjprop 1177 ........................ vad.acc_rcbomb = vstats.accuracy.rcbomb
+  [2477] getlocal 23 ............................ <vad>
+  [2479] getlocal 22 ............................ <vstats>
+  [2481] getchainedprop 1044 .................... <vstats.accuracy>
+  [2484] getobjprop 217 ......................... <vstats.accuracy.rcrocket>
+  [2486] setobjprop 1178 ........................ vad.acc_rcrocket = vstats.accuracy.rcrocket
+  [2489] getlocal 23 ............................ <vad>
+  [2491] getlocal 22 ............................ <vstats>
+  [2493] getchainedprop 1044 .................... <vstats.accuracy>
+  [2496] getobjprop 216 ......................... <vstats.accuracy.health>
+  [2498] setobjprop 1179 ........................ vad.acc_health = vstats.accuracy.health
+  [2501] getlocal 23 ............................ <vad>
+  [2503] getlocal 22 ............................ <vstats>
+  [2505] getobjprop 1045 ........................ <vstats.max_ubers>
+  [2508] setobjprop 1045 ........................ vad.max_ubers = vstats.max_ubers
+  [2511] getlocal 23 ............................ <vad>
+  [2513] getlocal 22 ............................ <vstats>
+  [2515] getobjprop 1046 ........................ <vstats.total_ubers>
+  [2518] setobjprop 1046 ........................ vad.total_ubers = vstats.total_ubers
+  [2521] jmp [2540]
+  [2524] getprop 1117 ........................... <pspr>
+  [2527] getchainedprop 1132 .................... <pspr.mytank>
+  [2530] getchainedprop 1141 .................... <pspr.mytank.blocker>
+  [2533] pushint8 2 ............................. <2>
+  [2535] pusharglistnoret 2 ..................... <pspr.mytank.blocker, 2>
+  [2537] objcall 1125 ........................... pspr.mytank.blocker.gotoAndStop(2)
+  [2540] pushcons 16 ............................ <"_root.state">
+  [2542] pushcons 18 ............................ <"wait">
+  [2544] pusharglistnoret 2 ..................... <"_root.state", "wait">
+  [2546] extcall 248 ............................ setflash("_root.state", "wait")
+  [2548] jmp [4455]
+  [2551] peek 0
+  [2553] pushcons 98 ............................ <"achievements">
+  [2555] eq
+  [2556] jmpifz [3611] .......................... (case) "achievements":
+  [2559] getglobal 191 .......................... <gisloggedin>
+  [2561] jmpifz [3584] .......................... if gisloggedin then / else
+  [2564] pushcons 81 ............................ <"datamytank">
+  [2566] pusharglist 1 .......................... <"datamytank">
+  [2568] extcall 52 ............................. <member("datamytank")>
+  [2570] getobjprop 54 .......................... <member("datamytank").text>
+  [2572] setlocal 2 ............................. vnom = member("datamytank").text
+  [2574] pushcons 34 ............................ <";">
+  [2576] setmovieprop 363 ....................... the itemDelimiter = ";"
+  [2579] getlocal 2 ............................. <vnom>
+  [2581] pushsymb 364 ........................... <#item>
+  [2584] pushint8 1 ............................. <1>
+  [2586] pusharglist 3 .......................... <vnom, #item, 1>
+  [2588] objcall 122 ............................ <vnom.item[1]>
+  [2590] setlocal 24 ............................ nrank = vnom.item[1]
+  [2592] pushzero ............................... <0>
+  [2593] setlocal 25 ............................ nticks = 0
+  [2595] pushcons 97 ............................ <"datastats">
+  [2597] pusharglist 1 .......................... <"datastats">
+  [2599] extcall 52 ............................. <member("datastats")>
+  [2601] getobjprop 54 .......................... <member("datastats").text>
+  [2603] setlocal 21 ............................ vgetstats = member("datastats").text
+  [2605] getlocal 21 ............................ <vgetstats>
+  [2607] pusharglist 1 .......................... <vgetstats>
+  [2609] extcall 62 ............................. <value(vgetstats)>
+  [2611] setlocal 26 ............................ nstat = value(vgetstats)
+  [2613] getprop 1117 ........................... <pspr>
+  [2616] getchainedprop 1132 .................... <pspr.mytank>
+  [2619] getchainedprop 290 ..................... <pspr.mytank.content>
+  [2622] getobjprop 1142 ........................ <pspr.mytank.content.contentMain>
+  [2625] setlocal 23 ............................ vad = pspr.mytank.content.contentMain
+  [2627] getlocal 24 ............................ <nrank>
+  [2629] peek 0 ................................. case nrank of
+  [2631] pushcons 82 ............................ <"Tank Private">
+  [2633] eq
+  [2634] jmpifz [2686] .......................... (case) "Tank Private":
+  [2637] getlocal 26 ............................ <nstat>
+  [2639] getobjprop 1030 ........................ <nstat.total_killed>
+  [2642] pushint8 20 ............................ <20>
+  [2644] gteq ................................... <nstat.total_killed >= 20>
+  [2645] jmpifz [2660] .......................... if nstat.total_killed >= 20 then
+  [2648] getlocal 23 ............................ <vad>
+  [2650] getchainedprop 1180 .................... <vad.a1>
+  [2653] pushint8 2 ............................. <2>
+  [2655] pusharglistnoret 2 ..................... <vad.a1, 2>
+  [2657] objcall 1125 ........................... vad.a1.gotoAndStop(2)
+  [2660] getlocal 26 ............................ <nstat>
+  [2662] getobjprop 1037 ........................ <nstat.team_wins>
+  [2665] pushint8 2 ............................. <2>
+  [2667] gteq ................................... <nstat.team_wins >= 2>
+  [2668] jmpifz [2683] .......................... if nstat.team_wins >= 2 then
+  [2671] getlocal 23 ............................ <vad>
+  [2673] getchainedprop 1181 .................... <vad.a2>
+  [2676] pushint8 2 ............................. <2>
+  [2678] pusharglistnoret 2 ..................... <vad.a2, 2>
+  [2680] objcall 1125 ........................... vad.a2.gotoAndStop(2)
+  [2683] jmp [3565]
+  [2686] peek 0
+  [2688] pushcons 83 ............................ <"Tank Gunner">
+  [2690] eq
+  [2691] jmpifz [2782] .......................... (case) "Tank Gunner":
+  [2694] pushint8 2 ............................. <2>
+  [2696] setlocal 25 ............................ nticks = 2
+  [2698] getlocal 26 ............................ <nstat>
+  [2700] pushsymb 1052 .......................... <#award_round_challenges>
+  [2703] pushint8 1 ............................. <1>
+  [2705] pusharglist 3 .......................... <nstat, #award_round_challenges, 1>
+  [2707] objcall 122 ............................ <nstat.award_round_challenges[1]>
+  [2709] pushint8 1 ............................. <1>
+  [2711] eq ..................................... <nstat.award_round_challenges[1] = 1>
+  [2712] jmpifz [2727] .......................... if nstat.award_round_challenges[1] = 1 then
+  [2715] getlocal 23 ............................ <vad>
+  [2717] getchainedprop 1182 .................... <vad.a3>
+  [2720] pushint8 2 ............................. <2>
+  [2722] pusharglistnoret 2 ..................... <vad.a3, 2>
+  [2724] objcall 1125 ........................... vad.a3.gotoAndStop(2)
+  [2727] getlocal 26 ............................ <nstat>
+  [2729] getobjprop 1030 ........................ <nstat.total_killed>
+  [2732] pushint8 50 ............................ <50>
+  [2734] gteq ................................... <nstat.total_killed >= 50>
+  [2735] jmpifz [2750] .......................... if nstat.total_killed >= 50 then
+  [2738] getlocal 23 ............................ <vad>
+  [2740] getchainedprop 1183 .................... <vad.a4>
+  [2743] pushint8 2 ............................. <2>
+  [2745] pusharglistnoret 2 ..................... <vad.a4, 2>
+  [2747] objcall 1125 ........................... vad.a4.gotoAndStop(2)
+  [2750] getlocal 26 ............................ <nstat>
+  [2752] pushsymb 1052 .......................... <#award_round_challenges>
+  [2755] pushint8 2 ............................. <2>
+  [2757] pusharglist 3 .......................... <nstat, #award_round_challenges, 2>
+  [2759] objcall 122 ............................ <nstat.award_round_challenges[2]>
+  [2761] pushint8 1 ............................. <1>
+  [2763] eq ..................................... <nstat.award_round_challenges[2] = 1>
+  [2764] jmpifz [2779] .......................... if nstat.award_round_challenges[2] = 1 then
+  [2767] getlocal 23 ............................ <vad>
+  [2769] getchainedprop 1184 .................... <vad.a5>
+  [2772] pushint8 2 ............................. <2>
+  [2774] pusharglistnoret 2 ..................... <vad.a5, 2>
+  [2776] objcall 1125 ........................... vad.a5.gotoAndStop(2)
+  [2779] jmp [3565]
+  [2782] peek 0
+  [2784] pushcons 84 ............................ <"Tank Commander">
+  [2786] eq
+  [2787] jmpifz [2874] .......................... (case) "Tank Commander":
+  [2790] pushint8 5 ............................. <5>
+  [2792] setlocal 25 ............................ nticks = 5
+  [2794] getlocal 26 ............................ <nstat>
+  [2796] pushsymb 1052 .......................... <#award_round_challenges>
+  [2799] pushint8 3 ............................. <3>
+  [2801] pusharglist 3 .......................... <nstat, #award_round_challenges, 3>
+  [2803] objcall 122 ............................ <nstat.award_round_challenges[3]>
+  [2805] pushint8 1 ............................. <1>
+  [2807] eq ..................................... <nstat.award_round_challenges[3] = 1>
+  [2808] jmpifz [2823] .......................... if nstat.award_round_challenges[3] = 1 then
+  [2811] getlocal 23 ............................ <vad>
+  [2813] getchainedprop 1185 .................... <vad.a6>
+  [2816] pushint8 2 ............................. <2>
+  [2818] pusharglistnoret 2 ..................... <vad.a6, 2>
+  [2820] objcall 1125 ........................... vad.a6.gotoAndStop(2)
+  [2823] getlocal 26 ............................ <nstat>
+  [2825] getobjprop 1039 ........................ <nstat.max_airtime>
+  [2828] pushint16 2000 ......................... <2000>
+  [2831] gteq ................................... <nstat.max_airtime >= 2000>
+  [2832] jmpifz [2847] .......................... if nstat.max_airtime >= 2000 then
+  [2835] getlocal 23 ............................ <vad>
+  [2837] getchainedprop 1186 .................... <vad.a7>
+  [2840] pushint8 2 ............................. <2>
+  [2842] pusharglistnoret 2 ..................... <vad.a7, 2>
+  [2844] objcall 1125 ........................... vad.a7.gotoAndStop(2)
+  [2847] getlocal 26 ............................ <nstat>
+  [2849] getobjprop 1030 ........................ <nstat.total_killed>
+  [2852] pushint16 200 .......................... <200>
+  [2855] gteq ................................... <nstat.total_killed >= 200>
+  [2856] jmpifz [2871] .......................... if nstat.total_killed >= 200 then
+  [2859] getlocal 23 ............................ <vad>
+  [2861] getchainedprop 1187 .................... <vad.a8>
+  [2864] pushint8 2 ............................. <2>
+  [2866] pusharglistnoret 2 ..................... <vad.a8, 2>
+  [2868] objcall 1125 ........................... vad.a8.gotoAndStop(2)
+  [2871] jmp [3565]
+  [2874] peek 0
+  [2876] pushcons 85 ............................ <"Tank Style Technician">
+  [2878] eq
+  [2879] jmpifz [2965] .......................... (case) "Tank Style Technician":
+  [2882] pushint8 8 ............................. <8>
+  [2884] setlocal 25 ............................ nticks = 8
+  [2886] getlocal 26 ............................ <nstat>
+  [2888] pushsymb 1052 .......................... <#award_round_challenges>
+  [2891] pushint8 4 ............................. <4>
+  [2893] pusharglist 3 .......................... <nstat, #award_round_challenges, 4>
+  [2895] objcall 122 ............................ <nstat.award_round_challenges[4]>
+  [2897] pushint8 1 ............................. <1>
+  [2899] eq ..................................... <nstat.award_round_challenges[4] = 1>
+  [2900] jmpifz [2915] .......................... if nstat.award_round_challenges[4] = 1 then
+  [2903] getlocal 23 ............................ <vad>
+  [2905] getchainedprop 1188 .................... <vad.a9>
+  [2908] pushint8 2 ............................. <2>
+  [2910] pusharglistnoret 2 ..................... <vad.a9, 2>
+  [2912] objcall 1125 ........................... vad.a9.gotoAndStop(2)
+  [2915] getlocal 26 ............................ <nstat>
+  [2917] getobjprop 1030 ........................ <nstat.total_killed>
+  [2920] pushint16 500 .......................... <500>
+  [2923] gteq ................................... <nstat.total_killed >= 500>
+  [2924] jmpifz [2939] .......................... if nstat.total_killed >= 500 then
+  [2927] getlocal 23 ............................ <vad>
+  [2929] getchainedprop 1189 .................... <vad.a10>
+  [2932] pushint8 2 ............................. <2>
+  [2934] pusharglistnoret 2 ..................... <vad.a10, 2>
+  [2936] objcall 1125 ........................... vad.a10.gotoAndStop(2)
+  [2939] getlocal 26 ............................ <nstat>
+  [2941] getobjprop 1047 ........................ <nstat.award_topscoretimes>
+  [2944] pushint8 5 ............................. <5>
+  [2946] gteq ................................... <nstat.award_topscoretimes >= 5>
+  [2947] jmpifz [2962] .......................... if nstat.award_topscoretimes >= 5 then
+  [2950] getlocal 23 ............................ <vad>
+  [2952] getchainedprop 1190 .................... <vad.a11>
+  [2955] pushint8 2 ............................. <2>
+  [2957] pusharglistnoret 2 ..................... <vad.a11, 2>
+  [2959] objcall 1125 ........................... vad.a11.gotoAndStop(2)
+  [2962] jmp [3565]
+  [2965] peek 0
+  [2967] pushcons 86 ............................ <"Tank Captain">
+  [2969] eq
+  [2970] jmpifz [3058] .......................... (case) "Tank Captain":
+  [2973] pushint8 11 ............................ <11>
+  [2975] setlocal 25 ............................ nticks = 11
+  [2977] getlocal 26 ............................ <nstat>
+  [2979] getobjprop 1039 ........................ <nstat.max_airtime>
+  [2982] pushint32 40000 ........................ <40000>
+  [2987] gteq ................................... <nstat.max_airtime >= 40000>
+  [2988] jmpifz [3003] .......................... if nstat.max_airtime >= 40000 then
+  [2991] getlocal 23 ............................ <vad>
+  [2993] getchainedprop 1191 .................... <vad.a12>
+  [2996] pushint8 2 ............................. <2>
+  [2998] pusharglistnoret 2 ..................... <vad.a12, 2>
+  [3000] objcall 1125 ........................... vad.a12.gotoAndStop(2)
+  [3003] getlocal 26 ............................ <nstat>
+  [3005] getobjprop 1047 ........................ <nstat.award_topscoretimes>
+  [3008] pushint8 20 ............................ <20>
+  [3010] gteq ................................... <nstat.award_topscoretimes >= 20>
+  [3011] jmpifz [3026] .......................... if nstat.award_topscoretimes >= 20 then
+  [3014] getlocal 23 ............................ <vad>
+  [3016] getchainedprop 1192 .................... <vad.a13>
+  [3019] pushint8 2 ............................. <2>
+  [3021] pusharglistnoret 2 ..................... <vad.a13, 2>
+  [3023] objcall 1125 ........................... vad.a13.gotoAndStop(2)
+  [3026] getlocal 26 ............................ <nstat>
+  [3028] pushsymb 1052 .......................... <#award_round_challenges>
+  [3031] pushint8 5 ............................. <5>
+  [3033] pusharglist 3 .......................... <nstat, #award_round_challenges, 5>
+  [3035] objcall 122 ............................ <nstat.award_round_challenges[5]>
+  [3037] pushint8 1 ............................. <1>
+  [3039] eq ..................................... <nstat.award_round_challenges[5] = 1>
+  [3040] jmpifz [3055] .......................... if nstat.award_round_challenges[5] = 1 then
+  [3043] getlocal 23 ............................ <vad>
+  [3045] getchainedprop 1193 .................... <vad.a14>
+  [3048] pushint8 2 ............................. <2>
+  [3050] pusharglistnoret 2 ..................... <vad.a14, 2>
+  [3052] objcall 1125 ........................... vad.a14.gotoAndStop(2)
+  [3055] jmp [3565]
+  [3058] peek 0
+  [3060] pushcons 87 ............................ <"Chief Style Technician">
+  [3062] eq
+  [3063] jmpifz [3214] .......................... (case) "Chief Style Technician":
+  [3066] pushint8 14 ............................ <14>
+  [3068] setlocal 25 ............................ nticks = 14
+  [3070] pushzero ............................... <0>
+  [3071] setlocal 27 ............................ vcheck = 0
+  [3073] pushint8 1 ............................. <1>
+  [3075] setlocal 9
+  [3077] getlocal 9
+  [3079] getlocal 26 ............................ <nstat>
+  [3081] pushsymb 1031 .......................... <#damage_to_enemy>
+  [3084] pusharglist 2 .......................... <nstat, #damage_to_enemy>
+  [3086] objcall 72 ............................. <nstat.damage_to_enemy.count>
+  [3088] lteq
+  [3089] jmpifz [3138] .......................... repeat with i = 1 to nstat.damage_to_enemy.count
+  [3092] getlocal 26 ............................ <nstat>
+  [3094] getchainedprop 1031 .................... <nstat.damage_to_enemy>
+  [3097] getlocal 26 ............................ <nstat>
+  [3099] getchainedprop 1031 .................... <nstat.damage_to_enemy>
+  [3102] getlocal 9 ............................. <i>
+  [3104] pusharglist 2 .......................... <nstat.damage_to_enemy, i>
+  [3106] objcall 1032 ........................... <nstat.damage_to_enemy.getPropAt(i)>
+  [3109] pusharglist 2 .......................... <nstat.damage_to_enemy, nstat.damage_to_enemy.getPropAt(i)>
+  [3111] objcall 122 ............................ <nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i))>
+  [3113] pusharglist 1 .......................... <nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i))>
+  [3115] extcall 96 ............................. <integer(nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i)))>
+  [3117] pushzero ............................... <0>
+  [3118] gt ..................................... <integer(nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i))) > 0>
+  [3119] jmpifz [3129] .......................... if integer(nstat.damage_to_enemy.getProp(nstat.damage_to_enemy.getPropAt(i))) > 0 then
+  [3122] getlocal 27 ............................ <vcheck>
+  [3124] pushint8 1 ............................. <1>
+  [3126] add .................................... <vcheck + 1>
+  [3127] setlocal 27 ............................ vcheck = vcheck + 1
+  [3129] pushint8 1
+  [3131] getlocal 9
+  [3133] add
+  [3134] setlocal 9
+  [3136] endrepeat [3077]
+  [3138] getlocal 27 ............................ <vcheck>
+  [3140] pushint8 10 ............................ <10>
+  [3142] gteq ................................... <vcheck >= 10>
+  [3143] jmpifz [3158] .......................... if vcheck >= 10 then
+  [3146] getlocal 23 ............................ <vad>
+  [3148] getchainedprop 1194 .................... <vad.a15>
+  [3151] pushint8 2 ............................. <2>
+  [3153] pusharglistnoret 2 ..................... <vad.a15, 2>
+  [3155] objcall 1125 ........................... vad.a15.gotoAndStop(2)
+  [3158] getlocal 26 ............................ <nstat>
+  [3160] pushsymb 1052 .......................... <#award_round_challenges>
+  [3163] pushint8 6 ............................. <6>
+  [3165] pusharglist 3 .......................... <nstat, #award_round_challenges, 6>
+  [3167] objcall 122 ............................ <nstat.award_round_challenges[6]>
+  [3169] pushint8 1 ............................. <1>
+  [3171] eq ..................................... <nstat.award_round_challenges[6] = 1>
+  [3172] jmpifz [3187] .......................... if nstat.award_round_challenges[6] = 1 then
+  [3175] getlocal 23 ............................ <vad>
+  [3177] getchainedprop 1195 .................... <vad.a16>
+  [3180] pushint8 2 ............................. <2>
+  [3182] pusharglistnoret 2 ..................... <vad.a16, 2>
+  [3184] objcall 1125 ........................... vad.a16.gotoAndStop(2)
+  [3187] getlocal 26 ............................ <nstat>
+  [3189] getobjprop 1030 ........................ <nstat.total_killed>
+  [3192] pushint16 1000 ......................... <1000>
+  [3195] gteq ................................... <nstat.total_killed >= 1000>
+  [3196] jmpifz [3211] .......................... if nstat.total_killed >= 1000 then
+  [3199] getlocal 23 ............................ <vad>
+  [3201] getchainedprop 1196 .................... <vad.a17>
+  [3204] pushint8 2 ............................. <2>
+  [3206] pusharglistnoret 2 ..................... <vad.a17, 2>
+  [3208] objcall 1125 ........................... vad.a17.gotoAndStop(2)
+  [3211] jmp [3565]
+  [3214] peek 0
+  [3216] pushcons 88 ............................ <"Corporal">
+  [3218] eq
+  [3219] jmpifz [3275] .......................... (case) "Corporal":
+  [3222] pushint8 17 ............................ <17>
+  [3224] setlocal 25 ............................ nticks = 17
+  [3226] getlocal 26 ............................ <nstat>
+  [3228] getobjprop 1047 ........................ <nstat.award_topscoretimes>
+  [3231] pushint8 50 ............................ <50>
+  [3233] gteq ................................... <nstat.award_topscoretimes >= 50>
+  [3234] jmpifz [3249] .......................... if nstat.award_topscoretimes >= 50 then
+  [3237] getlocal 23 ............................ <vad>
+  [3239] getchainedprop 1197 .................... <vad.a18>
+  [3242] pushint8 2 ............................. <2>
+  [3244] pusharglistnoret 2 ..................... <vad.a18, 2>
+  [3246] objcall 1125 ........................... vad.a18.gotoAndStop(2)
+  [3249] getlocal 26 ............................ <nstat>
+  [3251] getobjprop 1048 ........................ <nstat.award_recruits>
+  [3254] pushint8 3 ............................. <3>
+  [3256] gteq ................................... <nstat.award_recruits >= 3>
+  [3257] jmpifz [3272] .......................... if nstat.award_recruits >= 3 then
+  [3260] getlocal 23 ............................ <vad>
+  [3262] getchainedprop 1198 .................... <vad.a19>
+  [3265] pushint8 2 ............................. <2>
+  [3267] pusharglistnoret 2 ..................... <vad.a19, 2>
+  [3269] objcall 1125 ........................... vad.a19.gotoAndStop(2)
+  [3272] jmp [3565]
+  [3275] peek 0
+  [3277] pushcons 89 ............................ <"Sergeant">
+  [3279] eq
+  [3280] jmpifz [3343] .......................... (case) "Sergeant":
+  [3283] pushint8 19 ............................ <19>
+  [3285] setlocal 25 ............................ nticks = 19
+  [3287] getlocal 26 ............................ <nstat>
+  [3289] pushsymb 1052 .......................... <#award_round_challenges>
+  [3292] pushint8 7 ............................. <7>
+  [3294] pusharglist 3 .......................... <nstat, #award_round_challenges, 7>
+  [3296] objcall 122 ............................ <nstat.award_round_challenges[7]>
+  [3298] pushint8 1 ............................. <1>
+  [3300] eq ..................................... <nstat.award_round_challenges[7] = 1>
+  [3301] jmpifz [3316] .......................... if nstat.award_round_challenges[7] = 1 then
+  [3304] getlocal 23 ............................ <vad>
+  [3306] getchainedprop 1199 .................... <vad.a20>
+  [3309] pushint8 2 ............................. <2>
+  [3311] pusharglistnoret 2 ..................... <vad.a20, 2>
+  [3313] objcall 1125 ........................... vad.a20.gotoAndStop(2)
+  [3316] getlocal 26 ............................ <nstat>
+  [3318] getobjprop 1030 ........................ <nstat.total_killed>
+  [3321] pushint16 2000 ......................... <2000>
+  [3324] gteq ................................... <nstat.total_killed >= 2000>
+  [3325] jmpifz [3340] .......................... if nstat.total_killed >= 2000 then
+  [3328] getlocal 23 ............................ <vad>
+  [3330] getchainedprop 1200 .................... <vad.a21>
+  [3333] pushint8 2 ............................. <2>
+  [3335] pusharglistnoret 2 ..................... <vad.a21, 2>
+  [3337] objcall 1125 ........................... vad.a21.gotoAndStop(2)
+  [3340] jmp [3565]
+  [3343] peek 0
+  [3345] pushcons 90 ............................ <"Gunnery Sergeant">
+  [3347] eq
+  [3348] jmpifz [3387] .......................... (case) "Gunnery Sergeant":
+  [3351] pushint8 21 ............................ <21>
+  [3353] setlocal 25 ............................ nticks = 21
+  [3355] getlocal 26 ............................ <nstat>
+  [3357] pushsymb 1052 .......................... <#award_round_challenges>
+  [3360] pushint8 8 ............................. <8>
+  [3362] pusharglist 3 .......................... <nstat, #award_round_challenges, 8>
+  [3364] objcall 122 ............................ <nstat.award_round_challenges[8]>
+  [3366] pushint8 1 ............................. <1>
+  [3368] eq ..................................... <nstat.award_round_challenges[8] = 1>
+  [3369] jmpifz [3384] .......................... if nstat.award_round_challenges[8] = 1 then
+  [3372] getlocal 23 ............................ <vad>
+  [3374] getchainedprop 1201 .................... <vad.a22>
+  [3377] pushint8 2 ............................. <2>
+  [3379] pusharglistnoret 2 ..................... <vad.a22, 2>
+  [3381] objcall 1125 ........................... vad.a22.gotoAndStop(2)
+  [3384] jmp [3565]
+  [3387] peek 0
+  [3389] pushcons 91 ............................ <"Master Sergeant">
+  [3391] eq
+  [3392] jmpifz [3431] .......................... (case) "Master Sergeant":
+  [3395] pushint8 22 ............................ <22>
+  [3397] setlocal 25 ............................ nticks = 22
+  [3399] getlocal 26 ............................ <nstat>
+  [3401] pushsymb 1052 .......................... <#award_round_challenges>
+  [3404] pushint8 9 ............................. <9>
+  [3406] pusharglist 3 .......................... <nstat, #award_round_challenges, 9>
+  [3408] objcall 122 ............................ <nstat.award_round_challenges[9]>
+  [3410] pushint8 1 ............................. <1>
+  [3412] eq ..................................... <nstat.award_round_challenges[9] = 1>
+  [3413] jmpifz [3428] .......................... if nstat.award_round_challenges[9] = 1 then
+  [3416] getlocal 23 ............................ <vad>
+  [3418] getchainedprop 1202 .................... <vad.a23>
+  [3421] pushint8 2 ............................. <2>
+  [3423] pusharglistnoret 2 ..................... <vad.a23, 2>
+  [3425] objcall 1125 ........................... vad.a23.gotoAndStop(2)
+  [3428] jmp [3565]
+  [3431] peek 0
+  [3433] pushcons 92 ............................ <"Master Gunnary Sergeant">
+  [3435] eq
+  [3436] jmpifz [3470] .......................... (case) "Master Gunnary Sergeant":
+  [3439] pushint8 23 ............................ <23>
+  [3441] setlocal 25 ............................ nticks = 23
+  [3443] getlocal 26 ............................ <nstat>
+  [3445] getobjprop 1030 ........................ <nstat.total_killed>
+  [3448] pushint16 5000 ......................... <5000>
+  [3451] gteq ................................... <nstat.total_killed >= 5000>
+  [3452] jmpifz [3467] .......................... if nstat.total_killed >= 5000 then
+  [3455] getlocal 23 ............................ <vad>
+  [3457] getchainedprop 1203 .................... <vad.a24>
+  [3460] pushint8 2 ............................. <2>
+  [3462] pusharglistnoret 2 ..................... <vad.a24, 2>
+  [3464] objcall 1125 ........................... vad.a24.gotoAndStop(2)
+  [3467] jmp [3565]
+  [3470] peek 0
+  [3472] pushcons 93 ............................ <"Sergeant Major">
+  [3474] eq
+  [3475] jmpifz [3509] .......................... (case) "Sergeant Major":
+  [3478] pushint8 24 ............................ <24>
+  [3480] setlocal 25 ............................ nticks = 24
+  [3482] getlocal 26 ............................ <nstat>
+  [3484] getobjprop 1038 ........................ <nstat.battles_fought>
+  [3487] pushint16 1000 ......................... <1000>
+  [3490] gteq ................................... <nstat.battles_fought >= 1000>
+  [3491] jmpifz [3506] .......................... if nstat.battles_fought >= 1000 then
+  [3494] getlocal 23 ............................ <vad>
+  [3496] getchainedprop 1204 .................... <vad.a25>
+  [3499] pushint8 2 ............................. <2>
+  [3501] pusharglistnoret 2 ..................... <vad.a25, 2>
+  [3503] objcall 1125 ........................... vad.a25.gotoAndStop(2)
+  [3506] jmp [3565]
+  [3509] peek 0
+  [3511] pushcons 94 ............................ <"Veteran">
+  [3513] eq
+  [3514] jmpifz [3553] .......................... (case) "Veteran":
+  [3517] pushint8 25 ............................ <25>
+  [3519] setlocal 25 ............................ nticks = 25
+  [3521] getlocal 26 ............................ <nstat>
+  [3523] pushsymb 1052 .......................... <#award_round_challenges>
+  [3526] pushint8 10 ............................ <10>
+  [3528] pusharglist 3 .......................... <nstat, #award_round_challenges, 10>
+  [3530] objcall 122 ............................ <nstat.award_round_challenges[10]>
+  [3532] pushint8 1 ............................. <1>
+  [3534] eq ..................................... <nstat.award_round_challenges[10] = 1>
+  [3535] jmpifz [3550] .......................... if nstat.award_round_challenges[10] = 1 then
+  [3538] getlocal 23 ............................ <vad>
+  [3540] getchainedprop 1205 .................... <vad.a26>
+  [3543] pushint8 2 ............................. <2>
+  [3545] pusharglistnoret 2 ..................... <vad.a26, 2>
+  [3547] objcall 1125 ........................... vad.a26.gotoAndStop(2)
+  [3550] jmp [3565]
+  [3553] peek 0
+  [3555] pushcons 95 ............................ <"Special Ops">
+  [3557] eq
+  [3558] jmpifz [3565] .......................... (case) "Special Ops":
+  [3561] pushint8 26 ............................ <26>
+  [3563] setlocal 25 ............................ nticks = 26
+  [3565] pop 1 .................................. end case
+  [3567] getlocal 23 ............................ <vad>
+  [3569] getlocal 25 ............................ <nticks>
+  [3571] setobjprop 1206 ........................ vad.pticks = nticks
+  [3574] getlocal 23 ............................ <vad>
+  [3576] pusharglistnoret 1 ..................... <vad>
+  [3578] objcall 1207 ........................... vad.sortticks()
+  [3581] jmp [3600]
+  [3584] getprop 1117 ........................... <pspr>
+  [3587] getchainedprop 1132 .................... <pspr.mytank>
+  [3590] getchainedprop 1141 .................... <pspr.mytank.blocker>
+  [3593] pushint8 2 ............................. <2>
+  [3595] pusharglistnoret 2 ..................... <pspr.mytank.blocker, 2>
+  [3597] objcall 1125 ........................... pspr.mytank.blocker.gotoAndStop(2)
+  [3600] pushcons 16 ............................ <"_root.state">
+  [3602] pushcons 18 ............................ <"wait">
+  [3604] pusharglistnoret 2 ..................... <"_root.state", "wait">
+  [3606] extcall 248 ............................ setflash("_root.state", "wait")
+  [3608] jmp [4455]
+  [3611] peek 0
+  [3613] pushcons 99 ............................ <"register">
+  [3615] eq
+  [3616] jmpifz [4019] .......................... (case) "register":
+  [3619] getprop 1118 ........................... <pwebstep>
+  [3622] pushzero ............................... <0>
+  [3623] eq ..................................... <pwebstep = 0>
+  [3624] jmpifz [3786] .......................... if pwebstep = 0 then / else
+  [3627] getprop 1117 ........................... <pspr>
+  [3630] pushcons 52 ............................ <"_root.psubmit">
+  [3632] pusharglist 2 .......................... <pspr, "_root.psubmit">
+  [3634] extcall 286 ............................ <getVariable(pspr, "_root.psubmit")>
+  [3637] pusharglist 1 .......................... <getVariable(pspr, "_root.psubmit")>
+  [3639] extcall 59 ............................. <string(getVariable(pspr, "_root.psubmit"))>
+  [3641] setlocal 12 ............................ psubmit = string(getVariable(pspr, "_root.psubmit"))
+  [3643] getlocal 12 ............................ <psubmit>
+  [3645] pushcons 53 ............................ <"true">
+  [3647] eq ..................................... <psubmit = "true">
+  [3648] jmpifz [3783] .......................... if psubmit = "true" then
+  [3651] getprop 1117 ........................... <pspr>
+  [3654] pushcons 100 ........................... <"_root.username">
+  [3656] pusharglist 2 .......................... <pspr, "_root.username">
+  [3658] extcall 286 ............................ <getVariable(pspr, "_root.username")>
+  [3661] pusharglist 1 .......................... <getVariable(pspr, "_root.username")>
+  [3663] extcall 59 ............................. <string(getVariable(pspr, "_root.username"))>
+  [3665] setlocal 28 ............................ vusername = string(getVariable(pspr, "_root.username"))
+  [3667] getlocal 28 ............................ <vusername>
+  [3669] pusharglist 1 .......................... <vusername>
+  [3671] extcall 261 ............................ <VerifyUserName(vusername)>
+  [3674] setlocal 29 ............................ vokusername = VerifyUserName(vusername)
+  [3676] getlocal 29 ............................ <vokusername>
+  [3678] pushcons 2 ............................. <EMPTY>
+  [3680] nteq ................................... <vokusername <> EMPTY>
+  [3681] jmpifz [3783] .......................... if vokusername <> EMPTY then
+  [3684] getprop 1117 ........................... <pspr>
+  [3687] pushcons 101 ........................... <"_root.password">
+  [3689] pusharglist 2 .......................... <pspr, "_root.password">
+  [3691] extcall 286 ............................ <getVariable(pspr, "_root.password")>
+  [3694] pusharglist 1 .......................... <getVariable(pspr, "_root.password")>
+  [3696] extcall 59 ............................. <string(getVariable(pspr, "_root.password"))>
+  [3698] setlocal 30 ............................ vpassword = string(getVariable(pspr, "_root.password"))
+  [3700] getprop 1117 ........................... <pspr>
+  [3703] pushcons 102 ........................... <"_root.email">
+  [3705] pusharglist 2 .......................... <pspr, "_root.email">
+  [3707] extcall 286 ............................ <getVariable(pspr, "_root.email")>
+  [3710] pusharglist 1 .......................... <getVariable(pspr, "_root.email")>
+  [3712] extcall 59 ............................. <string(getVariable(pspr, "_root.email"))>
+  [3714] setlocal 31 ............................ vemail = string(getVariable(pspr, "_root.email"))
+  [3716] getprop 1117 ........................... <pspr>
+  [3719] pushcons 103 ........................... <"_root.fullname">
+  [3721] pusharglist 2 .......................... <pspr, "_root.fullname">
+  [3723] extcall 286 ............................ <getVariable(pspr, "_root.fullname")>
+  [3726] pusharglist 1 .......................... <getVariable(pspr, "_root.fullname")>
+  [3728] extcall 59 ............................. <string(getVariable(pspr, "_root.fullname"))>
+  [3730] setlocal 32 ............................ vfullname = string(getVariable(pspr, "_root.fullname"))
+  [3732] pushcons 59 ............................ <"action">
+  [3734] pushcons 99 ............................ <"register">
+  [3736] pushcons 104 ........................... <"username">
+  [3738] getlocal 29 ............................ <vokusername>
+  [3740] pushcons 105 ........................... <"password">
+  [3742] getlocal 30 ............................ <vpassword>
+  [3744] pushcons 106 ........................... <"email">
+  [3746] getlocal 31 ............................ <vemail>
+  [3748] pusharglist 8 .......................... <["action": "register", "username": vokusername, "password": vpassword, "email": vemail]>
+  [3750] pushproplist ........................... <["action": "register", "username": vokusername, "password": vpassword, "email": vemail]>
+  [3751] setlocal 14 ............................ vcont = ["action": "register", "username": vokusername, "password": vpassword, "email": vemail]
+  [3753] getprop 1012 ........................... <purl>
+  [3756] getlocal 14 ............................ <vcont>
+  [3758] pusharglist 2 .......................... <purl, vcont>
+  [3760] extcall 1053 ........................... <postNetText(purl, vcont)>
+  [3763] setprop 1013 ........................... pnetid = postNetText(purl, vcont)
+  [3766] getprop 1117 ........................... <pspr>
+  [3769] pushcons 52 ............................ <"_root.psubmit">
+  [3771] pushcons 57 ............................ <"false">
+  [3773] pusharglistnoret 3 ..................... <pspr, "_root.psubmit", "false">
+  [3775] extcall 283 ............................ setVariable(pspr, "_root.psubmit", "false")
+  [3778] pushint8 1 ............................. <1>
+  [3780] setprop 1118 ........................... pwebstep = 1
+  [3783] jmp [4016]
+  [3786] getprop 1013 ........................... <pnetid>
+  [3789] pusharglist 1 .......................... <pnetid>
+  [3791] extcall 1020 ........................... <netDone(pnetid)>
+  [3794] jmpifz [4004] .......................... if netDone(pnetid) then / else
+  [3797] getprop 1013 ........................... <pnetid>
+  [3800] pusharglist 1 .......................... <pnetid>
+  [3802] extcall 1021 ........................... <netError(pnetid)>
+  [3805] pushcons 63 ............................ <"OK">
+  [3807] eq ..................................... <netError(pnetid) = "OK">
+  [3808] jmpifz [3989] .......................... if netError(pnetid) = "OK" then / else
+  [3811] getprop 1013 ........................... <pnetid>
+  [3814] pusharglist 1 .......................... <pnetid>
+  [3816] extcall 1022 ........................... <netTextResult(pnetid)>
+  [3819] setlocal 15 ............................ Msg = netTextResult(pnetid)
+  [3821] pushcons 34 ............................ <";">
+  [3823] setmovieprop 363 ....................... the itemDelimiter = ";"
+  [3826] getlocal 15 ............................ <Msg>
+  [3828] pushsymb 364 ........................... <#item>
+  [3831] pushint8 1 ............................. <1>
+  [3833] pusharglist 3 .......................... <Msg, #item, 1>
+  [3835] objcall 122 ............................ <Msg.item[1]>
+  [3837] pushcons 11 ............................ <"1">
+  [3839] eq ..................................... <Msg.item[1] = "1">
+  [3840] jmpifz [3961] .......................... if Msg.item[1] = "1" then / else
+  [3843] pushcons 40 ............................ <"datame">
+  [3845] pusharglist 1 .......................... <"datame">
+  [3847] extcall 52 ............................. <member("datame")>
+  [3849] getlocal 15 ............................ <Msg>
+  [3851] pushsymb 364 ........................... <#item>
+  [3854] pushint8 2 ............................. <2>
+  [3856] pusharglist 3 .......................... <Msg, #item, 2>
+  [3858] objcall 122 ............................ <Msg.item[2]>
+  [3860] pushcons 34 ............................ <";">
+  [3862] joinstr ................................ <Msg.item[2] & ";">
+  [3863] getlocal 15 ............................ <Msg>
+  [3865] pushsymb 364 ........................... <#item>
+  [3868] pushint8 3 ............................. <3>
+  [3870] pusharglist 3 .......................... <Msg, #item, 3>
+  [3872] objcall 122 ............................ <Msg.item[3]>
+  [3874] joinstr ................................ <Msg.item[2] & ";" & Msg.item[3]>
+  [3875] setobjprop 54 .......................... member("datame").text = Msg.item[2] & ";" & Msg.item[3]
+  [3877] getlocal 15 ............................ <Msg>
+  [3879] pushsymb 364 ........................... <#item>
+  [3882] pushint8 4 ............................. <4>
+  [3884] pusharglist 3 .......................... <Msg, #item, 4>
+  [3886] objcall 122 ............................ <Msg.item[4]>
+  [3888] setglobal 190 .......................... gsession = Msg.item[4]
+  [3890] pushint8 1 ............................. <1>
+  [3892] setglobal 191 .......................... gisloggedin = 1
+  [3894] getlocal 15 ............................ <Msg>
+  [3896] pushsymb 364 ........................... <#item>
+  [3899] pushint8 2 ............................. <2>
+  [3901] pusharglist 3 .......................... <Msg, #item, 2>
+  [3903] objcall 122 ............................ <Msg.item[2]>
+  [3905] setglobal 67 ........................... nom = Msg.item[2]
+  [3907] pushcons 107 ........................... <"Logged in. Gamevial player ">
+  [3909] getglobal 67 ........................... <nom>
+  [3911] joinstr ................................ <"Logged in. Gamevial player " & nom>
+  [3912] pushcons 108 ........................... <" created, game loading. Your login details have been emailed to you">
+  [3914] joinstr ................................ <"Logged in. Gamevial player " & nom & " created, game loading. Your login details have been emailed to you">
+  [3915] setlocal 33 ............................ vtxt = "Logged in. Gamevial player " & nom & " created, game loading. Your login details have been emailed to you"
+  [3917] getprop 1117 ........................... <pspr>
+  [3920] pushcons 109 ........................... <"_root.messagetxt">
+  [3922] getlocal 33 ............................ <vtxt>
+  [3924] pusharglistnoret 3 ..................... <pspr, "_root.messagetxt", vtxt>
+  [3926] extcall 283 ............................ setVariable(pspr, "_root.messagetxt", vtxt)
+  [3929] pushcons 16 ............................ <"_root.state">
+  [3931] pushcons 110 ........................... <"regpause">
+  [3933] pusharglistnoret 2 ..................... <"_root.state", "regpause">
+  [3935] extcall 248 ............................ setflash("_root.state", "regpause")
+  [3937] pushcons 3 ............................. <"dataminer">
+  [3939] pusharglist 1 .......................... <"dataminer">
+  [3941] extcall 303 ............................ <script("dataminer")>
+  [3944] pusharglist 1 .......................... <script("dataminer")>
+  [3946] objcall 265 ............................ <script("dataminer").new()>
+  [3949] setlocal 34 ............................ vdataload = script("dataminer").new()
+  [3951] getlocal 34 ............................ <vdataload>
+  [3953] pushcons 4 ............................. <"getmytank">
+  [3955] setobjprop 358 ......................... vdataload.pstate = "getmytank"
+  [3958] jmp [3986]
+  [3961] pushzero ............................... <0>
+  [3962] setprop 1118 ........................... pwebstep = 0
+  [3965] getprop 1117 ........................... <pspr>
+  [3968] pushcons 109 ........................... <"_root.messagetxt">
+  [3970] getlocal 15 ............................ <Msg>
+  [3972] pushsymb 364 ........................... <#item>
+  [3975] pushint8 2 ............................. <2>
+  [3977] pusharglist 3 .......................... <Msg, #item, 2>
+  [3979] objcall 122 ............................ <Msg.item[2]>
+  [3981] pusharglistnoret 3 ..................... <pspr, "_root.messagetxt", Msg.item[2]>
+  [3983] extcall 283 ............................ setVariable(pspr, "_root.messagetxt", Msg.item[2])
+  [3986] jmp [4001]
+  [3989] getprop 1117 ........................... <pspr>
+  [3992] pushcons 109 ........................... <"_root.messagetxt">
+  [3994] pushcons 111 ........................... <"Unable to connect">
+  [3996] pusharglistnoret 3 ..................... <pspr, "_root.messagetxt", "Unable to connect">
+  [3998] extcall 283 ............................ setVariable(pspr, "_root.messagetxt", "Unable to connect")
+  [4001] jmp [4016]
+  [4004] getprop 1117 ........................... <pspr>
+  [4007] pushcons 109 ........................... <"_root.messagetxt">
+  [4009] pushcons 66 ............................ <"Connecting">
+  [4011] pusharglistnoret 3 ..................... <pspr, "_root.messagetxt", "Connecting">
+  [4013] extcall 283 ............................ setVariable(pspr, "_root.messagetxt", "Connecting")
+  [4016] jmp [4455]
+  [4019] peek 0
+  [4021] pushcons 112 ........................... <"login">
+  [4023] eq
+  [4024] jmpifz [4369] .......................... (case) "login":
+  [4027] getprop 1118 ........................... <pwebstep>
+  [4030] pushzero ............................... <0>
+  [4031] eq ..................................... <pwebstep = 0>
+  [4032] jmpifz [4141] .......................... if pwebstep = 0 then / else
+  [4035] getprop 1117 ........................... <pspr>
+  [4038] pushcons 52 ............................ <"_root.psubmit">
+  [4040] pusharglist 2 .......................... <pspr, "_root.psubmit">
+  [4042] extcall 286 ............................ <getVariable(pspr, "_root.psubmit")>
+  [4045] pusharglist 1 .......................... <getVariable(pspr, "_root.psubmit")>
+  [4047] extcall 59 ............................. <string(getVariable(pspr, "_root.psubmit"))>
+  [4049] setlocal 12 ............................ psubmit = string(getVariable(pspr, "_root.psubmit"))
+  [4051] getlocal 12 ............................ <psubmit>
+  [4053] pushcons 53 ............................ <"true">
+  [4055] eq ..................................... <psubmit = "true">
+  [4056] jmpifz [4138] .......................... if psubmit = "true" then
+  [4059] getprop 1117 ........................... <pspr>
+  [4062] pushcons 100 ........................... <"_root.username">
+  [4064] pusharglist 2 .......................... <pspr, "_root.username">
+  [4066] extcall 286 ............................ <getVariable(pspr, "_root.username")>
+  [4069] pusharglist 1 .......................... <getVariable(pspr, "_root.username")>
+  [4071] extcall 59 ............................. <string(getVariable(pspr, "_root.username"))>
+  [4073] setlocal 28 ............................ vusername = string(getVariable(pspr, "_root.username"))
+  [4075] getprop 1117 ........................... <pspr>
+  [4078] pushcons 101 ........................... <"_root.password">
+  [4080] pusharglist 2 .......................... <pspr, "_root.password">
+  [4082] extcall 286 ............................ <getVariable(pspr, "_root.password")>
+  [4085] pusharglist 1 .......................... <getVariable(pspr, "_root.password")>
+  [4087] extcall 59 ............................. <string(getVariable(pspr, "_root.password"))>
+  [4089] setlocal 30 ............................ vpassword = string(getVariable(pspr, "_root.password"))
+  [4091] pushcons 59 ............................ <"action">
+  [4093] pushcons 112 ........................... <"login">
+  [4095] pushcons 104 ........................... <"username">
+  [4097] getlocal 28 ............................ <vusername>
+  [4099] pushcons 105 ........................... <"password">
+  [4101] getlocal 30 ............................ <vpassword>
+  [4103] pusharglist 6 .......................... <["action": "login", "username": vusername, "password": vpassword]>
+  [4105] pushproplist ........................... <["action": "login", "username": vusername, "password": vpassword]>
+  [4106] setlocal 14 ............................ vcont = ["action": "login", "username": vusername, "password": vpassword]
+  [4108] getprop 1012 ........................... <purl>
+  [4111] getlocal 14 ............................ <vcont>
+  [4113] pusharglist 2 .......................... <purl, vcont>
+  [4115] extcall 1053 ........................... <postNetText(purl, vcont)>
+  [4118] setprop 1013 ........................... pnetid = postNetText(purl, vcont)
+  [4121] getprop 1117 ........................... <pspr>
+  [4124] pushcons 52 ............................ <"_root.psubmit">
+  [4126] pushcons 57 ............................ <"false">
+  [4128] pusharglistnoret 3 ..................... <pspr, "_root.psubmit", "false">
+  [4130] extcall 283 ............................ setVariable(pspr, "_root.psubmit", "false")
+  [4133] pushint8 1 ............................. <1>
+  [4135] setprop 1118 ........................... pwebstep = 1
+  [4138] jmp [4366]
+  [4141] getprop 1013 ........................... <pnetid>
+  [4144] pusharglist 1 .......................... <pnetid>
+  [4146] extcall 1020 ........................... <netDone(pnetid)>
+  [4149] jmpifz [4354] .......................... if netDone(pnetid) then / else
+  [4152] getprop 1013 ........................... <pnetid>
+  [4155] pusharglist 1 .......................... <pnetid>
+  [4157] extcall 1021 ........................... <netError(pnetid)>
+  [4160] pushcons 63 ............................ <"OK">
+  [4162] eq ..................................... <netError(pnetid) = "OK">
+  [4163] jmpifz [4339] .......................... if netError(pnetid) = "OK" then / else
+  [4166] getprop 1013 ........................... <pnetid>
+  [4169] pusharglist 1 .......................... <pnetid>
+  [4171] extcall 1022 ........................... <netTextResult(pnetid)>
+  [4174] setlocal 15 ............................ Msg = netTextResult(pnetid)
+  [4176] pushcons 34 ............................ <";">
+  [4178] setmovieprop 363 ....................... the itemDelimiter = ";"
+  [4181] getlocal 15 ............................ <Msg>
+  [4183] pushsymb 364 ........................... <#item>
+  [4186] pushint8 1 ............................. <1>
+  [4188] pusharglist 3 .......................... <Msg, #item, 1>
+  [4190] objcall 122 ............................ <Msg.item[1]>
+  [4192] pushcons 11 ............................ <"1">
+  [4194] eq ..................................... <Msg.item[1] = "1">
+  [4195] jmpifz [4316] .......................... if Msg.item[1] = "1" then / else
+  [4198] pushcons 40 ............................ <"datame">
+  [4200] pusharglist 1 .......................... <"datame">
+  [4202] extcall 52 ............................. <member("datame")>
+  [4204] getlocal 15 ............................ <Msg>
+  [4206] pushsymb 364 ........................... <#item>
+  [4209] pushint8 2 ............................. <2>
+  [4211] pusharglist 3 .......................... <Msg, #item, 2>
+  [4213] objcall 122 ............................ <Msg.item[2]>
+  [4215] pushcons 34 ............................ <";">
+  [4217] joinstr ................................ <Msg.item[2] & ";">
+  [4218] getlocal 15 ............................ <Msg>
+  [4220] pushsymb 364 ........................... <#item>
+  [4223] pushint8 3 ............................. <3>
+  [4225] pusharglist 3 .......................... <Msg, #item, 3>
+  [4227] objcall 122 ............................ <Msg.item[3]>
+  [4229] joinstr ................................ <Msg.item[2] & ";" & Msg.item[3]>
+  [4230] setobjprop 54 .......................... member("datame").text = Msg.item[2] & ";" & Msg.item[3]
+  [4232] getlocal 15 ............................ <Msg>
+  [4234] pushsymb 364 ........................... <#item>
+  [4237] pushint8 4 ............................. <4>
+  [4239] pusharglist 3 .......................... <Msg, #item, 4>
+  [4241] objcall 122 ............................ <Msg.item[4]>
+  [4243] setglobal 190 .......................... gsession = Msg.item[4]
+  [4245] pushint8 1 ............................. <1>
+  [4247] setglobal 191 .......................... gisloggedin = 1
+  [4249] getlocal 15 ............................ <Msg>
+  [4251] pushsymb 364 ........................... <#item>
+  [4254] pushint8 2 ............................. <2>
+  [4256] pusharglist 3 .......................... <Msg, #item, 2>
+  [4258] objcall 122 ............................ <Msg.item[2]>
+  [4260] setglobal 67 ........................... nom = Msg.item[2]
+  [4262] pushcons 113 ........................... <"Success player ">
+  [4264] getglobal 67 ........................... <nom>
+  [4266] joinstr ................................ <"Success player " & nom>
+  [4267] pushcons 114 ........................... <" logged in, game loading.">
+  [4269] joinstr ................................ <"Success player " & nom & " logged in, game loading.">
+  [4270] setlocal 33 ............................ vtxt = "Success player " & nom & " logged in, game loading."
+  [4272] getprop 1117 ........................... <pspr>
+  [4275] pushcons 109 ........................... <"_root.messagetxt">
+  [4277] getlocal 33 ............................ <vtxt>
+  [4279] pusharglistnoret 3 ..................... <pspr, "_root.messagetxt", vtxt>
+  [4281] extcall 283 ............................ setVariable(pspr, "_root.messagetxt", vtxt)
+  [4284] pushcons 16 ............................ <"_root.state">
+  [4286] pushcons 110 ........................... <"regpause">
+  [4288] pusharglistnoret 2 ..................... <"_root.state", "regpause">
+  [4290] extcall 248 ............................ setflash("_root.state", "regpause")
+  [4292] pushcons 3 ............................. <"dataminer">
+  [4294] pusharglist 1 .......................... <"dataminer">
+  [4296] extcall 303 ............................ <script("dataminer")>
+  [4299] pusharglist 1 .......................... <script("dataminer")>
+  [4301] objcall 265 ............................ <script("dataminer").new()>
+  [4304] setlocal 34 ............................ vdataload = script("dataminer").new()
+  [4306] getlocal 34 ............................ <vdataload>
+  [4308] pushcons 4 ............................. <"getmytank">
+  [4310] setobjprop 358 ......................... vdataload.pstate = "getmytank"
+  [4313] jmp [4336]
+  [4316] pushzero ............................... <0>
+  [4317] setprop 1013 ........................... pnetid = 0
+  [4320] pushzero ............................... <0>
+  [4321] setprop 1118 ........................... pwebstep = 0
+  [4324] getprop 1117 ........................... <pspr>
+  [4327] pushcons 109 ........................... <"_root.messagetxt">
+  [4329] pushcons 115 ........................... <"Wrong username or password. Please try again or register for a free.">
+  [4331] pusharglistnoret 3 ..................... <pspr, "_root.messagetxt", "Wrong username or password. Please try again or register for a free.">
+  [4333] extcall 283 ............................ setVariable(pspr, "_root.messagetxt", "Wrong username or password. Please try again or register for a free.")
+  [4336] jmp [4351]
+  [4339] getprop 1117 ........................... <pspr>
+  [4342] pushcons 109 ........................... <"_root.messagetxt">
+  [4344] pushcons 111 ........................... <"Unable to connect">
+  [4346] pusharglistnoret 3 ..................... <pspr, "_root.messagetxt", "Unable to connect">
+  [4348] extcall 283 ............................ setVariable(pspr, "_root.messagetxt", "Unable to connect")
+  [4351] jmp [4366]
+  [4354] getprop 1117 ........................... <pspr>
+  [4357] pushcons 109 ........................... <"_root.messagetxt">
+  [4359] pushcons 66 ............................ <"Connecting">
+  [4361] pusharglistnoret 3 ..................... <pspr, "_root.messagetxt", "Connecting">
+  [4363] extcall 283 ............................ setVariable(pspr, "_root.messagetxt", "Connecting")
+  [4366] jmp [4455]
+  [4369] peek 0
+  [4371] pushcons 110 ........................... <"regpause">
+  [4373] eq
+  [4374] jmpifz [4428] .......................... (case) "regpause":
+  [4377] pushzero ............................... <0>
+  [4378] setprop 1013 ........................... pnetid = 0
+  [4381] pushzero ............................... <0>
+  [4382] setprop 1118 ........................... pwebstep = 0
+  [4385] getprop 1208 ........................... <pausetimer>
+  [4388] pushint8 1 ............................. <1>
+  [4390] add .................................... <pausetimer + 1>
+  [4391] setprop 1208 ........................... pausetimer = pausetimer + 1
+  [4394] getprop 1208 ........................... <pausetimer>
+  [4397] pushint8 50 ............................ <50>
+  [4399] gt ..................................... <pausetimer > 50>
+  [4400] jmpifz [4425] .......................... if pausetimer > 50 then
+  [4403] pushzero ............................... <0>
+  [4404] setprop 1208 ........................... pausetimer = 0
+  [4407] pushcons 16 ............................ <"_root.state">
+  [4409] pushcons 37 ............................ <"getroom">
+  [4411] pusharglistnoret 2 ..................... <"_root.state", "getroom">
+  [4413] extcall 248 ............................ setflash("_root.state", "getroom")
+  [4415] getprop 1117 ........................... <pspr>
+  [4418] pushcons 37 ............................ <"getroom">
+  [4420] pusharglistnoret 2 ..................... <pspr, "getroom">
+  [4422] objcall 1209 ........................... pspr.goToFrame("getroom")
+  [4425] jmp [4455]
+  [4428] peek 0
+  [4430] pushcons 116 ........................... <"leapto">
+  [4432] eq
+  [4433] jmpifz [4447] .......................... (case) "leapto":
+  [4436] pushcons 16 ............................ <"_root.state">
+  [4438] pushcons 2 ............................. <EMPTY>
+  [4440] pusharglistnoret 2 ..................... <"_root.state", EMPTY>
+  [4442] extcall 248 ............................ setflash("_root.state", EMPTY)
+  [4444] jmp [4455]
+  [4447] peek 0
+  [4449] pushcons 2 ............................. <EMPTY>
+  [4451] eq
+  [4452] jmpifz [4455] .......................... (case) EMPTY:
+  [4455] pop 1 .................................. end case
+  [4457] getlocal 0 ............................. <vstate>
+  [4459] pushcons 38 ............................ <"weapons">
+  [4461] eq ..................................... <vstate = "weapons">
+  [4462] jmpifz [4516] .......................... if vstate = "weapons" then / else
+  [4465] getprop 1117 ........................... <pspr>
+  [4468] getchainedprop 586 ..................... <pspr.weaponry>
+  [4471] getobjprop 1121 ........................ <pspr.weaponry.state>
+  [4474] pushcons 39 ............................ <"init">
+  [4476] eq ..................................... <pspr.weaponry.state = "init">
+  [4477] getprop 1117 ........................... <pspr>
+  [4480] getchainedprop 586 ..................... <pspr.weaponry>
+  [4483] getobjprop 1121 ........................ <pspr.weaponry.state>
+  [4486] pushcons 50 ............................ <"shopping">
+  [4488] eq ..................................... <pspr.weaponry.state = "shopping">
+  [4489] or ..................................... <(pspr.weaponry.state = "init") or (pspr.weaponry.state = "shopping")>
+  [4490] jmpifz [4502] .......................... if (pspr.weaponry.state = "init") or (pspr.weaponry.state = "shopping") then / else
+  [4493] pushint8 2 ............................. <2>
+  [4495] pusharglistnoret 1 ..................... <2>
+  [4497] extcall 193 ............................ go(2)
+  [4499] jmp [4513]
+  [4502] pushint8 1 ............................. <1>
+  [4504] pusharglistnoret 1 ..................... <1>
+  [4506] extcall 193 ............................ go(1)
+  [4508] pusharglistnoret 0 ..................... <>
+  [4510] extcall 260 ............................ lobbyframe()
+  [4513] jmp [4527]
+  [4516] pushint8 1 ............................. <1>
+  [4518] pusharglistnoret 1 ..................... <1>
+  [4520] extcall 193 ............................ go(1)
+  [4522] pusharglistnoret 0 ..................... <>
+  [4524] extcall 260 ............................ lobbyframe()
+  [4527] ret
+end
+
+on jrooms me
+  [  0] pushint8 3 .............................. <3>
+  [  2] pusharglist 1 ........................... <3>
+  [  4] extcall 282 ............................. <sprite(3)>
+  [  7] pushint8 1 .............................. <1>
+  [  9] setobjprop 1226 ......................... sprite(3).visible = 1
+  [ 12] pushcons 117 ............................ <"_root.scroll">
+  [ 14] pusharglist 1 ........................... <"_root.scroll">
+  [ 16] extcall 249 ............................. <getflash("_root.scroll")>
+  [ 18] setlocal 0 .............................. vscroll = getflash("_root.scroll")
+  [ 20] pushcons 118 ............................ <"rooms">
+  [ 22] pusharglist 1 ........................... <"rooms">
+  [ 24] extcall 52 .............................. <member("rooms")>
+  [ 26] setlocal 1 .............................. vmem = member("rooms")
+  [ 28] getlocal 0 .............................. <vscroll>
+  [ 30] pushcons 119 ............................ <"up">
+  [ 32] eq ...................................... <vscroll = "up">
+  [ 33] jmpifz [ 52] ............................ if vscroll = "up" then / else
+  [ 36] getlocal 1 .............................. <vmem>
+  [ 38] getlocal 1 .............................. <vmem>
+  [ 40] getobjprop 407 .......................... <vmem.scrollTop>
+  [ 43] pushint8 26 ............................. <26>
+  [ 45] sub ..................................... <vmem.scrollTop - 26>
+  [ 46] setobjprop 407 .......................... vmem.scrollTop = vmem.scrollTop - 26
+  [ 49] jmp [ 73]
+  [ 52] getlocal 0 .............................. <vscroll>
+  [ 54] pushcons 120 ............................ <"down">
+  [ 56] eq ...................................... <vscroll = "down">
+  [ 57] jmpifz [ 73] ............................ if vscroll = "down" then
+  [ 60] getlocal 1 .............................. <vmem>
+  [ 62] getlocal 1 .............................. <vmem>
+  [ 64] getobjprop 407 .......................... <vmem.scrollTop>
+  [ 67] pushint8 26 ............................. <26>
+  [ 69] add ..................................... <vmem.scrollTop + 26>
+  [ 70] setobjprop 407 .......................... vmem.scrollTop = vmem.scrollTop + 26
+  [ 73] ret
+end

@@ -1,0 +1,327 @@
+property inc, vteams
+global gmem, goody, gplayers, gteamok, gteambalancer
+
+on new me, npos
+  [  0] pushzero ................................ <0>
+  [  1] setprop 756 ............................. inc = 0
+  [  4] pusharglist 0 ........................... <[]>
+  [  6] pushlist ................................ <[]>
+  [  7] setglobal 1109 .......................... gteamok = []
+  [ 10] pushzero ................................ <0>
+  [ 11] pushzero ................................ <0>
+  [ 12] pusharglist 2 ........................... <[0, 0]>
+  [ 14] pushlist ................................ <[0, 0]>
+  [ 15] setprop 1110 ............................ vteams = [0, 0]
+  [ 18] getmovieprop 71 ......................... <the actorList>
+  [ 20] getparam 0 .............................. <me>
+  [ 22] pusharglistnoret 2 ...................... <the actorList, me>
+  [ 24] objcall 154 ............................. (the actorList).add(me)
+  [ 26] getparam 0 .............................. <me>
+  [ 28] setglobal 558 ........................... gteambalancer = me
+  [ 31] pushcons 0 .............................. <"rednos">
+  [ 33] pusharglist 1 ........................... <"rednos">
+  [ 35] extcall 52 .............................. <member("rednos")>
+  [ 37] pushcons 1 .............................. <"0">
+  [ 39] setobjprop 54 ........................... member("rednos").text = "0"
+  [ 41] pushcons 2 .............................. <"bluenos">
+  [ 43] pusharglist 1 ........................... <"bluenos">
+  [ 45] extcall 52 .............................. <member("bluenos")>
+  [ 47] pushcons 1 .............................. <"0">
+  [ 49] setobjprop 54 ........................... member("bluenos").text = "0"
+  [ 51] pushcons 3 .............................. <"UI_trans">
+  [ 53] pusharglist 1 ........................... <"UI_trans">
+  [ 55] extcall 52 .............................. <member("UI_trans")>
+  [ 57] pushint8 1 .............................. <1>
+  [ 59] setobjprop 132 .......................... member("UI_trans").posterFrame = 1
+  [ 61] getglobal 56 ............................ <gmem>
+  [ 63] pushint8 1 .............................. <1>
+  [ 65] pusharglist 2 ........................... <gmem, 1>
+  [ 67] objcall 532 ............................. <gmem.camera(1)>
+  [ 70] pushcons 3 .............................. <"UI_trans">
+  [ 72] pushzero ................................ <0>
+  [ 73] pusharglist 2 ........................... <"UI_trans", 0>
+  [ 75] extcall 13 .............................. <texy("UI_trans", 0)>
+  [ 77] pushzero ................................ <0>
+  [ 78] pushzero ................................ <0>
+  [ 79] pusharglist 2 ........................... <0, 0>
+  [ 81] extcall 627 ............................. <point(0, 0)>
+  [ 84] pushzero ................................ <0>
+  [ 85] pusharglistnoret 4 ...................... <gmem.camera(1), texy("UI_trans", 0), point(0, 0), 0>
+  [ 87] objcall 648 ............................. gmem.camera(1).addOverlay(texy("UI_trans", 0), point(0, 0), 0)
+  [ 90] getglobal 56 ............................ <gmem>
+  [ 92] pushint8 1 .............................. <1>
+  [ 94] pusharglist 2 ........................... <gmem, 1>
+  [ 96] objcall 532 ............................. <gmem.camera(1)>
+  [ 99] pushcons 0 .............................. <"rednos">
+  [101] pushzero ................................ <0>
+  [102] pusharglist 2 ........................... <"rednos", 0>
+  [104] extcall 13 .............................. <texy("rednos", 0)>
+  [106] pushint16 159 ........................... <159>
+  [109] pushint16 325 ........................... <325>
+  [112] pusharglist 2 ........................... <159, 325>
+  [114] extcall 627 ............................. <point(159, 325)>
+  [117] pushzero ................................ <0>
+  [118] pusharglistnoret 4 ...................... <gmem.camera(1), texy("rednos", 0), point(159, 325), 0>
+  [120] objcall 648 ............................. gmem.camera(1).addOverlay(texy("rednos", 0), point(159, 325), 0)
+  [123] getglobal 56 ............................ <gmem>
+  [125] pushint8 1 .............................. <1>
+  [127] pusharglist 2 ........................... <gmem, 1>
+  [129] objcall 532 ............................. <gmem.camera(1)>
+  [132] pushcons 2 .............................. <"bluenos">
+  [134] pushzero ................................ <0>
+  [135] pusharglist 2 ........................... <"bluenos", 0>
+  [137] extcall 13 .............................. <texy("bluenos", 0)>
+  [139] pushint16 428 ........................... <428>
+  [142] pushint16 316 ........................... <316>
+  [145] pusharglist 2 ........................... <428, 316>
+  [147] extcall 627 ............................. <point(428, 316)>
+  [150] pushzero ................................ <0>
+  [151] pusharglistnoret 4 ...................... <gmem.camera(1), texy("bluenos", 0), point(428, 316), 0>
+  [153] objcall 648 ............................. gmem.camera(1).addOverlay(texy("bluenos", 0), point(428, 316), 0)
+  [156] getglobal 56 ............................ <gmem>
+  [158] pushcons 3 .............................. <"UI_trans">
+  [160] pusharglist 2 ........................... <gmem, "UI_trans">
+  [162] objcall 57 .............................. <gmem.texture("UI_trans")>
+  [164] pushzero ................................ <0>
+  [165] setobjprop 237 .......................... gmem.texture("UI_trans").nearFiltering = 0
+  [167] getglobal 56 ............................ <gmem>
+  [169] pushcons 0 .............................. <"rednos">
+  [171] pusharglist 2 ........................... <gmem, "rednos">
+  [173] objcall 57 .............................. <gmem.texture("rednos")>
+  [175] pushzero ................................ <0>
+  [176] setobjprop 237 .......................... gmem.texture("rednos").nearFiltering = 0
+  [178] getglobal 56 ............................ <gmem>
+  [180] pushcons 2 .............................. <"bluenos">
+  [182] pusharglist 2 ........................... <gmem, "bluenos">
+  [184] objcall 57 .............................. <gmem.texture("bluenos")>
+  [186] pushzero ................................ <0>
+  [187] setobjprop 237 .......................... gmem.texture("bluenos").nearFiltering = 0
+  [189] pushcons 4 .............................. <"Speed boost trick styling for faster SUPERCHARGE.">
+  [191] pushcons 5 .............................. <"Use your own bombs to travel far.  ;)">
+  [193] pushcons 6 .............................. <"Use jump (SPACE) to flip over up turned.">
+  [195] pushcons 7 .............................. <"Try driving onto your own mines to get to unreachable areas">
+  [197] pushcons 8 .............................. <"Help each other, you cannot damage your own team mates">
+  [199] pushcons 9 .............................. <"WASD/Arrow + jump (SPACE) combo for trick jumps">
+  [201] pushcons 10 ............................. <"TAB & ENTER to Chat">
+  [203] pushcons 11 ............................. <"Nook em wise, nook em tactically">
+  [205] pushcons 12 ............................. <"Use ramps to help build trick bonuses for SUPERCHARGE">
+  [207] pushcons 13 ............................. <"Try high speed flipping onto steep walls & slopes to ride the vertical">
+  [209] pushcons 14 ............................. <"Right Mouse click to aim accurately">
+  [211] pushcons 15 ............................. <"Control big air SPEED jumps with flip boost">
+  [213] pushcons 16 ............................. <"Stuck... need that extra push? use your gun :)">
+  [215] pushcons 17 ............................. <"Flip trick to build charge to go faster!">
+  [217] pusharglist 14 .......................... <["Speed boost trick styling for faster SUPERCHARGE.", "Use your own bombs to travel far.  ;)", "Use jump (SPACE) to flip over up turned.", "Try driving onto your own mines to get to unreachable areas", "Help each other, you cannot damage your own team mates", "WASD/Arrow + jump (SPACE) combo for trick jumps", "TAB & ENTER to Chat", "Nook em wise, nook em tactically", "Use ramps to help build trick bonuses for SUPERCHARGE", "Try high speed flipping onto steep walls & slopes to ride the vertical", "Right Mouse click to aim accurately", "Control big air SPEED jumps with flip boost", "Stuck... need that extra push? use your gun :)", "Flip trick to build charge to go faster!"]>
+  [219] pushlist ................................ <["Speed boost trick styling for faster SUPERCHARGE.", "Use your own bombs to travel far.  ;)", "Use jump (SPACE) to flip over up turned.", "Try driving onto your own mines to get to unreachable areas", "Help each other, you cannot damage your own team mates", "WASD/Arrow + jump (SPACE) combo for trick jumps", "TAB & ENTER to Chat", "Nook em wise, nook em tactically", "Use ramps to help build trick bonuses for SUPERCHARGE", "Try high speed flipping onto steep walls & slopes to ride the vertical", "Right Mouse click to aim accurately", "Control big air SPEED jumps with flip boost", "Stuck... need that extra push? use your gun :)", "Flip trick to build charge to go faster!"]>
+  [220] setlocal 0 .............................. vtips = ["Speed boost trick styling for faster SUPERCHARGE.", "Use your own bombs to travel far.  ;)", "Use jump (SPACE) to flip over up turned.", "Try driving onto your own mines to get to unreachable areas", "Help each other, you cannot damage your own team mates", "WASD/Arrow + jump (SPACE) combo for trick jumps", "TAB & ENTER to Chat", "Nook em wise, nook em tactically", "Use ramps to help build trick bonuses for SUPERCHARGE", "Try high speed flipping onto steep walls & slopes to ride the vertical", "Right Mouse click to aim accurately", "Control big air SPEED jumps with flip boost", "Stuck... need that extra push? use your gun :)", "Flip trick to build charge to go faster!"]
+  [222] pushcons 18 ............................. <"talk">
+  [224] pusharglist 1 ........................... <"talk">
+  [226] extcall 52 .............................. <member("talk")>
+  [228] pushcons 19 ............................. <"Tip: ">
+  [230] getlocal 0 .............................. <vtips>
+  [232] getlocal 0 .............................. <vtips>
+  [234] getobjprop 72 ........................... <vtips.count>
+  [236] pusharglist 1 ........................... <vtips.count>
+  [238] extcall 402 ............................. <random(vtips.count)>
+  [241] pusharglist 2 ........................... <vtips, random(vtips.count)>
+  [243] objcall 73 .............................. <vtips[random(vtips.count)]>
+  [245] joinstr ................................. <"Tip: " & vtips[random(vtips.count)]>
+  [246] pushcons 20 ............................. <"!">
+  [248] joinstr ................................. <"Tip: " & vtips[random(vtips.count)] & "!">
+  [249] setobjprop 54 ........................... member("talk").text = "Tip: " & vtips[random(vtips.count)] & "!"
+  [251] pushcons 18 ............................. <"talk">
+  [253] pusharglist 1 ........................... <"talk">
+  [255] extcall 13 .............................. <texy("talk")>
+  [257] setlocal 1 .............................. vt = texy("talk")
+  [259] getlocal 1 .............................. <vt>
+  [261] pushzero ................................ <0>
+  [262] setobjprop 237 .......................... vt.nearFiltering = 0
+  [264] getglobal 56 ............................ <gmem>
+  [266] pushint8 1 .............................. <1>
+  [268] pusharglist 2 ........................... <gmem, 1>
+  [270] objcall 532 ............................. <gmem.camera(1)>
+  [273] getlocal 1 .............................. <vt>
+  [275] pushint8 20 ............................. <20>
+  [277] pushint16 560 ........................... <560>
+  [280] pusharglist 2 ........................... <20, 560>
+  [282] extcall 627 ............................. <point(20, 560)>
+  [285] pushzero ................................ <0>
+  [286] pusharglistnoret 4 ...................... <gmem.camera(1), vt, point(20, 560), 0>
+  [288] objcall 648 ............................. gmem.camera(1).addOverlay(vt, point(20, 560), 0)
+  [291] getparam 0 .............................. <me>
+  [293] pusharglistnoret 1 ...................... <me>
+  [295] extcall 40 .............................. return me
+  [297] ret
+end
+
+on stepFrame me
+  [  0] getprop 756 ............................. <inc>
+  [  3] pushint8 1 .............................. <1>
+  [  5] add ..................................... <inc + 1>
+  [  6] setprop 756 ............................. inc = inc + 1
+  [  9] getprop 756 ............................. <inc>
+  [ 12] pushint8 60 ............................. <60>
+  [ 14] eq ...................................... <inc = 60>
+  [ 15] jmpifz [240] ............................ if inc = 60 then
+  [ 18] pushsymb 289 ............................ <#subject>
+  [ 21] pushcons 21 ............................. <"ignore">
+  [ 23] pushsymb 290 ............................ <#content>
+  [ 26] pushcons 22 ............................. <EMPTY>
+  [ 28] pusharglist 4 ........................... <[#subject: "ignore", #content: EMPTY]>
+  [ 30] pushproplist ............................ <[#subject: "ignore", #content: EMPTY]>
+  [ 31] pusharglistnoret 1 ...................... <[#subject: "ignore", #content: EMPTY]>
+  [ 33] extcall 250 ............................. submitmus([#subject: "ignore", #content: EMPTY])
+  [ 35] pushzero ................................ <0>
+  [ 36] setprop 756 ............................. inc = 0
+  [ 39] getglobal 79 ............................ <gplayers>
+  [ 41] getobjprop 72 ........................... <gplayers.count>
+  [ 43] pushzero ................................ <0>
+  [ 44] gt ...................................... <gplayers.count > 0>
+  [ 45] jmpifz [226] ............................ if gplayers.count > 0 then / else
+  [ 48] pushzero ................................ <0>
+  [ 49] pushzero ................................ <0>
+  [ 50] pusharglist 2 ........................... <[0, 0]>
+  [ 52] pushlist ................................ <[0, 0]>
+  [ 53] setprop 1110 ............................ vteams = [0, 0]
+  [ 56] pushint8 1 .............................. <1>
+  [ 58] setlocal 0
+  [ 60] getlocal 0
+  [ 62] getglobal 79 ............................ <gplayers>
+  [ 64] getobjprop 72 ........................... <gplayers.count>
+  [ 66] lteq
+  [ 67] jmpifz [147] ............................ repeat with i = 1 to gplayers.count
+  [ 70] getglobal 79 ............................ <gplayers>
+  [ 72] getlocal 0 .............................. <i>
+  [ 74] pusharglist 2 ........................... <gplayers, i>
+  [ 76] objcall 73 .............................. <gplayers[i]>
+  [ 78] getobjprop 300 .......................... <gplayers[i].pteam>
+  [ 81] pusharglist 1 ........................... <gplayers[i].pteam>
+  [ 83] extcall 59 .............................. <string(gplayers[i].pteam)>
+  [ 85] pushcons 23 ............................. <"red">
+  [ 87] eq ...................................... <string(gplayers[i].pteam) = "red">
+  [ 88] jmpifz [116] ............................ if string(gplayers[i].pteam) = "red" then
+  [ 91] getprop 1110 ............................ <vteams>
+  [ 94] pushint8 1 .............................. <1>
+  [ 96] getprop 1110 ............................ <vteams>
+  [ 99] pushint8 1 .............................. <1>
+  [101] pusharglist 2 ........................... <vteams, 1>
+  [103] objcall 73 .............................. <vteams[1]>
+  [105] pushint8 1 .............................. <1>
+  [107] add ..................................... <vteams[1] + 1>
+  [108] pusharglistnoret 3 ...................... <vteams, 1, vteams[1] + 1>
+  [110] objcall 1043 ............................ vteams[1] = vteams[1] + 1
+  [113] jmp [138] ............................... next repeat
+  [116] getprop 1110 ............................ <vteams>
+  [119] pushint8 2 .............................. <2>
+  [121] getprop 1110 ............................ <vteams>
+  [124] pushint8 2 .............................. <2>
+  [126] pusharglist 2 ........................... <vteams, 2>
+  [128] objcall 73 .............................. <vteams[2]>
+  [130] pushint8 1 .............................. <1>
+  [132] add ..................................... <vteams[2] + 1>
+  [133] pusharglistnoret 3 ...................... <vteams, 2, vteams[2] + 1>
+  [135] objcall 1043 ............................ vteams[2] = vteams[2] + 1
+  [138] pushint8 1
+  [140] getlocal 0
+  [142] add
+  [143] setlocal 0
+  [145] endrepeat [ 60]
+  [147] getprop 1110 ............................ <vteams>
+  [150] pushint8 1 .............................. <1>
+  [152] pusharglist 2 ........................... <vteams, 1>
+  [154] objcall 73 .............................. <vteams[1]>
+  [156] getprop 1110 ............................ <vteams>
+  [159] pushint8 2 .............................. <2>
+  [161] pusharglist 2 ........................... <vteams, 2>
+  [163] objcall 73 .............................. <vteams[2]>
+  [165] gt ...................................... <vteams[1] > vteams[2]>
+  [166] jmpifz [180] ............................ if vteams[1] > vteams[2] then / else
+  [169] pushcons 24 ............................. <"blue">
+  [171] pusharglist 1 ........................... <["blue"]>
+  [173] pushlist ................................ <["blue"]>
+  [174] setglobal 1109 .......................... gteamok = ["blue"]
+  [177] jmp [223]
+  [180] getprop 1110 ............................ <vteams>
+  [183] pushint8 2 .............................. <2>
+  [185] pusharglist 2 ........................... <vteams, 2>
+  [187] objcall 73 .............................. <vteams[2]>
+  [189] getprop 1110 ............................ <vteams>
+  [192] pushint8 1 .............................. <1>
+  [194] pusharglist 2 ........................... <vteams, 1>
+  [196] objcall 73 .............................. <vteams[1]>
+  [198] gt ...................................... <vteams[2] > vteams[1]>
+  [199] jmpifz [213] ............................ if vteams[2] > vteams[1] then / else
+  [202] pushcons 23 ............................. <"red">
+  [204] pusharglist 1 ........................... <["red"]>
+  [206] pushlist ................................ <["red"]>
+  [207] setglobal 1109 .......................... gteamok = ["red"]
+  [210] jmp [223]
+  [213] pushcons 23 ............................. <"red">
+  [215] pushcons 24 ............................. <"blue">
+  [217] pusharglist 2 ........................... <["red", "blue"]>
+  [219] pushlist ................................ <["red", "blue"]>
+  [220] setglobal 1109 .......................... gteamok = ["red", "blue"]
+  [223] jmp [236]
+  [226] pushcons 23 ............................. <"red">
+  [228] pushcons 24 ............................. <"blue">
+  [230] pusharglist 2 ........................... <["red", "blue"]>
+  [232] pushlist ................................ <["red", "blue"]>
+  [233] setglobal 1109 .......................... gteamok = ["red", "blue"]
+  [236] pusharglistnoret 0 ...................... <>
+  [238] localcall 2 ............................. updateoverlays()
+  [240] ret
+end
+
+on updateoverlays me
+  [  0] pushcons 0 .............................. <"rednos">
+  [  2] pusharglist 1 ........................... <"rednos">
+  [  4] extcall 52 .............................. <member("rednos")>
+  [  6] getprop 1110 ............................ <vteams>
+  [  9] pushint8 1 .............................. <1>
+  [ 11] pusharglist 2 ........................... <vteams, 1>
+  [ 13] objcall 73 .............................. <vteams[1]>
+  [ 15] pusharglist 1 ........................... <vteams[1]>
+  [ 17] extcall 59 .............................. <string(vteams[1])>
+  [ 19] setobjprop 54 ........................... member("rednos").text = string(vteams[1])
+  [ 21] pushcons 0 .............................. <"rednos">
+  [ 23] pushzero ................................ <0>
+  [ 24] pusharglistnoret 2 ...................... <"rednos", 0>
+  [ 26] extcall 13 .............................. texy("rednos", 0)
+  [ 28] pushcons 2 .............................. <"bluenos">
+  [ 30] pusharglist 1 ........................... <"bluenos">
+  [ 32] extcall 52 .............................. <member("bluenos")>
+  [ 34] getprop 1110 ............................ <vteams>
+  [ 37] pushint8 2 .............................. <2>
+  [ 39] pusharglist 2 ........................... <vteams, 2>
+  [ 41] objcall 73 .............................. <vteams[2]>
+  [ 43] pusharglist 1 ........................... <vteams[2]>
+  [ 45] extcall 59 .............................. <string(vteams[2])>
+  [ 47] setobjprop 54 ........................... member("bluenos").text = string(vteams[2])
+  [ 49] pushcons 2 .............................. <"bluenos">
+  [ 51] pushzero ................................ <0>
+  [ 52] pusharglistnoret 2 ...................... <"bluenos", 0>
+  [ 54] extcall 13 .............................. texy("bluenos", 0)
+  [ 56] pushcons 3 .............................. <"UI_trans">
+  [ 58] pusharglist 1 ........................... <"UI_trans">
+  [ 60] extcall 52 .............................. <member("UI_trans")>
+  [ 62] pushint8 2 .............................. <2>
+  [ 64] setobjprop 132 .......................... member("UI_trans").posterFrame = 2
+  [ 66] pushcons 3 .............................. <"UI_trans">
+  [ 68] pusharglistnoret 1 ...................... <"UI_trans">
+  [ 70] extcall 13 .............................. texy("UI_trans")
+  [ 72] ret
+end
+
+on hurt me, howbad, vnom
+  [  0] ret
+end
+
+on destroy me
+  [  0] getmovieprop 71 ......................... <the actorList>
+  [  2] getparam 0 .............................. <me>
+  [  4] pusharglistnoret 2 ...................... <the actorList, me>
+  [  6] objcall 227 ............................. (the actorList).deleteOne(me)
+  [  8] pusharglist 0 ........................... <>
+  [ 10] extcall 66 .............................. <VOID>
+  [ 12] setparam 0 .............................. me = VOID
+  [ 14] ret
+end
