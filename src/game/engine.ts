@@ -253,6 +253,8 @@ export class Game {
   airstrikeMarker: THREE.Mesh | null = null
   sparkMat!: THREE.SpriteMaterial
   bloodMat!: THREE.SpriteMaterial
+  muzzleFlashMat!: THREE.SpriteMaterial
+  muzzleLaserMat!: THREE.SpriteMaterial
   running = false
   raf = 0
   acc = 0
@@ -401,6 +403,20 @@ export class Game {
       transparent: true,
       depthWrite: false,
       opacity: 0.85,
+    })
+    this.muzzleFlashMat = new THREE.SpriteMaterial({
+      map: tex("mfmachinegun"),
+      color: "#ffffff",
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+    this.muzzleLaserMat = new THREE.SpriteMaterial({
+      map: tex("mflaser"),
+      color: "#ffffff",
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
     })
 
     onProgress?.("Fuelling tanks")
@@ -1802,7 +1818,7 @@ export class Game {
       weapon === "lasergun" ? "#ff3df5" : "#ffd36a",
       weapon === "lasergun" ? 5 : 2.5,
     )
-    this.flash(from, weapon === "lasergun" ? 0.7 : 1)
+    this.flash(from, weapon === "lasergun" ? 0.85 : 1, weapon === "lasergun")
     if (this.frame % (weapon === "lasergun" ? 6 : 2) === 0)
       this.audio.play(
         weapon === "lasergun" ? "laser" : "gunfire",
@@ -2341,37 +2357,44 @@ export class Game {
     })
   }
 
-  flash(pos: THREE.Vector3, scale: number) {
-    const m = new THREE.SpriteMaterial({
-      color: "#ffd27a",
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
+  flash(pos: THREE.Vector3, scale = 1, isLaser = false) {
+    const baseMat = isLaser ? this.muzzleLaserMat : this.muzzleFlashMat
+    const m = baseMat.clone()
+    m.rotation = Math.random() * Math.PI * 2
     const s = new THREE.Sprite(m)
     s.position.copy(pos)
-    s.scale.setScalar(50 * scale)
-    this.scene.add(s)
-    this.effects.push({ obj: s, life: 3, max: 3, dispose: () => m.dispose() })
-  }
-
-  spark(pos: THREE.Vector3, color: string) {
-    const m = new THREE.SpriteMaterial({
-      color,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
-    const s = new THREE.Sprite(m)
-    s.position.copy(pos)
-    s.scale.setScalar(40)
+    const baseSize = isLaser ? 40 : 48
+    s.scale.setScalar(baseSize * scale)
     this.scene.add(s)
     this.effects.push({
       obj: s,
-      life: 8,
-      max: 8,
+      life: 2,
+      max: 2,
       dispose: () => m.dispose(),
-      update: (e, k) => e.obj.scale.setScalar(40 * k + 10),
+      update: (e, k) => {
+        m.opacity = Math.max(0, k)
+        e.obj.scale.setScalar(baseSize * scale * (0.85 + 0.25 * (1 - k)))
+      },
+    })
+  }
+
+  spark(pos: THREE.Vector3, color: string) {
+    const m = this.sparkMat.clone()
+    m.color.set(color)
+    m.rotation = Math.random() * Math.PI * 2
+    const s = new THREE.Sprite(m)
+    s.position.copy(pos)
+    s.scale.setScalar(35)
+    this.scene.add(s)
+    this.effects.push({
+      obj: s,
+      life: 6,
+      max: 6,
+      dispose: () => m.dispose(),
+      update: (e, k) => {
+        m.opacity = Math.max(0, k)
+        e.obj.scale.setScalar(35 * k + 5)
+      },
     })
   }
 

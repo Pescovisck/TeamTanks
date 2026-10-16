@@ -1,5 +1,7 @@
+import { useState } from "react"
 import { MAX_HEALTH, WEAPONS } from "../game/data"
 import type { HudState, Team } from "../game/engine"
+import { copyInviteLink } from "../utils/url"
 
 const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
 const teamText = (t?: Team) =>
@@ -53,6 +55,15 @@ function CapBars({ caps, time }: { caps: number[]; time: number }) {
 }
 
 function Minimap({ s, map }: { s: HudState; map: string }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!s.netStatus) return
+    await copyInviteLink(s.netStatus.roomCode, map)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div className="plate pointer-events-none absolute right-4 top-4 rounded-lg p-2">
       <div className="relative h-40 w-40 overflow-hidden rounded">
@@ -95,12 +106,20 @@ function Minimap({ s, map }: { s: HudState; map: string }) {
         ))}
       </div>
       {s.netStatus && (
-        <div className="mt-1.5 flex items-center justify-between px-1 text-[10px] font-semibold text-white/65">
-          <span>Room: {s.netStatus.roomCode}</span>
-          <span className="text-hazard">
-            {s.netStatus.peers} {s.netStatus.peers === 1 ? "peer" : "peers"}
+        <button
+          type="button"
+          onClick={handleCopy}
+          title="Click to copy invite link for friends"
+          className="pointer-events-auto mt-1.5 flex w-full items-center justify-between rounded bg-white/5 px-2 py-1 text-[10px] font-semibold text-white/75 transition-colors hover:bg-white/15 hover:text-white"
+        >
+          <div className="flex items-center gap-1.5">
+            <span className="text-white/40">Room:</span>
+            <span className="text-hazard">{s.netStatus.roomCode}</span>
+          </div>
+          <span className={copied ? "text-[#6fd36a]" : "text-white/50"}>
+            {copied ? "✓ Copied!" : "Copy Link"}
           </span>
-        </div>
+        </button>
       )}
     </div>
   )
@@ -298,63 +317,101 @@ function Popups({ s }: { s: HudState }) {
   )
 }
 
-export function Scoreboard({ s, title }: { s: HudState; title?: string }) {
+export function Scoreboard({
+  s,
+  map,
+  title,
+}: {
+  s: HudState
+  map?: string
+  title?: string
+}) {
+  const [copied, setCopied] = useState(false)
   const teams: Team[] = ["red", "blue"]
+
+  const handleCopy = async () => {
+    if (!s.netStatus) return
+    await copyInviteLink(s.netStatus.roomCode, map)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      {teams.map((t) => {
-        const rows = s.scoreboard.filter((r) => r.team === t)
-        const total = rows.reduce((a, r) => a + r.score, 0)
-        return (
-          <div key={t} className="plate overflow-hidden rounded-lg">
-            <div
-              className={`flex items-baseline justify-between px-4 py-2.5 ${
-                t === "red" ? "bg-team-red/85" : "bg-team-blue/85"
-              }`}
-            >
-              <span className="font-display text-lg">
-                {t === "red" ? "Red" : "Blue"}
-                {title ? "" : " team"}
-              </span>
-              <span className="font-display text-lg tabular-nums">{total}</span>
-            </div>
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="text-left text-[10px] text-white/40">
-                  <th className="px-4 py-2 font-semibold">Tag</th>
-                  <th className="px-2 py-2 text-right font-semibold">K</th>
-                  <th className="px-2 py-2 text-right font-semibold">D</th>
-                  <th className="px-4 py-2 text-right font-semibold">Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr
-                    key={r.name}
-                    className={`border-t border-white/5 ${
-                      r.isPlayer ? "bg-hazard/10 text-hazard" : ""
-                    }`}
-                  >
-                    <td className="px-4 py-1.5 font-semibold">
-                      {r.name}
-                      {r.isRemote ? " (P2P)" : ""}
-                    </td>
-                    <td className="px-2 py-1.5 text-right tabular-nums">
-                      {r.kills}
-                    </td>
-                    <td className="px-2 py-1.5 text-right tabular-nums">
-                      {r.deaths}
-                    </td>
-                    <td className="px-4 py-1.5 text-right tabular-nums">
-                      {r.score}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    <div className="flex flex-col gap-3">
+      {s.netStatus && (
+        <div className="pointer-events-auto flex items-center justify-between rounded-lg bg-black/55 border border-white/10 px-4 py-2.5 backdrop-blur-md">
+          <div className="flex items-center gap-2.5 text-xs font-semibold">
+            <span className="text-white/50">P2P Room:</span>
+            <span className="text-hazard font-mono">{s.netStatus.roomCode}</span>
+            <span className="text-white/30">·</span>
+            <span className="text-white/70">
+              {s.netStatus.peers} {s.netStatus.peers === 1 ? "peer" : "peers"} connected
+            </span>
           </div>
-        )
-      })}
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 rounded bg-hazard/20 border border-hazard/40 px-3 py-1 text-xs font-semibold text-hazard transition-all hover:bg-hazard hover:text-gunmetal active:scale-95"
+          >
+            {copied ? "✓ Link Copied!" : "Copy Invite Link"}
+          </button>
+        </div>
+      )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {teams.map((t) => {
+          const rows = s.scoreboard.filter((r) => r.team === t)
+          const total = rows.reduce((a, r) => a + r.score, 0)
+          return (
+            <div key={t} className="plate overflow-hidden rounded-lg">
+              <div
+                className={`flex items-baseline justify-between px-4 py-2.5 ${
+                  t === "red" ? "bg-team-red/85" : "bg-team-blue/85"
+                }`}
+              >
+                <span className="font-display text-lg">
+                  {t === "red" ? "Red" : "Blue"}
+                  {title ? "" : " team"}
+                </span>
+                <span className="font-display text-lg tabular-nums">{total}</span>
+              </div>
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="text-left text-[10px] text-white/40">
+                    <th className="px-4 py-2 font-semibold">Tag</th>
+                    <th className="px-2 py-2 text-right font-semibold">K</th>
+                    <th className="px-2 py-2 text-right font-semibold">D</th>
+                    <th className="px-4 py-2 text-right font-semibold">Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => (
+                    <tr
+                      key={r.name}
+                      className={`border-t border-white/5 ${
+                        r.isPlayer ? "bg-hazard/10 text-hazard" : ""
+                      }`}
+                    >
+                      <td className="px-4 py-1.5 font-semibold">
+                        {r.name}
+                        {r.isRemote ? " (P2P)" : ""}
+                      </td>
+                      <td className="px-2 py-1.5 text-right tabular-nums">
+                        {r.kills}
+                      </td>
+                      <td className="px-2 py-1.5 text-right tabular-nums">
+                        {r.deaths}
+                      </td>
+                      <td className="px-4 py-1.5 text-right tabular-nums">
+                        {r.score}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -404,7 +461,7 @@ export default function Hud({
               style={{ width: `${s.over.blueShare * 100}%` }}
             />
           </div>
-          <Scoreboard s={s} title="final" />
+          <Scoreboard s={s} map={map} title="final" />
           <div className="mt-6 flex justify-center gap-4">
             <button
               type="button"
@@ -454,9 +511,9 @@ export default function Hud({
         </div>
       )}
       {showScores && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 p-6">
+        <div className="pointer-events-auto absolute inset-0 flex items-center justify-center bg-black/50 p-6 backdrop-blur-[2px]">
           <div className="w-full max-w-3xl">
-            <Scoreboard s={s} />
+            <Scoreboard s={s} map={map} />
           </div>
         </div>
       )}

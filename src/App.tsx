@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { MAPS } from "./game/data"
 import type { GameOptions } from "./game/engine"
 import GameView from "./ui/GameView"
 import Menu from "./ui/Menu"
+import { syncUrlParams } from "./utils/url"
 
 const DEFAULTS: GameOptions = {
   map: MAPS[0],
@@ -33,6 +34,10 @@ export default function App() {
     initial.play ? initial.options : null,
   )
 
+  useEffect(() => {
+    syncUrlParams(options.roomCode, options.map.id)
+  }, [options.roomCode, options.map.id])
+
   if (playing) {
     return (
       <GameView
@@ -57,6 +62,7 @@ export default function App() {
       onStart={(o) => {
         const fixed = { ...o, playerName: o.playerName || "tankcommander" }
         setOptions(fixed)
+        syncUrlParams(fixed.roomCode, fixed.map.id)
         setPlaying(fixed)
       }}
     />

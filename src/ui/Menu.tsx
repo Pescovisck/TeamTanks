@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { MAPS, type MapDef } from "../game/data"
 import type { Difficulty, GameOptions, Team } from "../game/engine"
+import { copyInviteLink, syncUrlParams } from "../utils/url"
 
 const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
 
@@ -102,8 +103,21 @@ const CONTROLS: [string, string][] = [
 
 export default function Menu({ initial, onStart }: Props) {
   const [o, setO] = useState<GameOptions>(initial)
+  const [copied, setCopied] = useState(false)
   const set = <K extends keyof GameOptions>(k: K, v: GameOptions[K]) =>
     setO((s) => ({ ...s, [k]: v }))
+
+  const handleCopyLink = async () => {
+    let code = o.roomCode?.trim()
+    if (!code) {
+      code = `room${Math.floor(100 + Math.random() * 900)}`
+      set("roomCode", code)
+      syncUrlParams(code, o.map.id)
+    }
+    await copyInviteLink(code, o.map.id)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className="relative h-full w-full overflow-y-auto">
@@ -162,7 +176,10 @@ export default function Menu({ initial, onStart }: Props) {
                   key={m.id}
                   map={m}
                   active={m.id === o.map.id}
-                  onClick={() => set("map", m)}
+                  onClick={() => {
+                    set("map", m)
+                    syncUrlParams(o.roomCode, m.id)
+                  }}
                 />
               ))}
             </div>
@@ -194,25 +211,54 @@ export default function Menu({ initial, onStart }: Props) {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="roomcode"
-                  className="mb-2 block text-[12px] font-semibold text-white/50"
-                >
-                  P2P Room (Optional)
-                </label>
-                <input
-                  id="roomcode"
-                  value={o.roomCode ?? ""}
-                  maxLength={16}
-                  onChange={(e) =>
-                    set(
-                      "roomCode",
-                      e.target.value.replace(/[^a-z0-9_-]/gi, "").toLowerCase(),
-                    )
-                  }
-                  placeholder="solo / room1"
-                  className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 font-semibold outline-none transition-colors placeholder:text-white/25 focus:border-hazard"
-                />
+                <div className="mb-2 flex items-center justify-between">
+                  <label
+                    htmlFor="roomcode"
+                    className="block text-[12px] font-semibold text-white/50"
+                  >
+                    P2P Room (Optional)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleCopyLink}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-hazard transition-colors hover:text-white"
+                  >
+                    {copied ? (
+                      <span className="text-[#6fd36a]">✓ Copied!</span>
+                    ) : (
+                      <span>{o.roomCode ? "Copy Link" : "Create Link"}</span>
+                    )}
+                  </button>
+                </div>
+                <div className="relative flex items-center">
+                  <input
+                    id="roomcode"
+                    value={o.roomCode ?? ""}
+                    maxLength={16}
+                    onChange={(e) => {
+                      const v = e.target.value
+                        .replace(/[^a-z0-9_-]/gi, "")
+                        .toLowerCase()
+                      set("roomCode", v)
+                      syncUrlParams(v, o.map.id)
+                    }}
+                    placeholder="solo / room1"
+                    className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 pr-8 font-semibold outline-none transition-colors placeholder:text-white/25 focus:border-hazard"
+                  />
+                  {o.roomCode && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        set("roomCode", "")
+                        syncUrlParams("", o.map.id)
+                      }}
+                      title="Clear room"
+                      className="absolute right-2.5 text-xs text-white/35 hover:text-white/80"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
             <Segmented<Team>
