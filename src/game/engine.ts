@@ -217,7 +217,7 @@ export class Game {
   onHud: (s: HudState) => void
   renderer!: THREE.WebGLRenderer
   scene = new THREE.Scene()
-  camera = new THREE.PerspectiveCamera(62, 1, 10, 60000)
+  camera = new THREE.PerspectiveCamera(62, 1, 2, 60000)
   level!: Level
   colliders: THREE.Object3D[] = []
   sun!: THREE.DirectionalLight
@@ -2509,14 +2509,22 @@ export class Game {
         const yaw = p.aimYaw
         const back = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw))
         const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw))
+        const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw))
 
         let want: THREE.Vector3
         let look: THREE.Vector3
 
         if (isZoomed) {
-          // Authentic Shockwave zoom (ParentScript 5 - goody.ls lines 559-565: 20-25 units back, 32 units up)
-          want = p.renderPos.clone().addScaledVector(back, 22).add(new THREE.Vector3(0, 32, 0))
-          look = p.renderPos.clone().addScaledVector(fwd, 2000).add(new THREE.Vector3(0, 32 + p.aimPitch * 2000, 0))
+          // Over-the-shoulder zoom slightly up and right of the turret to clear tank chassis & muzzle
+          want = p.renderPos
+            .clone()
+            .addScaledVector(back, 28)
+            .addScaledVector(right, 14)
+            .add(new THREE.Vector3(0, 42, 0))
+          look = want
+            .clone()
+            .addScaledVector(fwd, 2000)
+            .add(new THREE.Vector3(0, p.aimPitch * 2000, 0))
         } else {
           // Authentic Shockwave distance: 200 units back, 65 units up (tracking smoothly interpolated renderPos)
           want = p.renderPos.clone().addScaledVector(back, 200).add(new THREE.Vector3(0, 65 - p.aimPitch * 100, 0))
