@@ -1,4 +1,4 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&display=swap");
 @import "tailwindcss";
 
 @font-face {
@@ -11,7 +11,7 @@
 
 @font-face {
   font-family: "Eight Track";
-  src: url("/fonts/EIGH3___.TTF") format("truetype");
+  src: url("/fonts/EightTrack.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
