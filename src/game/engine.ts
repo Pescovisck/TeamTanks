@@ -217,7 +217,7 @@ type Pickup = {
   respawn: number
   unlocked: boolean
 }
-type Cap = { pos: THREE.Vector3; v: number; rig: CapRig }
+type Cap = { pos: THREE.Vector3; v: number; owner: Team | null; rig: CapRig }
 
 const DT = 1 / 60
 const GRAVITY = 2100
@@ -465,7 +465,7 @@ export class Game {
       const rig = buildCapturePoint()
       rig.group.position.copy(c)
       this.scene.add(rig.group)
-      this.caps.push({ pos: c.clone(), v: 127, rig })
+      this.caps.push({ pos: c.clone(), v: 127, owner: null, rig })
       rig.group.updateMatrixWorld(true)
       if (rig.group.userData.collider)
         this.colliders.push(rig.group.userData.collider)
@@ -725,7 +725,7 @@ export class Game {
       }
     } else if (msg.subject === "cappoint") {
       const cap = this.caps[msg.id]
-      if (cap) cap.v = msg.val
+      if (cap) this.applyCapValue(cap, msg.val)
     } else if (msg.subject === "left") {
       const senderName = msg.sender === this.player.name ? `${msg.sender}_remote` : msg.sender
       const idx = this.tanks.findIndex(
@@ -2744,36 +2744,53 @@ export class Game {
     }
   }
 
+  applyCapValue(c: Cap, nextV: number) {
+    c.v = THREE.MathUtils.clamp(nextV, 0, 255)
+    // Only reset ownership once an enemy decaptures the point back to/past neutral (127)
+    if (c.owner === "blue" && c.v <= 127) c.owner = null
+    else if (c.owner === "red" && c.v >= 127) c.owner = null
+
+    if (c.v === 255 && c.owner !== "blue") {
+      c.owner = "blue"
+      this.pushFeed("Blue captured a point", "blue")
+      this.audio.play(this.player.team === "blue" ? "c3" : "c2", undefined, 0.7)
+    } else if (c.v === 0 && c.owner !== "red") {
+      c.owner = "red"
+      this.pushFeed("Red captured a point", "red")
+      this.audio.play(this.player.team === "red" ? "c3" : "c2", undefined, 0.7)
+    }
+  }
+
   /** capturepoint.ls: each tank in range pushes the glow by 2 towards its team every 16 frames. */
   stepCaps() {
+    // In multiplayer, if connected as a non-host client, let the host broadcast authoritative cappoint values
+    // (or only predict from human tanks) so independent client bot positions don't ping-pong c.v near 0/255.
+    const isMpClient = Boolean(this.mp && this.mp.isConnected && !this.mp.isHost)
     for (let idx = 0; idx < this.caps.length; idx++) {
       const c = this.caps[idx]
       const before = c.v
+      let nextV = c.v
       for (const t of this.tanks) {
+        if (isMpClient && !t.isPlayer && !t.isRemote) continue
         if (
           t.dead ||
           Math.hypot(t.pos.x - c.pos.x, t.pos.z - c.pos.z) > CAPTURE_RADIUS
         )
           continue
-        c.v = THREE.MathUtils.clamp(c.v + (t.team === "blue" ? 2 : -2), 0, 255)
+        nextV = THREE.MathUtils.clamp(nextV + (t.team === "blue" ? 2 : -2), 0, 255)
       }
-      if (before !== c.v && this.mp) {
-        this.mp.send({
-          subject: "cappoint",
-          sender: this.player.name,
-          id: idx,
-          team: this.player.team,
-          val: c.v,
-          tarGlow: [(255 - c.v) / 255, 0, c.v / 255],
-        })
-      }
-      if (before !== c.v && (c.v === 255 || c.v === 0)) {
-        const team: Team = c.v === 255 ? "blue" : "red"
-        this.pushFeed(
-          `${team === "blue" ? "Blue" : "Red"} captured a point`,
-          team,
-        )
-        this.audio.play(team === this.player.team ? "c3" : "c2", undefined, 0.7)
+      if (nextV !== before) {
+        this.applyCapValue(c, nextV)
+        if (this.mp && (!this.mp.isConnected || this.mp.isHost)) {
+          this.mp.send({
+            subject: "cappoint",
+            sender: this.player.name,
+            id: idx,
+            team: this.player.team,
+            val: c.v,
+            tarGlow: [(255 - c.v) / 255, 0, c.v / 255],
+          })
+        }
       }
     }
   }
