@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react"
-import { MAPS } from "../game/data"
+import {
+  BASE_WEAPONS,
+  DAILY_WEAPONS,
+  getDailyWeapon,
+  MAPS,
+  WEAPON_BLURBS,
+  WEAPONS,
+  type WeaponId,
+} from "../game/data"
 import type { Difficulty, GameOptions, Team } from "../game/engine"
 import { lobbyService, type LobbyInfo } from "../game/lobby"
 import { copyInviteLink, generateRoomCode, syncUrlParams } from "../utils/url"
@@ -55,11 +63,13 @@ function Modal({
   title,
   eyebrow,
   onClose,
+  wide = false,
   children,
 }: {
   title: string
   eyebrow: string
   onClose: () => void
+  wide?: boolean
   children: React.ReactNode
 }) {
   useEffect(() => {
@@ -77,7 +87,9 @@ function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="tt-pop relative w-full max-w-md rounded-xl border border-hazard/40 bg-[#111419] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_40px_rgba(255,255,255,0.06)]"
+        className={`tt-pop relative max-h-[90svh] w-full overflow-y-auto rounded-xl border border-hazard/40 bg-[#111419] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_40px_rgba(255,255,255,0.06)] ${
+          wide ? "max-w-xl" : "max-w-md"
+        }`}
       >
         <div className="hazard-stripe absolute inset-x-0 top-0 h-1.5 rounded-t-xl" />
         <div className="mb-5 flex items-start justify-between gap-4">
@@ -157,20 +169,56 @@ const toneBorder = {
 const toneText = { red: "text-team-red", blue: "text-team-blue", gold: "text-hazard" }
 
 export default function Menu({ initial, onStart }: Props) {
-  const [o, setO] = useState<GameOptions>(initial)
+  const dailyGun = getDailyWeapon()
+  const [o, setO] = useState<GameOptions>(() => ({
+    ...initial,
+    enabledWeapons: initial.enabledWeapons ?? [dailyGun],
+  }))
+  const [previewWeapon, setPreviewWeapon] = useState<WeaponId>(
+    initial.enabledWeapons?.[0] ?? dailyGun,
+  )
   const [copied, setCopied] = useState(false)
   const [manualCode, setManualCode] = useState("")
-  const [modal, setModal] = useState<"host" | "join" | null>(null)
+  const [modal, setModal] = useState<"host" | "join" | "arsenal" | null>(null)
   const [liveCount, setLiveCount] = useState(0)
   const rootRef = useRef<HTMLDivElement>(null)
 
   const set = <K extends keyof GameOptions>(k: K, v: GameOptions[K]) =>
     setO((s) => ({ ...s, [k]: v }))
 
+  const activeSpecialWeapons = o.enabledWeapons ?? [dailyGun]
+
+  const toggleSpecialWeapon = (w: WeaponId) => {
+    setPreviewWeapon(w)
+    setO((prev) => {
+      const cur = prev.enabledWeapons ?? [dailyGun]
+      const exists = cur.includes(w)
+      const next = exists ? cur.filter((id) => id !== w) : [...cur, w]
+      return { ...prev, enabledWeapons: next }
+    })
+  }
+
+  const selectOnlyDaily = () => {
+    setPreviewWeapon(dailyGun)
+    set("enabledWeapons", [dailyGun])
+  }
+
+  const selectAllWeapons = () => {
+    set("enabledWeapons", [...DAILY_WEAPONS])
+  }
+
+  const clearSpecialWeapons = () => {
+    setPreviewWeapon("mgun")
+    set("enabledWeapons", [])
+  }
+
   // Sync menu state if initial options change (e.g. returning to menu clears roomCode)
   useEffect(() => {
-    setO(initial)
-  }, [initial])
+    setO((prev) => ({
+      ...initial,
+      enabledWeapons: prev.enabledWeapons ?? initial.enabledWeapons ?? [dailyGun],
+    }))
+  }, [initial, dailyGun])
 
   const handleDismissInvite = () => {
     set("roomCode", "")
@@ -376,7 +424,10 @@ export default function Menu({ initial, onStart }: Props) {
               </div>
 
               <div className="pointer-events-none relative z-20 -mt-[4%] h-[300px] w-full sm:h-[400px] lg:h-[430px]">
-                <TankShowcase className="tt-rise h-full w-full [filter:drop-shadow(0_0_14px_rgba(255,255,255,0.3))_drop-shadow(0_22px_18px_rgba(0,0,0,0.55))]" />
+                <TankShowcase
+                  weapon={previewWeapon}
+                  className="tt-rise h-full w-full [filter:drop-shadow(0_0_14px_rgba(255,255,255,0.3))_drop-shadow(0_22px_18px_rgba(0,0,0,0.55))]"
+                />
               </div>
             </div>
 
@@ -442,6 +493,50 @@ export default function Menu({ initial, onStart }: Props) {
               onClick={() => scrollToId("battles")}
               delay={590}
             />
+
+            {/* Daily Gun / Custom Arsenal quick card */}
+            <button
+              type="button"
+              onClick={() => setModal("arsenal")}
+              style={{ animationDelay: "700ms" }}
+              className="tt-rise group relative flex items-center gap-3.5 rounded-lg border border-white/20 bg-black/65 p-3 text-left backdrop-blur-md transition-all hover:border-hazard/70 hover:bg-black/80 [box-shadow:0_0_20px_rgba(0,0,0,0.5)]"
+            >
+              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-hazard/40 bg-hazard/10 p-1.5">
+                <img
+                  src={`${import.meta.env.BASE_URL}tt/ui/icon_${WEAPONS[previewWeapon]?.icon ?? WEAPONS[dailyGun].icon}.png`}
+                  alt=""
+                  className="h-full w-full object-contain [filter:drop-shadow(0_2px_6px_rgba(0,0,0,0.8))]"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-hazard">
+                    {activeSpecialWeapons.length === 1 && activeSpecialWeapons[0] === dailyGun
+                      ? "Today's Daily Gun"
+                      : activeSpecialWeapons.length === DAILY_WEAPONS.length
+                        ? "Full Arsenal Unlocked"
+                        : activeSpecialWeapons.length === 0
+                          ? "Classic Base 6 Only"
+                          : `Custom Arsenal (${activeSpecialWeapons.length} Special)`}
+                  </span>
+                  <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-white/80 transition-colors group-hover:bg-hazard group-hover:text-gunmetal">
+                    Change ›
+                  </span>
+                </div>
+                <div className="truncate font-display text-base font-bold tracking-wide text-white">
+                  {activeSpecialWeapons.length === 1
+                    ? WEAPONS[activeSpecialWeapons[0]].label
+                    : activeSpecialWeapons.length === DAILY_WEAPONS.length
+                      ? `All 13 Special Guns + ${WEAPONS[dailyGun].label}`
+                      : activeSpecialWeapons.length === 0
+                        ? "Standard 6 Weapons"
+                        : activeSpecialWeapons.map((id) => WEAPONS[id].label).join(", ")}
+                </div>
+                <div className="truncate text-[11px] text-white/55">
+                  Daily rotation: <span className="text-white/80">{WEAPONS[dailyGun].label}</span> · pick 1 or as many as you want
+                </div>
+              </div>
+            </button>
 
             <p
               className="tt-rise text-center text-[12px] text-white/60 [text-shadow:0_1px_6px_rgba(0,0,0,0.9)] lg:text-right"
@@ -613,29 +708,106 @@ export default function Menu({ initial, onStart }: Props) {
 
       {/* host modal */}
       {modal === "host" && (
-        <Modal title="Host a Battle" eyebrow="Room setup" onClose={() => setModal(null)}>
+        <Modal title="Host a Battle" eyebrow="Room setup" wide onClose={() => setModal(null)}>
           <div className="flex flex-col gap-5">
             <MapDropdown value={o.map} onChange={(m) => set("map", m)} />
-            <Segmented<Difficulty>
-              label="Bot Skill"
-              value={o.difficulty}
-              onChange={(v) => set("difficulty", v)}
-              options={[
-                { value: "rookie", label: "Rookie" },
-                { value: "regular", label: "Regular" },
-                { value: "veteran", label: "Veteran" },
-              ]}
-            />
-            <Segmented<number>
-              label="Round Length"
-              value={o.minutes}
-              onChange={(v) => set("minutes", v)}
-              options={[
-                { value: 3, label: "3 min" },
-                { value: 5, label: "5 min" },
-                { value: 10, label: "10 min" },
-              ]}
-            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Segmented<Difficulty>
+                label="Bot Skill"
+                value={o.difficulty}
+                onChange={(v) => set("difficulty", v)}
+                options={[
+                  { value: "rookie", label: "Rookie" },
+                  { value: "regular", label: "Regular" },
+                  { value: "veteran", label: "Veteran" },
+                ]}
+              />
+              <Segmented<number>
+                label="Round Length"
+                value={o.minutes}
+                onChange={(v) => set("minutes", v)}
+                options={[
+                  { value: 3, label: "3 min" },
+                  { value: 5, label: "5 min" },
+                  { value: 10, label: "10 min" },
+                ]}
+              />
+            </div>
+
+            {/* Daily Gun & Custom Arsenal selector inside Host modal */}
+            <div className="rounded-lg border border-white/15 bg-black/40 p-3.5">
+              <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <div className="text-[12px] font-bold text-white/90">
+                    Daily Gun & Special Arsenal{" "}
+                    <span className="ml-1 rounded bg-hazard/20 px-1.5 py-0.5 text-[10px] font-bold text-hazard">
+                      {activeSpecialWeapons.length} / {DAILY_WEAPONS.length} active
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-white/50">
+                    Today's default is <span className="text-hazard">{WEAPONS[dailyGun].label}</span>. Click to swap or enable as many guns as you want.
+                  </div>
+                </div>
+                <div className="flex gap-1.5 text-[11px] font-semibold">
+                  <button
+                    type="button"
+                    onClick={selectOnlyDaily}
+                    className="rounded border border-white/15 bg-white/5 px-2 py-1 text-white/80 transition-colors hover:border-hazard/60 hover:text-white"
+                  >
+                    Today's Gun
+                  </button>
+                  <button
+                    type="button"
+                    onClick={selectAllWeapons}
+                    className="rounded border border-white/15 bg-white/5 px-2 py-1 text-white/80 transition-colors hover:border-hazard/60 hover:text-white"
+                  >
+                    All 13
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearSpecialWeapons}
+                    className="rounded border border-white/15 bg-white/5 px-2 py-1 text-white/60 transition-colors hover:border-white/40 hover:text-white"
+                  >
+                    None
+                  </button>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5">
+                {DAILY_WEAPONS.map((wId) => {
+                  const w = WEAPONS[wId]
+                  const selected = activeSpecialWeapons.includes(wId)
+                  const isDaily = wId === dailyGun
+                  return (
+                    <button
+                      key={wId}
+                      type="button"
+                      onClick={() => toggleSpecialWeapon(wId)}
+                      title={WEAPON_BLURBS[wId]}
+                      className={`relative flex flex-col items-center rounded-md border p-1.5 text-center transition-all ${
+                        selected
+                          ? "border-hazard bg-hazard/15 text-white shadow-[0_0_12px_rgba(242,194,48,0.2)]"
+                          : "border-white/10 bg-black/40 text-white/45 opacity-60 hover:border-white/25 hover:opacity-90"
+                      }`}
+                    >
+                      {isDaily && (
+                        <span className="absolute -top-1.5 right-1 rounded bg-hazard px-1 py-[1px] text-[8px] font-extrabold uppercase tracking-wider text-gunmetal">
+                          Today
+                        </span>
+                      )}
+                      <img
+                        src={`${import.meta.env.BASE_URL}tt/ui/icon_${w.icon}.png`}
+                        alt={w.label}
+                        className="h-7 w-7 object-contain"
+                      />
+                      <span className="mt-1 w-full truncate text-[10px] font-semibold leading-tight">
+                        {w.label}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             <p className="rounded-md border border-white/10 bg-black/30 p-3 text-[12px] text-white/55">
               5v5 squads. A random room code is generated, and friends who join take over bot slots.
               You choose your tag and team inside the arena.
@@ -647,6 +819,160 @@ export default function Menu({ initial, onStart }: Props) {
             >
               Launch on {o.map.name} ›
             </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* dedicated daily gun & arsenal modal */}
+      {modal === "arsenal" && (
+        <Modal
+          title="Daily Gun & Arsenal"
+          eyebrow="Weapon Rotation & Loadout"
+          wide
+          onClose={() => setModal(null)}
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-[13px] leading-relaxed text-white/70">
+              In the original 2006 game, 6 core weapons spawned on every map alongside one rotating{" "}
+              <span className="font-semibold text-hazard">Daily Gun</span> to keep every day fresh.
+              Today's gun (<span className="font-semibold text-white">{WEAPONS[dailyGun].label}</span>)
+              is selected by default—or click to swap and enable{" "}
+              <span className="font-semibold text-white">as many guns as you want</span>!
+            </p>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-hazard/30 bg-hazard/10 px-3.5 py-2.5">
+              <div className="flex items-center gap-3">
+                <img
+                  src={`${import.meta.env.BASE_URL}tt/ui/icon_${WEAPONS[previewWeapon].icon}.png`}
+                  alt=""
+                  className="h-10 w-10 object-contain"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-display text-base font-bold text-white">
+                      {WEAPONS[previewWeapon].label}
+                    </span>
+                    {previewWeapon === dailyGun && (
+                      <span className="rounded bg-hazard px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-gunmetal">
+                        Today's Daily Gun
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[12px] text-white/75">{WEAPON_BLURBS[previewWeapon]}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">
+                13 Special Weapons ({activeSpecialWeapons.length} selected)
+              </span>
+              <div className="flex gap-1.5 text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={selectOnlyDaily}
+                  className="rounded border border-white/20 bg-white/5 px-2.5 py-1 text-white/85 transition-colors hover:border-hazard hover:text-white"
+                >
+                  Today's Gun Only
+                </button>
+                <button
+                  type="button"
+                  onClick={selectAllWeapons}
+                  className="rounded border border-white/20 bg-white/5 px-2.5 py-1 text-white/85 transition-colors hover:border-hazard hover:text-white"
+                >
+                  Select All (13)
+                </button>
+                <button
+                  type="button"
+                  onClick={clearSpecialWeapons}
+                  className="rounded border border-white/15 bg-white/5 px-2.5 py-1 text-white/60 transition-colors hover:border-white/40 hover:text-white"
+                >
+                  Base 6 Only
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {DAILY_WEAPONS.map((wId) => {
+                const w = WEAPONS[wId]
+                const selected = activeSpecialWeapons.includes(wId)
+                const isDaily = wId === dailyGun
+                return (
+                  <button
+                    key={wId}
+                    type="button"
+                    onMouseEnter={() => setPreviewWeapon(wId)}
+                    onClick={() => toggleSpecialWeapon(wId)}
+                    className={`relative flex items-center gap-2.5 rounded-lg border p-2 text-left transition-all ${
+                      selected
+                        ? "border-hazard bg-hazard/15 text-white shadow-[0_0_16px_rgba(242,194,48,0.18)]"
+                        : "border-white/10 bg-black/45 text-white/45 opacity-60 hover:border-white/25 hover:opacity-90"
+                    }`}
+                  >
+                    {isDaily && (
+                      <span className="absolute -top-2 right-1.5 rounded bg-hazard px-1.5 py-[1px] text-[8px] font-extrabold uppercase tracking-wider text-gunmetal">
+                        Today
+                      </span>
+                    )}
+                    <img
+                      src={`${import.meta.env.BASE_URL}tt/ui/icon_${w.icon}.png`}
+                      alt={w.label}
+                      className="h-8 w-8 shrink-0 object-contain"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-xs font-bold leading-tight">{w.label}</div>
+                      <div className="text-[10px] text-white/50">
+                        {selected ? "✓ Enabled" : "Locked"}
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-black/35 p-3">
+              <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-white/45">
+                Always Active Core Weapons (Base 6)
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {BASE_WEAPONS.map((wId) => {
+                  const w = WEAPONS[wId]
+                  return (
+                    <button
+                      key={wId}
+                      type="button"
+                      onMouseEnter={() => setPreviewWeapon(wId)}
+                      onClick={() => setPreviewWeapon(wId)}
+                      className="flex items-center gap-1.5 rounded border border-white/15 bg-white/5 px-2 py-1 text-[11px] font-semibold text-white/80 transition-colors hover:border-white/35 hover:text-white"
+                    >
+                      <img
+                        src={`${import.meta.env.BASE_URL}tt/ui/icon_${w.icon}.png`}
+                        alt={w.label}
+                        className="h-4 w-4 object-contain"
+                      />
+                      <span>{w.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setModal(null)}
+                className="flex-1 rounded-md border border-white/20 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
+              >
+                Done
+              </button>
+              <button
+                type="button"
+                onClick={() => setModal("host")}
+                className="flex-1 rounded-md bg-hazard py-2.5 text-sm font-bold text-gunmetal transition-transform hover:scale-[1.02] active:scale-100"
+              >
+                Host Battle with Loadout ›
+              </button>
+            </div>
           </div>
         </Modal>
       )}

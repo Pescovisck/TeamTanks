@@ -1,14 +1,30 @@
-﻿import { useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import * as THREE from "three"
-import { buildTank, preloadModels } from "../../game/models"
+import type { WeaponId } from "../../game/data"
+import { buildTank, preloadModels, updateTankWeaponRig } from "../../game/models"
 
 /**
  * Renders the real, original W3D tank mesh (same rig used in-game) on a transparent
  * canvas so it can sit on top of the landing page logo like the original title screen.
  */
-export default function TankShowcase({ className = "" }: { className?: string }) {
+export default function TankShowcase({
+  className = "",
+  weapon = "mgun",
+}: {
+  className?: string
+  weapon?: WeaponId | null
+}) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const tankRef = useRef<ReturnType<typeof buildTank> | null>(null)
+  const weaponRef = useRef<WeaponId | null>(weapon)
+  weaponRef.current = weapon
+
+  useEffect(() => {
+    if (tankRef.current) {
+      updateTankWeaponRig(tankRef.current, weapon)
+    }
+  }, [weapon])
 
   useEffect(() => {
     const wrap = wrapRef.current!
@@ -48,6 +64,8 @@ export default function TankShowcase({ className = "" }: { className?: string })
       .then(() => {
         if (disposed) return
         tank = buildTank("red")
+        tankRef.current = tank
+        updateTankWeaponRig(tank, weaponRef.current)
         tank.root.scale.setScalar(1.0)
         tank.root.position.y = -4
         stage.add(tank.root)

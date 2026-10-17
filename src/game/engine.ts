@@ -1,10 +1,12 @@
 import * as THREE from "three"
 import { Audio } from "./audio"
 import {
+  BASE_WEAPONS,
   BOT_NAMES,
   BSP,
   CAPTURE_RADIUS,
   DEATH_SCORE,
+  getDailyWeapon,
   KILL_SCORE,
   MAPS,
   MAX_HEALTH,
@@ -15,8 +17,10 @@ import {
   type WeaponId,
 } from "./data"
 import {
+  asset,
   buildSky,
   buildTerrain,
+  loadImage,
   loadLevel,
   terrainAt,
   type Level,
@@ -31,6 +35,7 @@ import {
   buildSpawnPad,
   buildTank,
   preloadModels,
+  setPickupUnlocked,
   tex,
   TEAM_COLORS,
   updateTankWeaponRig,
@@ -52,6 +57,7 @@ export type GameOptions = {
   proMode?: boolean
   roomCode?: string
   joinAsClient?: boolean
+  enabledWeapons?: WeaponId[]
 }
 
 export type FeedItem = {
@@ -209,6 +215,7 @@ type Pickup = {
   pos: THREE.Vector3
   obj: THREE.Object3D
   respawn: number
+  unlocked: boolean
 }
 type Cap = { pos: THREE.Vector3; v: number; rig: CapRig }
 
@@ -346,6 +353,12 @@ export class Game {
   camLook = new THREE.Vector3()
   raycaster = new THREE.Raycaster()
   bangTextures: Record<string, { tex: THREE.Texture; grid: number }> = {}
+  bangPool: Record<
+    string,
+    { tex: THREE.Texture; mat: THREE.SpriteMaterial; grid: number; inUse: boolean }[]
+  > = {}
+  bangLight!: THREE.PointLight
+  enabledWeapons: Set<WeaponId>
   puffMat!: THREE.SpriteMaterial
   disposers: (() => void)[] = []
   disposed = false
@@ -369,6 +382,16 @@ export class Game {
     this.onNextRoundRequested = onNextRoundRequested
     this.timeLeft = opts.minutes * 60
     if (opts.proMode !== undefined) this.proMode = opts.proMode
+    const specialList = opts.enabledWeapons ?? [getDailyWeapon()]
+    this.enabledWeapons = new Set<WeaponId>([...BASE_WEAPONS, ...specialList])
+  }
+
+  setEnabledWeapons(weapons: WeaponId[]) {
+    this.enabledWeapons = new Set<WeaponId>([...BASE_WEAPONS, ...weapons])
+    for (const p of this.pickups) {
+      p.unlocked = this.enabledWeapons.has(p.weapon)
+      setPickupUnlocked(p.obj, p.unlocked)
+    }
   }
 
   async init(onProgress?: (msg: string) => void) {
@@ -411,6 +434,11 @@ export class Game {
     this.scene.add(sun, sun.target)
     this.sun = sun
 
+    // Persistent explosion PointLight kept in scene permanently so NUM_POINT_LIGHTS never changes and WebGL never recompiles shaders during explosions
+    this.bangLight = new THREE.PointLight("#ffd27a", 0, 2000, 1.5)
+    this.bangLight.position.set(0, -10000, 0)
+    this.scene.add(this.bangLight)
+
     onProgress?.("Placing ramps and spawns")
     for (const p of l.props) {
       const o = buildProp(p.kind)
@@ -445,7 +473,8 @@ export class Game {
     for (const p of l.pickups) {
       const weapon = (PICKUP_SUBSTITUTE[p.kind] ?? p.kind) as WeaponId
       if (!WEAPONS[weapon]) continue
-      const obj = buildPickup(WEAPONS[weapon].icon)
+      const unlocked = this.enabledWeapons.has(weapon)
+      const obj = buildPickup(WEAPONS[weapon].icon, unlocked)
       obj.position.copy(p.pos)
       this.scene.add(obj)
       this.pickups.push({
@@ -454,13 +483,15 @@ export class Game {
         pos: p.pos.clone(),
         obj,
         respawn: 0,
+        unlocked,
       })
     }
     this.buildFence()
     this.scene.updateMatrixWorld(true)
 
     // bangs.ls animates a sprite sheet: 4x4 frames (nook 8x8)
-    for (const [name, grid] of [
+    // Pre-decode and pre-upload pooled explosion textures to WebGL during loading so explosions never stutter
+    const bangDefs = [
       ["bangrocket", 4],
       ["bangnook", 8],
       ["bangmine", 4],
@@ -468,9 +499,38 @@ export class Game {
       ["bangbang", 4],
       ["bangairstrike", 4],
       ["bangdead", 4],
-    ] as const) {
-      this.bangTextures[name] = { tex: tex(name), grid }
-    }
+    ] as const
+    await Promise.all(
+      bangDefs.map(async ([name, grid]) => {
+        try {
+          const img = await loadImage(asset(`tex/${name}.png`))
+          const pool: {
+            tex: THREE.Texture
+            mat: THREE.SpriteMaterial
+            grid: number
+            inUse: boolean
+          }[] = []
+          for (let k = 0; k < 4; k++) {
+            const t = new THREE.Texture(img)
+            t.colorSpace = THREE.SRGBColorSpace
+            t.repeat.set(1 / grid, 1 / grid)
+            t.needsUpdate = true
+            r.initTexture(t)
+            const mat = new THREE.SpriteMaterial({
+              map: t,
+              transparent: true,
+              depthWrite: false,
+              blending: THREE.AdditiveBlending,
+            })
+            pool.push({ tex: t, mat, grid, inUse: false })
+          }
+          this.bangPool[name] = pool
+          this.bangTextures[name] = { tex: pool[0].tex, grid }
+        } catch {
+          this.bangTextures[name] = { tex: tex(name), grid }
+        }
+      }),
+    )
     this.puffMat = new THREE.SpriteMaterial({
       map: tex("pufft"),
       transparent: true,
@@ -548,6 +608,8 @@ export class Game {
     this.scene.updateMatrixWorld(true)
     this.bindInput()
     this.resize()
+    // Pre-compile all scene shaders during load so first explosion & combat have zero shader compile hitch
+    r.compile(this.scene, this.camera)
     this.pushFeed(
       room
         ? `Joined P2P room "${room}" on ${this.opts.map.name}.`
@@ -700,6 +762,9 @@ export class Game {
       this.emitHud()
     } else if (msg.subject === "roundstate") {
       if (!this.mp?.isHost) {
+        if (msg.enabledWeapons) {
+          this.setEnabledWeapons(msg.enabledWeapons)
+        }
         if (!this.over && !msg.over) {
           // Keep round clock loosely synchronized with host
           if (Math.abs(this.timeLeft - msg.timeLeft) > 1.5) {
@@ -1124,6 +1189,7 @@ export class Game {
       voteSecondsLeft: this.over ? Math.max(0, Math.ceil(this.mapVoteSecondsLeft)) : undefined,
       candidates: this.over ? this.mapVoteCandidates.map((c) => c.id) : undefined,
       votes: this.over ? { ...this.mapVotes } : undefined,
+      enabledWeapons: Array.from(this.enabledWeapons),
     })
   }
 
@@ -1420,7 +1486,6 @@ export class Game {
       if (shouldDetonate) {
         this.explode(rc.pos.clone(), 20, p, "rcbomb")
         this.scene.remove(rc.mesh)
-        disposeTree(rc.mesh)
         this.rcPawn = null
         p.weapon = null
         p.ammo = 0
@@ -1476,7 +1541,6 @@ export class Game {
       if (shouldDetonate) {
         this.explode(rc.pos.clone(), 25, p, "rcrocket")
         this.scene.remove(rc.mesh)
-        disposeTree(rc.mesh)
         this.rcPawn = null
         p.weapon = null
         p.ammo = 0
@@ -1736,6 +1800,7 @@ export class Game {
       if (t.weapon === "mgun" || !t.weapon || t.health < 45 || !goal) {
         for (const p of this.pickups) {
           if (
+            !p.unlocked ||
             p.respawn > 0 ||
             p.weapon === "speed" ||
             p.weapon === "thrusters" ||
@@ -2460,7 +2525,6 @@ export class Game {
     if (i < 0) return
     this.projectiles.splice(i, 1)
     this.scene.remove(p.obj)
-    disposeTree(p.obj)
     const m = p.owner.mines.indexOf(p)
     if (m >= 0) p.owner.mines.splice(m, 1)
   }
@@ -2660,6 +2724,8 @@ export class Game {
       p.obj.rotation.y += 0.03
       p.obj.position.y =
         p.pos.y + 20 + Math.sin(this.frame * 0.05 + p.pos.x) * 10
+      // pickups.ls line 155: `if plocked = 1 then distboy(me)`
+      if (!p.unlocked) continue
       for (const t of this.tanks) {
         if (t.dead || t.pos.distanceTo(p.pos) > 120) continue
         const w = WEAPONS[p.weapon]
@@ -2762,47 +2828,40 @@ export class Game {
 
   // ---------------------------------------------------------------- effects
   bang(pos: THREE.Vector3, name: string, size: number) {
-    const src = this.bangTextures[name] ?? this.bangTextures.bangrocket
-    const t = src.tex.clone()
-    t.repeat.set(1 / src.grid, 1 / src.grid)
-    t.needsUpdate = true
-    const mat = new THREE.SpriteMaterial({
-      map: t,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-    const s = new THREE.Sprite(mat)
-    s.position.copy(pos)
-    s.scale.set(size, size, 1)
-    this.scene.add(s)
-    const frames = src.grid * src.grid
-    const max = name === "bangnook" ? 64 : 24
-    this.effects.push({
-      obj: s,
-      life: max,
-      max,
-      dispose: () => {
-        t.dispose()
-        mat.dispose()
-      },
-      update: (_e, k) => {
-        const f = Math.min(frames - 1, Math.floor((1 - k) * frames))
-        t.offset.set(
-          (f % src.grid) / src.grid,
-          1 - (Math.floor(f / src.grid) + 1) / src.grid,
-        )
-      },
-    })
-    const light = new THREE.PointLight("#ffd27a", 6, size * 3, 1.5)
-    light.position.copy(pos)
-    this.scene.add(light)
-    this.effects.push({
-      obj: light,
-      life: 14,
-      max: 14,
-      update: (e, k) => ((e.obj as THREE.PointLight).intensity = 6 * k),
-    })
+    const pool = this.bangPool[name] ?? this.bangPool.bangrocket
+    const entry = pool?.find((p) => !p.inUse) ?? pool?.[0]
+    if (entry) {
+      entry.inUse = true
+      entry.tex.offset.set(0, 1 - 1 / entry.grid)
+      const s = new THREE.Sprite(entry.mat)
+      s.position.copy(pos)
+      s.scale.set(size, size, 1)
+      this.scene.add(s)
+      const frames = entry.grid * entry.grid
+      const max = name === "bangnook" ? 64 : 24
+      this.effects.push({
+        obj: s,
+        life: max,
+        max,
+        keepGeometry: true,
+        dispose: () => {
+          entry.inUse = false
+        },
+        update: (_e, k) => {
+          const f = Math.min(frames - 1, Math.floor((1 - k) * frames))
+          entry.tex.offset.set(
+            (f % entry.grid) / entry.grid,
+            1 - (Math.floor(f / entry.grid) + 1) / entry.grid,
+          )
+        },
+      })
+    }
+    // Reuse persistent scene PointLight so NUM_POINT_LIGHTS never changes (zero shader recompiles!)
+    if (this.bangLight) {
+      this.bangLight.position.copy(pos)
+      this.bangLight.distance = size * 3
+      this.bangLight.intensity = 6
+    }
   }
 
   puff(pos: THREE.Vector3, size: number, life: number, color = "#ffffff") {
@@ -2892,6 +2951,10 @@ export class Game {
   }
 
   stepEffects() {
+    if (this.bangLight && this.bangLight.intensity > 0) {
+      this.bangLight.intensity *= 0.82
+      if (this.bangLight.intensity < 0.05) this.bangLight.intensity = 0
+    }
     for (let i = this.effects.length - 1; i >= 0; i--) {
       const e = this.effects[i]
       e.life--

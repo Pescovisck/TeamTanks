@@ -59,6 +59,7 @@ export type NetMessage =
       voteSecondsLeft?: number;
       candidates?: string[];
       votes?: Record<string, string>;
+      enabledWeapons?: WeaponId[];
     }
   | { subject: 'left'; sender: string };
 

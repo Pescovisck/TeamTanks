@@ -515,23 +515,36 @@ export function buildCapturePoint(): CapRig {
 
 /** Original pickup icon plane (pickups.ls: 100x100 double-sided plane with transparent weapon icon). */
 const pickupGeo = new THREE.PlaneGeometry(100, 100)
-export function buildPickup(icon: number) {
+const pickupTexCache = new Map<number, THREE.Texture>()
+export function buildPickup(icon: number, unlocked = true) {
   const g = new THREE.Group()
   // icon is 2..20 matching icon_<icon>.png (transparent vivid icon)
-  const iconTex = loader.load(asset(`ui/icon_${icon}.png`))
-  iconTex.colorSpace = THREE.SRGBColorSpace
-  const card = new THREE.Mesh(
-    pickupGeo,
-    new THREE.MeshBasicMaterial({
-      map: iconTex,
-      transparent: true,
-      alphaTest: 0.05,
-      side: THREE.DoubleSide,
-    }),
-  )
+  let iconTex = pickupTexCache.get(icon)
+  if (!iconTex) {
+    iconTex = loader.load(asset(`ui/icon_${icon}.png`))
+    iconTex.colorSpace = THREE.SRGBColorSpace
+    pickupTexCache.set(icon, iconTex)
+  }
+  const mat = new THREE.MeshBasicMaterial({
+    map: iconTex,
+    color: unlocked ? "#ffffff" : "#555d6b",
+    transparent: true,
+    opacity: unlocked ? 1 : 0.22,
+    alphaTest: 0.05,
+    side: THREE.DoubleSide,
+  })
+  const card = new THREE.Mesh(pickupGeo, mat)
   card.position.y = 40
   g.add(card)
+  g.userData.cardMat = mat
   return g
+}
+
+export function setPickupUnlocked(obj: THREE.Object3D, unlocked: boolean) {
+  const mat = obj.userData.cardMat as THREE.MeshBasicMaterial | undefined
+  if (!mat) return
+  mat.color.set(unlocked ? "#ffffff" : "#555d6b")
+  mat.opacity = unlocked ? 1 : 0.22
 }
 
 /** Original W3D projectile / mine / bomb / crate mesh. */

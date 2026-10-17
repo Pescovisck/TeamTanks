@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { MAPS } from "./game/data"
+import { getDailyWeapon, MAPS } from "./game/data"
 import type { GameOptions } from "./game/engine"
 import GameView from "./ui/GameView"
 import Menu from "./ui/Menu"
@@ -31,6 +31,7 @@ const DEFAULTS: GameOptions = {
   playerTeam: "blue",
   proMode: true,
   roomCode: "",
+  enabledWeapons: [getDailyWeapon()],
 }
 
 // Deep link: ?room=<code> sets P2P room, ?play starts it immediately.

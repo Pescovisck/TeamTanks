@@ -382,6 +382,65 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
 // All 19 original weapons are now directly represented with their W3D models and icons.
 export const PICKUP_SUBSTITUTE: Record<string, WeaponId> = {}
 
+/** initgame.ls `vweaplist`: 6 core weapons always unlocked on every map. */
+export const BASE_WEAPONS: WeaponId[] = [
+  "mgun",
+  "bgun",
+  "nook",
+  "rocket",
+  "proximitymine",
+  "speed",
+]
+
+/** initgame.ls `vallpremweaps`: 13 rotational daily / special weapons. */
+export const DAILY_WEAPONS: WeaponId[] = [
+  "lasergun",
+  "mgunx2",
+  "rocketx4",
+  "remotemine",
+  "sonicgun",
+  "guidedmissile",
+  "thrusters",
+  "mortar",
+  "airstrike",
+  "rcbomb",
+  "rcrocket",
+  "health",
+  "stealth",
+]
+
+export const WEAPON_BLURBS: Record<WeaponId, string> = {
+  mgun: "Standard 73mm rapid-fire autocannon.",
+  bgun: "Heavy 720mm shell cannon with splash damage.",
+  nook: "Lobbed tactical nuclear grenade with a timed fuse.",
+  rocket: "High-velocity unguided armor-piercing rockets.",
+  proximitymine: "Drops up to 5 proximity-triggered landmines.",
+  speed: "Nitrous overdrive booster for high-speed stunts.",
+  lasergun: "Instant-hit beam rifle with zero travel time and pinpoint accuracy.",
+  mgunx2: "Twin-linked 73mm autocannons with double the sustained fire.",
+  rocketx4: "Quad-barrel Tankbuster salvo with massive knockback.",
+  remotemine: "High-yield charges detonated on command with Right Click or E.",
+  sonicgun: "Close-range shockwave cannon that sends enemy tanks flying.",
+  guidedmissile: "Heat-seeking missiles that lock onto enemy tanks in your sights.",
+  thrusters: "Vertical jump jets that launch your tank into the air.",
+  mortar: "Long-range high-arc artillery shells (5 rounds).",
+  airstrike: "Calls in a bomber airship to carpet-bomb the target zone.",
+  rcbomb: "Steerable remote-controlled wheeled bomb.",
+  rcrocket: "Flyable remote-controlled TV-guided missile.",
+  health: "Drops field repair packs that restore full tank armor.",
+  stealth: "Optical cloaking device that hides your tank and radar signature.",
+}
+
+/** initgame.ls lines 96-104: selects today's featured weapon from the 13 special weapons (`vday mod 13`). */
+export function getDailyWeapon(date = new Date()): WeaponId {
+  const dayOfYear = Math.floor(
+    (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) -
+      Date.UTC(date.getFullYear(), 0, 0)) /
+      86_400_000,
+  )
+  return DAILY_WEAPONS[dayOfYear % DAILY_WEAPONS.length]
+}
+
 // goody.ls rank table
 export const RANKS = [
   "Tank Private",
