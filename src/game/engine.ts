@@ -174,6 +174,8 @@ type Tank = {
     strafe: number
   }
   mines: Projectile[]
+  nametagSprite?: THREE.Sprite
+  nametagTex?: THREE.CanvasTexture
 }
 
 type Projectile = {
@@ -233,6 +235,76 @@ function wrapAngle(a: number) {
   while (a > Math.PI) a -= Math.PI * 2
   while (a < -Math.PI) a += Math.PI * 2
   return a
+}
+
+/** Original Shockwave 3D tank nametag billboarding over enemy and friendly tanks. */
+function createNametagSprite(
+  name: string,
+  team: Team,
+): { sprite: THREE.Sprite; tex: THREE.CanvasTexture } {
+  const canvas = document.createElement("canvas")
+  canvas.width = 512
+  canvas.height = 128
+  const ctx = canvas.getContext("2d")!
+
+  ctx.clearRect(0, 0, 512, 128)
+
+  const isRed = team === "red"
+  const teamColor = isRed ? "#ff4d3b" : "#4488ff"
+  const teamGlow = isRed ? "rgba(255, 77, 59, 0.5)" : "rgba(68, 136, 255, 0.5)"
+
+  // Rounded pill background
+  const x = 24
+  const y = 24
+  const w = 512 - 48
+  const h = 80
+  const r = 24
+
+  ctx.beginPath()
+  ctx.roundRect(x, y, w, h, r)
+  ctx.fillStyle = "rgba(10, 13, 18, 0.88)"
+  ctx.fill()
+
+  // Team glow & border
+  ctx.shadowColor = teamGlow
+  ctx.shadowBlur = 18
+  ctx.strokeStyle = teamColor
+  ctx.lineWidth = 5
+  ctx.stroke()
+  ctx.shadowBlur = 0
+
+  // Team indicator dot
+  ctx.beginPath()
+  ctx.arc(x + 36, y + h / 2, 12, 0, Math.PI * 2)
+  ctx.fillStyle = teamColor
+  ctx.fill()
+
+  // Tag text with dark outline for 100% legibility against sky/snow
+  ctx.font = "bold 44px 'Chakra Petch', 'Russo One', sans-serif"
+  ctx.textAlign = "center"
+  ctx.textBaseline = "middle"
+  ctx.strokeStyle = "#000000"
+  ctx.lineWidth = 6
+  ctx.strokeText(name.toUpperCase(), x + w / 2 + 12, y + h / 2)
+  ctx.fillStyle = "#ffffff"
+  ctx.fillText(name.toUpperCase(), x + w / 2 + 12, y + h / 2)
+
+  const tex = new THREE.CanvasTexture(canvas)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.minFilter = THREE.LinearFilter
+  tex.magFilter = THREE.LinearFilter
+
+  const mat = new THREE.SpriteMaterial({
+    map: tex,
+    transparent: true,
+    depthTest: true,
+    depthWrite: false,
+  })
+
+  const sprite = new THREE.Sprite(mat)
+  sprite.scale.set(72, 18, 1)
+  sprite.renderOrder = 10
+  return { sprite, tex }
 }
 
 export class Game {
@@ -679,6 +751,12 @@ export class Game {
   ): Tank {
     const rig = buildTank(team)
     this.scene.add(rig.root)
+    const { sprite: nametagSprite, tex: nametagTex } = createNametagSprite(
+      name,
+      team,
+    )
+    this.scene.add(nametagSprite)
+    nametagSprite.visible = false // initially hidden, updated in render()
     const d = DIFF[this.opts.difficulty]
     const t: Tank = {
       id: this.uid++,
@@ -688,6 +766,8 @@ export class Game {
       isRemote,
       lastNetSeen: this.frame,
       rig,
+      nametagSprite,
+      nametagTex,
       pos: new THREE.Vector3(),
       vel: new THREE.Vector3(),
       q: new THREE.Quaternion(),
@@ -734,6 +814,11 @@ export class Game {
 
   removeTank(tank: Tank) {
     this.scene.remove(tank.rig.root)
+    if (tank.nametagSprite) {
+      this.scene.remove(tank.nametagSprite)
+      tank.nametagSprite.material.dispose()
+      tank.nametagTex?.dispose()
+    }
     this.audio.stopLoop(`engine_${tank.id}`)
     for (const m of tank.mines) this.scene.remove(m.obj)
     for (const other of this.tanks) {
@@ -741,6 +826,18 @@ export class Game {
     }
     const idx = this.tanks.indexOf(tank)
     if (idx >= 0) this.tanks.splice(idx, 1)
+  }
+
+  updateTankNametag(t: Tank) {
+    if (t.nametagSprite) {
+      this.scene.remove(t.nametagSprite)
+      t.nametagSprite.material.dispose()
+      t.nametagTex?.dispose()
+    }
+    const { sprite, tex } = createNametagSprite(t.name, t.team)
+    t.nametagSprite = sprite
+    t.nametagTex = tex
+    this.scene.add(sprite)
   }
 
   /** goody.repos: drop onto a random team spawn, facing the map centre, with spawn protection. */
@@ -1012,6 +1109,13 @@ export class Game {
     if (document.pointerLockElement === this.canvas) document.exitPointerLock()
     this.audio.stopAllLoops()
     void this.audio.ctx.close()
+    for (const t of this.tanks) {
+      if (t.nametagSprite) {
+        this.scene.remove(t.nametagSprite)
+        t.nametagSprite.material.dispose()
+        t.nametagTex?.dispose()
+      }
+    }
     this.renderer?.dispose()
   }
 
@@ -2662,7 +2766,10 @@ export class Game {
     const alpha = Math.min(1, Math.max(0, this.acc / DT))
 
     for (const t of this.tanks) {
-      if (t.dead) continue
+      if (t.dead) {
+        if (t.nametagSprite) t.nametagSprite.visible = false
+        continue
+      }
       // Interpolate position and orientation between physics steps for high-refresh fluidity
       t.renderPos.copy(t.prevPos).lerp(t.pos, alpha)
       t.renderQ.copy(t.prevQ).slerp(t.q, alpha)
@@ -2673,6 +2780,25 @@ export class Game {
       r.root.quaternion.copy(t.renderQ)
 
       r.root.visible = !t.dead
+
+      // Original Shockwave 3D tank nametag overhead billboarding
+      if (t.nametagSprite) {
+        const show =
+          !t.isPlayer &&
+          !t.dead &&
+          (t.team === p.team || t.stealthT === 0)
+        t.nametagSprite.visible = show
+        if (show) {
+          t.nametagSprite.position.set(
+            t.renderPos.x,
+            t.renderPos.y + 54,
+            t.renderPos.z,
+          )
+          const dist = this.camera.position.distanceTo(t.renderPos)
+          const sf = Math.min(2.8, Math.max(0.75, dist * 0.0022))
+          t.nametagSprite.scale.set(72 * sf, 18 * sf, 1)
+        }
+      }
 
       const fwd = tmpV.set(0, 0, -1).applyQuaternion(t.renderQ)
       const hullYaw = Math.atan2(-fwd.x, -fwd.z)
