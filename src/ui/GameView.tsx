@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState } from "react"
+import type { MapDef } from "../game/data"
 import { Game, type GameOptions, type HudState, type Team } from "../game/engine"
 import DeployModal from "./DeployModal"
 import Hud from "./Hud"
 
 const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
 
-type Props = { options: GameOptions; onRematch: () => void; onMenu: () => void }
+type Props = {
+  options: GameOptions & { n?: number }
+  onNextRound: (nextMap: MapDef) => void
+  onRematch: () => void
+  onMenu: () => void
+}
 
-export default function GameView({ options, onRematch, onMenu }: Props) {
+export default function GameView({ options, onNextRound, onRematch, onMenu }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const gameRef = useRef<Game | null>(null)
   const [hud, setHud] = useState<HudState | null>(null)
@@ -15,14 +21,20 @@ export default function GameView({ options, onRematch, onMenu }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [scores, setScores] = useState(false)
 
-  // In-Game Deploy Modal State (appears once 3D level is loaded)
-  const [deployed, setDeployed] = useState(false)
-  const [deployModalOpen, setDeployModalOpen] = useState(true)
+  // In-Game Deploy Modal State: only auto-opens on initial entry (n = 0)
+  const isSubsequentRound = Boolean(options.n && options.n > 0)
+  const [deployed, setDeployed] = useState(isSubsequentRound)
+  const [deployModalOpen, setDeployModalOpen] = useState(!isSubsequentRound)
 
   useEffect(() => {
     const canvas = canvasRef.current!
     let cancelled = false
-    const game = new Game(canvas, options, (s) => !cancelled && setHud(s))
+    const game = new Game(
+      canvas,
+      options,
+      (s) => !cancelled && setHud(s),
+      (nextMap) => onNextRound(nextMap),
+    )
     gameRef.current = game
     game
       .init((m) => !cancelled && setProgress(m))
@@ -76,6 +88,8 @@ export default function GameView({ options, onRematch, onMenu }: Props) {
             if (!deployModalOpen) gameRef.current?.requestLock()
           }}
           onToggleCamera={() => gameRef.current?.toggleCameraMode()}
+          onVote={(mapId) => gameRef.current?.castMapVote(mapId)}
+          onConfirmNextMap={(mapId) => gameRef.current?.confirmNextMap(mapId)}
           onRematch={onRematch}
           onMenu={onMenu}
         />

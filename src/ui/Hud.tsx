@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { MAX_HEALTH, WEAPONS } from "../game/data"
+import { useEffect, useRef, useState } from "react"
+import { MAX_HEALTH, WEAPONS, type MapDef } from "../game/data"
 import type { HudState, Team } from "../game/engine"
 import { copyInviteLink } from "../utils/url"
 
@@ -432,12 +432,195 @@ export function Scoreboard({
   )
 }
 
+function MapVotePanel({
+  mapVote,
+  onVote,
+  onConfirmNextMap,
+  onMenu,
+}: {
+  mapVote: NonNullable<HudState["mapVote"]>
+  onVote: (mapId: string) => void
+  onConfirmNextMap: (mapId: string) => void
+  onMenu: () => void
+}) {
+  const [secondsLeft, setSecondsLeft] = useState(15)
+  const confirmedRef = useRef(false)
+
+  // Determine current leading map (candidate 0 / current map wins ties)
+  const getLeader = (): MapDef => {
+    let best = mapVote.candidates[0]
+    let maxVotes = -1
+    for (const c of mapVote.candidates) {
+      const count = Object.values(mapVote.votes).filter((v) => v === c.id).length
+      if (count > maxVotes) {
+        maxVotes = count
+        best = c
+      }
+    }
+    return best
+  }
+
+  const leader = getLeader()
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          if (!confirmedRef.current) {
+            confirmedRef.current = true
+            onConfirmNextMap(leader.id)
+          }
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [leader.id, onConfirmNextMap])
+
+  const handleInstantDeploy = () => {
+    if (!confirmedRef.current) {
+      confirmedRef.current = true
+      onConfirmNextMap(leader.id)
+    }
+  }
+
+  return (
+    <div className="mt-5 rounded-xl border border-hazard/30 bg-black/60 p-4 sm:p-5 backdrop-blur-md">
+      {/* Header & Countdown Bar */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xl">🗳️</span>
+          <div>
+            <div className="font-display text-lg tracking-wide text-white">
+              VOTE FOR NEXT MAP
+            </div>
+            <div className="text-[11px] text-white/50">
+              Lobby stays together · Next round starts automatically
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-md bg-hazard/15 border border-hazard/40 px-3 py-1 font-mono text-xs sm:text-sm font-bold text-hazard">
+            <span>Next Round in</span>
+            <span className="text-base text-white">{secondsLeft}s</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleInstantDeploy}
+            className="rounded-md bg-hazard px-4 py-1.5 text-xs font-bold text-gunmetal shadow transition-transform hover:scale-105 active:scale-95"
+          >
+            Deploy Now ›
+          </button>
+        </div>
+      </div>
+
+      {/* Countdown progress bar */}
+      <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+        <div
+          className="h-full bg-hazard transition-all duration-1000 ease-linear"
+          style={{ width: `${(secondsLeft / 15) * 100}%` }}
+        />
+      </div>
+
+      {/* Candidate Cards Grid */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {mapVote.candidates.map((c, idx) => {
+          const voteCount = Object.values(mapVote.votes).filter(
+            (v) => v === c.id,
+          ).length
+          const isMyVote = mapVote.myVote === c.id
+          const isLeader = leader.id === c.id
+
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => onVote(c.id)}
+              className={`group relative flex flex-col overflow-hidden rounded-lg border text-left transition-all ${
+                isMyVote
+                  ? "border-hazard bg-hazard/15 ring-2 ring-hazard/50 shadow-[0_0_20px_rgba(242,194,48,0.25)]"
+                  : "border-white/10 bg-black/40 hover:border-white/30 hover:bg-white/5"
+              }`}
+            >
+              <div className="relative aspect-video w-full overflow-hidden bg-black/50">
+                <img
+                  src={asset(`maps/${c.id}tex.png`)}
+                  alt=""
+                  className="pixelated h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                {idx === 0 && (
+                  <div className="absolute left-1.5 top-1.5 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-hazard border border-hazard/40 backdrop-blur-xs">
+                    Current Map
+                  </div>
+                )}
+                {voteCount > 0 && (
+                  <div className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded bg-hazard px-2 py-0.5 text-[10px] font-bold text-gunmetal shadow">
+                    <span>★</span>
+                    <span>{voteCount} {voteCount === 1 ? "vote" : "votes"}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-1 flex-col justify-between p-2.5">
+                <div>
+                  <div className="font-semibold text-xs text-white group-hover:text-hazard transition-colors">
+                    {c.name}
+                  </div>
+                  <div className="text-[10px] text-white/50 capitalize">
+                    {c.tile} terrain
+                  </div>
+                </div>
+
+                <div className="mt-2 flex items-center justify-between text-[10px]">
+                  {isMyVote ? (
+                    <span className="font-bold text-hazard">✓ Your Vote</span>
+                  ) : (
+                    <span className="text-white/40 group-hover:text-white/70">Click to Vote</span>
+                  )}
+                  {isLeader && (
+                    <span className="font-semibold text-white/60 text-[9px]">Leading</span>
+                  )}
+                </div>
+              </div>
+
+              {isMyVote && (
+                <div className="hazard-stripe absolute inset-x-0 bottom-0 h-1" />
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Footer info & Leave Match Button */}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3 text-xs text-white/60">
+        <div>
+          Next battlefield:{" "}
+          <span className="font-bold text-hazard">{leader.name}</span>
+          {leader.id === mapVote.candidates[0].id ? " (Replay)" : ""}
+        </div>
+        <button
+          type="button"
+          onClick={onMenu}
+          className="rounded border border-white/20 px-3 py-1 text-xs font-semibold text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          Leave Match
+        </button>
+      </div>
+    </div>
+  )
+}
+
 type HudProps = {
   s: HudState
   map: string
   showScores: boolean
   onLock: () => void
   onToggleCamera?: () => void
+  onVote?: (mapId: string) => void
+  onConfirmNextMap?: (mapId: string) => void
   onRematch: () => void
   onMenu: () => void
 }
@@ -448,6 +631,8 @@ export default function Hud({
   showScores,
   onLock,
   onToggleCamera,
+  onVote,
+  onConfirmNextMap,
   onRematch,
   onMenu,
 }: HudProps) {
@@ -465,37 +650,47 @@ export default function Hud({
           ? "text-team-blue"
           : "text-hazard"
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-black/55 p-6 backdrop-blur-[2px]">
-        <div className="w-full max-w-3xl">
-          <div className="mb-2 text-center text-[11px] font-semibold text-white/50">
+      <div className="absolute inset-0 flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-[2px] overflow-y-auto">
+        <div className="w-full max-w-4xl max-h-[95vh] overflow-y-auto pr-1">
+          <div className="mb-1 text-center text-[11px] font-semibold text-white/50">
             Round Over
           </div>
-          <h2 className={`mb-2 text-center font-display text-7xl ${tone}`}>
+          <h2 className={`mb-2 text-center font-display text-5xl sm:text-6xl ${tone}`}>
             {label}
           </h2>
-          <div className="mx-auto mb-6 h-3 w-80 overflow-hidden rounded-sm bg-team-red">
+          <div className="mx-auto mb-5 h-2.5 w-72 overflow-hidden rounded-sm bg-team-red">
             <div
               className="ml-auto h-full bg-team-blue"
               style={{ width: `${s.over.blueShare * 100}%` }}
             />
           </div>
           <Scoreboard s={s} map={map} title="final" />
-          <div className="mt-6 flex justify-center gap-4">
-            <button
-              type="button"
-              onClick={onRematch}
-              className="rounded-md bg-hazard px-8 py-3 text-lg font-semibold text-gunmetal shadow-[0_10px_30px_rgba(242,194,48,0.3)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
-            >
-              Rematch
-            </button>
-            <button
-              type="button"
-              onClick={onMenu}
-              className="rounded-md border border-white/20 px-8 py-3 text-lg font-semibold text-white transition-colors hover:bg-white/10"
-            >
-              Change Map
-            </button>
-          </div>
+
+          {s.mapVote ? (
+            <MapVotePanel
+              mapVote={s.mapVote}
+              onVote={onVote ?? (() => {})}
+              onConfirmNextMap={onConfirmNextMap ?? (() => {})}
+              onMenu={onMenu}
+            />
+          ) : (
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                type="button"
+                onClick={onRematch}
+                className="rounded-md bg-hazard px-8 py-3 text-lg font-semibold text-gunmetal shadow-[0_10px_30px_rgba(242,194,48,0.3)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                Rematch
+              </button>
+              <button
+                type="button"
+                onClick={onMenu}
+                className="rounded-md border border-white/20 px-8 py-3 text-lg font-semibold text-white transition-colors hover:bg-white/10"
+              >
+                Leave Match
+              </button>
+            </div>
+          )}
         </div>
       </div>
     )

@@ -35,9 +35,15 @@ export function syncUrlParams(roomCode?: string) {
       url.searchParams.set("room", roomCode.trim().toUpperCase())
     } else {
       url.searchParams.delete("room")
+      url.searchParams.delete("play")
+      url.searchParams.delete("join")
+      url.searchParams.delete("host")
     }
     url.searchParams.delete("map")
-    window.history.replaceState({}, "", url.toString())
+    const cleanUrl = url.searchParams.toString()
+      ? `${url.pathname}?${url.searchParams.toString()}${url.hash}`
+      : `${url.pathname}${url.hash}`
+    window.history.replaceState({}, "", cleanUrl)
   } catch {
     // Ignore in non-browser environments
   }

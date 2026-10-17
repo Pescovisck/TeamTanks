@@ -109,6 +109,16 @@ export default function Menu({ initial, onStart }: Props) {
   const set = <K extends keyof GameOptions>(k: K, v: GameOptions[K]) =>
     setO((s) => ({ ...s, [k]: v }))
 
+  // Sync menu state if initial options change (e.g. returning to menu clears roomCode)
+  useEffect(() => {
+    setO(initial)
+  }, [initial])
+
+  const handleDismissInvite = () => {
+    set("roomCode", "")
+    syncUrlParams("")
+  }
+
   // Automatically resolve the map from active lobby announcements if roomCode is set
   useEffect(() => {
     if (!o.roomCode) return
@@ -277,6 +287,14 @@ export default function Menu({ initial, onStart }: Props) {
                 className="rounded bg-hazard px-6 py-2.5 font-sans text-base font-bold text-gunmetal shadow transition-transform hover:scale-105 active:scale-95"
               >
                 Join Battle Now ›
+              </button>
+              <button
+                type="button"
+                onClick={handleDismissInvite}
+                title="Dismiss invite"
+                className="rounded border border-white/20 bg-black/40 px-2.5 py-2 text-xs font-semibold text-white/60 transition-colors hover:bg-black/60 hover:text-white"
+              >
+                ✕
               </button>
             </div>
           </div>

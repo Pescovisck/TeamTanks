@@ -93,11 +93,14 @@ export class Audio {
     this.master.gain.value = m ? 0 : 0.55
   }
 
+  channels = new Map<string | number, { src: AudioBufferSourceNode; gain: GainNode }>()
+
   play(
     name: string,
     pos?: { x: number; y: number; z: number },
     volume = 1,
     rate = 1,
+    channel?: string | number,
   ) {
     const buf = this.buffers.get(name)
     if (!buf || this.muted || this.ctx.state === "closed") return
@@ -111,6 +114,19 @@ export class Audio {
       v *= Math.max(0, 1 - d / 6000) ** 1.6
       if (v < 0.02) return
     }
+
+    // Director-style audio channel cutoff (e.g. Channel 6 for machine gun / laser)
+    if (channel !== undefined) {
+      const prev = this.channels.get(channel)
+      if (prev) {
+        try {
+          prev.gain.gain.setValueAtTime(prev.gain.gain.value, this.ctx.currentTime)
+          prev.gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.005)
+          prev.src.stop(this.ctx.currentTime + 0.006)
+        } catch {}
+      }
+    }
+
     const src = this.ctx.createBufferSource()
     src.buffer = buf
     src.playbackRate.value = rate
@@ -118,6 +134,15 @@ export class Audio {
     g.gain.value = v
     src.connect(g).connect(this.master)
     src.start()
+
+    if (channel !== undefined) {
+      this.channels.set(channel, { src, gain: g })
+      src.onended = () => {
+        if (this.channels.get(channel)?.src === src) {
+          this.channels.delete(channel)
+        }
+      }
+    }
   }
 
   loops = new Map<string, { src: AudioBufferSourceNode; gain: GainNode }>()

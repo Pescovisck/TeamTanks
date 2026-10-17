@@ -61,6 +61,16 @@ export default function App() {
     syncUrlParams(options.roomCode)
   }, [options.roomCode])
 
+  const handleMenu = () => {
+    setOptions((prev) => ({
+      ...prev,
+      roomCode: "",
+      joinAsClient: false,
+    }))
+    syncUrlParams("")
+    setPlaying(null)
+  }
+
   if (playing) {
     return (
       <GameView
@@ -69,13 +79,28 @@ export default function App() {
           String((playing as GameOptions & { n?: number }).n ?? 0)
         }
         options={playing}
-        onRematch={() =>
-          setPlaying({
-            ...playing,
-            n: ((playing as GameOptions & { n?: number }).n ?? 0) + 1,
-          } as GameOptions)
+        onNextRound={(nextMap) =>
+          setPlaying((prev) =>
+            prev
+              ? ({
+                  ...prev,
+                  map: nextMap,
+                  n: ((prev as GameOptions & { n?: number }).n ?? 0) + 1,
+                } as GameOptions)
+              : null,
+          )
         }
-        onMenu={() => setPlaying(null)}
+        onRematch={() =>
+          setPlaying((prev) =>
+            prev
+              ? ({
+                  ...prev,
+                  n: ((prev as GameOptions & { n?: number }).n ?? 0) + 1,
+                } as GameOptions)
+              : null,
+          )
+        }
+        onMenu={handleMenu}
       />
     )
   }

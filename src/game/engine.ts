@@ -102,6 +102,11 @@ export type HudState = {
     isHost: boolean
     peers: number
   } | null
+  mapVote?: {
+    candidates: MapDef[]
+    votes: Record<string, string>
+    myVote: string
+  } | null
 }
 
 type Tank = {
@@ -274,15 +279,20 @@ export class Game {
   disposed = false
   mp: MultiplayerSession | null = null
   netStatus: HudState["netStatus"] = null
+  mapVoteCandidates: MapDef[] = []
+  mapVotes: Record<string, string> = {}
+  onNextRoundRequested?: (nextMap: MapDef) => void
 
   constructor(
     canvas: HTMLCanvasElement,
     opts: GameOptions,
     onHud: (s: HudState) => void,
+    onNextRoundRequested?: (nextMap: MapDef) => void,
   ) {
     this.canvas = canvas
     this.opts = opts
     this.onHud = onHud
+    this.onNextRoundRequested = onNextRoundRequested
     this.timeLeft = opts.minutes * 60
     if (opts.proMode !== undefined) this.proMode = opts.proMode
   }
@@ -606,6 +616,12 @@ export class Game {
           this.pushFeed(`${botName} joined to replace ${name}`, team)
         }
       }
+    } else if (msg.subject === "mapvote") {
+      this.mapVotes[msg.sender] = msg.mapId
+      this.emitHud()
+    } else if (msg.subject === "nextmap") {
+      const targetMap = MAPS.find((m) => m.id === msg.mapId) ?? this.opts.map
+      this.onNextRoundRequested?.(targetMap)
     }
   }
 
@@ -921,6 +937,26 @@ export class Game {
     this.respawn(this.player, true)
     this.pushFeed(`${this.player.name} deployed on ${team === "red" ? "Red" : "Blue"} team`, team)
     this.emitHud()
+  }
+
+  castMapVote(mapId: string) {
+    this.mapVotes[this.player.name] = mapId
+    this.mp?.send({
+      subject: "mapvote",
+      sender: this.player.name,
+      mapId,
+    })
+    this.emitHud()
+  }
+
+  confirmNextMap(mapId: string) {
+    const targetMap = MAPS.find((m) => m.id === mapId) ?? this.opts.map
+    this.mp?.send({
+      subject: "nextmap",
+      sender: this.player.name,
+      mapId: targetMap.id,
+    })
+    this.onNextRoundRequested?.(targetMap)
   }
 
   start() {
@@ -1909,13 +1945,14 @@ export class Game {
       weapon === "lasergun" ? 5 : 2.5,
     )
     this.flash(from, weapon === "lasergun" ? 0.85 : 1, weapon === "lasergun")
-    if (this.frame % (weapon === "lasergun" ? 6 : 2) === 0)
-      this.audio.play(
-        weapon === "lasergun" ? "laser" : "gunfire",
-        from,
-        0.35,
-        0.95 + Math.random() * 0.1,
-      )
+    const isLaser = weapon === "lasergun"
+    this.audio.play(
+      isLaser ? "laser" : "gunfire",
+      from,
+      isLaser ? 0.5 : 0.6,
+      0.96 + Math.random() * 0.08,
+      `gun_${t.name}`,
+    )
   }
 
   lockTarget(t: Tank, pos: THREE.Vector3, dir: THREE.Vector3) {
@@ -2373,6 +2410,24 @@ export class Game {
       winner,
       blueShare: this.caps.length ? total / (255 * this.caps.length) : 0.5,
     }
+    const others = MAPS.filter((m) => m.id !== this.opts.map.id)
+    const seedStr = (this.opts.roomCode || "SOLO") + this.opts.map.id
+    let hash = 0
+    for (let i = 0; i < seedStr.length; i++) {
+      hash = (hash * 31 + seedStr.charCodeAt(i)) >>> 0
+    }
+    const shuffled = [...others].sort((a, b) => {
+      const ha = (hash ^ (a.id.charCodeAt(0) * 17)) % 100
+      const hb = (hash ^ (b.id.charCodeAt(0) * 17)) % 100
+      return ha - hb
+    })
+    this.mapVoteCandidates = [this.opts.map, ...shuffled.slice(0, 3)]
+    this.mapVotes = { [this.player.name]: this.opts.map.id }
+    this.mp?.send({
+      subject: "mapvote",
+      sender: this.player.name,
+      mapId: this.opts.map.id,
+    })
     this.audio.play(
       winner === this.player.team ? "bugle" : "endwav",
       undefined,
@@ -2760,6 +2815,13 @@ export class Game {
       locked: this.locked,
       speed: Math.round(Math.hypot(p.vel.x, p.vel.z)),
       netStatus: this.netStatus,
+      mapVote: this.over
+        ? {
+            candidates: this.mapVoteCandidates,
+            votes: { ...this.mapVotes },
+            myVote: this.mapVotes[this.player.name] ?? this.opts.map.id,
+          }
+        : null,
     })
   }
 }

@@ -49,6 +49,8 @@ export type NetMessage =
     }
   | { subject: 'cappoint'; sender: string; id: number; team: Team; val: number; tarGlow: [number, number, number] }
   | { subject: 'talk'; sender: string; team: Team; text: string }
+  | { subject: 'mapvote'; sender: string; mapId: string }
+  | { subject: 'nextmap'; sender: string; mapId: string }
   | { subject: 'left'; sender: string };
 
 export interface RoomMeta {
