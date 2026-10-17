@@ -70,7 +70,9 @@ function Minimap({ s, map }: { s: HudState; map: string }) {
         <img
           src={asset(`maps/${map}tex.png`)}
           alt=""
-          className="pixelated h-full w-full opacity-80"
+          className={`pixelated h-full w-full opacity-80 ${
+            map === "specialops1" ? "brightness-[5.5] contrast-150 saturate-150" : ""
+          }`}
         />
         {s.minimapCaps.map((c, i) => (
           <div
@@ -628,7 +630,9 @@ function MapVotePanel({
                 <img
                   src={asset(`maps/${c.id}tex.png`)}
                   alt=""
-                  className="pixelated h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className={`pixelated h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                    c.id === "specialops1" ? "brightness-[5.5] contrast-150 saturate-150" : ""
+                  }`}
                 />
                 {idx === 0 && (
                   <div className="absolute left-1.5 top-1.5 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-hazard border border-hazard/40 backdrop-blur-xs">

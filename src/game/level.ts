@@ -218,7 +218,12 @@ export async function buildTerrain(l: Level) {
   const baseTex = makeTex(baseImg)
   baseTex.wrapS = baseTex.wrapT = THREE.ClampToEdgeWrapping
   const tileTex = makeTex(tileImg)
-  const mat = new THREE.MeshLambertMaterial({ map: baseTex })
+  // Original Shockwave shady() sets shader.emissive = rgb(70, 70, 70), ensuring dark maps like Special Ops have full unshadowed texture visibility
+  const mat = new THREE.MeshLambertMaterial({
+    map: baseTex,
+    emissive: new THREE.Color(70 / 255, 70 / 255, 70 / 255),
+    emissiveMap: baseTex,
+  })
   mat.onBeforeCompile = (s) => {
     s.uniforms.tileMap = { value: tileTex }
     s.uniforms.tileRepeat = { value: l.grid / 2 }
@@ -235,10 +240,18 @@ export async function buildTerrain(l: Level) {
         `#include <map_fragment>
         vec3 tile = texture2D(tileMap, vTileUv * tileRepeat).rgb;
         ${
-          l.def.additive
-            ? "diffuseColor.rgb += tile * 0.4;"
-            : "diffuseColor.rgb *= mix(vec3(1.0), tile * 1.6, 0.4);"
+          l.def.theme === "specialops"
+            ? "diffuseColor.rgb = clamp(diffuseColor.rgb * 1.8 + tile * 1.35, 0.0, 1.0);"
+            : l.def.additive
+              ? "diffuseColor.rgb = clamp(diffuseColor.rgb + tile * 0.45, 0.0, 1.0);"
+              : "diffuseColor.rgb *= mix(vec3(1.0), tile * 1.6, 0.4);"
         }`,
+      )
+      .replace(
+        "#include <emissivemap_fragment>",
+        `#ifdef USE_EMISSIVEMAP
+          totalEmissiveRadiance *= diffuseColor.rgb;
+        #endif`,
       )
   }
   const mesh = new THREE.Mesh(geo, mat)

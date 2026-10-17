@@ -75,7 +75,9 @@ export default function RoomBrowser({ currentRoom, onJoin }: Props) {
                 <img
                   src={asset(`maps/${l.mapId}tex.png`)}
                   alt=""
-                  className="pixelated mr-3.5 h-16 w-16 rounded border border-white/10 object-cover"
+                  className={`pixelated mr-3.5 h-16 w-16 rounded border border-white/10 object-cover ${
+                    l.mapId === "specialops1" ? "brightness-[5.5] contrast-150 saturate-150" : ""
+                  }`}
                 />
                 <div className="flex flex-1 flex-col justify-between">
                   <div>

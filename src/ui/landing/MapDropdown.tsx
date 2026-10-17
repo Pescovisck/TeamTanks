@@ -81,7 +81,9 @@ export default function MapDropdown({ value, onChange, label = "Battlefield" }: 
         <img
           src={asset(`maps/${value.id}tex.png`)}
           alt=""
-          className="pixelated h-11 w-11 shrink-0 rounded border border-white/15 object-cover"
+          className={`pixelated h-11 w-11 shrink-0 rounded border border-white/15 object-cover ${
+            value.id === "specialops1" ? "brightness-[5.5] contrast-150 saturate-150" : ""
+          }`}
         />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[14px] font-bold text-white">{value.name}</span>
@@ -122,7 +124,9 @@ export default function MapDropdown({ value, onChange, label = "Battlefield" }: 
                 <img
                   src={asset(`maps/${m.id}tex.png`)}
                   alt=""
-                  className="pixelated h-9 w-9 shrink-0 rounded border border-white/10 object-cover"
+                  className={`pixelated h-9 w-9 shrink-0 rounded border border-white/10 object-cover ${
+                    m.id === "specialops1" ? "brightness-[5.5] contrast-150 saturate-150" : ""
+                  }`}
                 />
                 <span className="min-w-0 flex-1">
                   <span

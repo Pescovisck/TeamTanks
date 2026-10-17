@@ -101,7 +101,9 @@ export default function GameView({ options, onLoadoutChange, onNextRound, onRema
           <img
             src={asset(`maps/${options.map.id}tex.png`)}
             alt=""
-            className="pixelated h-40 w-40 rounded-md border border-white/10 shadow-2xl"
+            className={`pixelated h-40 w-40 rounded-md border border-white/10 shadow-2xl ${
+              options.map.id === "specialops1" ? "brightness-[5.5] contrast-150 saturate-150" : ""
+            }`}
           />
           <div className="text-center">
             <div className="font-display text-3xl">{options.map.name}</div>
