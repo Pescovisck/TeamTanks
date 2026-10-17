@@ -53,7 +53,25 @@ export type GameOptions = {
   joinAsClient?: boolean
 }
 
-export type FeedItem = { id: number; text: string; team?: Team; t: number }
+export type FeedItem = {
+  id: number
+  text?: string
+  killer?: {
+    name: string
+    team: Team
+    isPlayer?: boolean
+  }
+  victim?: {
+    name: string
+    team: Team
+    isPlayer?: boolean
+  }
+  weapon?: WeaponId
+  weaponIcon?: number
+  weaponVerb?: string
+  team?: Team
+  t: number
+}
 export type Popup = {
   id: number
   text: string
@@ -802,7 +820,14 @@ export class Game {
         this.toggleCameraMode()
       }
       if (e.code === "KeyR" && !e.repeat && !this.player.dead && !this.over) {
-        this.pushFeed(`${this.player.name} respawns`) // killer "Re spawn"
+        this.pushFeed({
+          victim: {
+            name: this.player.name,
+            team: this.player.team,
+            isPlayer: true,
+          },
+          weaponVerb: "respawn",
+        })
         this.respawn(this.player)
       }
     }
@@ -2283,10 +2308,35 @@ export class Game {
       by.score += KILL_SCORE
       by.kills++
     }
-    this.pushFeed(
-      `${by.name} ${WEAPONS[weapon]?.verb ?? "gets"} ${o.name}`,
-      by.team,
-    )
+    const wDef = WEAPONS[weapon]
+    if (by === o) {
+      this.pushFeed({
+        victim: {
+          name: o.name,
+          team: o.team,
+          isPlayer: o.isPlayer,
+        },
+        weapon,
+        weaponIcon: wDef?.icon ?? 1,
+        weaponVerb: "self-destructed",
+      })
+    } else {
+      this.pushFeed({
+        killer: {
+          name: by.name,
+          team: by.team,
+          isPlayer: by.isPlayer,
+        },
+        victim: {
+          name: o.name,
+          team: o.team,
+          isPlayer: o.isPlayer,
+        },
+        weapon,
+        weaponIcon: wDef?.icon ?? 1,
+        weaponVerb: wDef?.verb ?? "destroys",
+      })
+    }
     this.bang(o.pos.clone().add(new THREE.Vector3(0, 40, 0)), "bangdead", 900)
     this.audio.play("death", o.pos, 1)
     this.wreck(o)
@@ -2582,9 +2632,17 @@ export class Game {
     }
   }
 
-  pushFeed(text: string, team?: Team) {
-    this.feed.push({ id: this.uid++, text, team, t: this.frame })
-    if (this.feed.length > 6) this.feed.shift()
+  pushFeed(
+    itemOrText: string | Omit<FeedItem, "id" | "t">,
+    team?: Team,
+  ) {
+    const item: FeedItem =
+      typeof itemOrText === "string"
+        ? { id: this.uid++, text: itemOrText, team, t: this.frame }
+        : { id: this.uid++, ...itemOrText, t: this.frame }
+    this.feed.push(item)
+    if (this.feed.length > 7) this.feed.shift()
+    this.emitHud()
   }
 
   popup(text: string, kind: Popup["kind"]) {

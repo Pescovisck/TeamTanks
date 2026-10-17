@@ -127,15 +127,111 @@ function Minimap({ s, map }: { s: HudState; map: string }) {
 
 function Feed({ s }: { s: HudState }) {
   return (
-    <div className="pointer-events-none absolute left-4 top-4 flex w-80 flex-col gap-1">
-      {s.feed.map((f) => (
-        <div
-          key={f.id}
-          className="anim-feed rounded bg-black/55 px-3 py-1.5 text-[13px] font-semibold backdrop-blur-sm"
-        >
-          <span className={teamText(f.team)}>{f.text}</span>
-        </div>
-      ))}
+    <div className="pointer-events-none absolute left-4 top-4 flex w-96 flex-col gap-1.5 z-20 select-none">
+      {s.feed.map((f) => {
+        const isPlayerKiller = f.killer?.isPlayer
+        const isPlayerVictim = f.victim?.isPlayer
+        const isPlayerInvolved = isPlayerKiller || isPlayerVictim
+
+        if (f.victim) {
+          const isSelf = !f.killer || f.killer.name === f.victim.name
+          return (
+            <div
+              key={f.id}
+              className={`anim-feed flex items-center gap-2 rounded-md bg-black/75 px-3 py-1.5 text-xs font-semibold backdrop-blur-md shadow-md border transition-all ${
+                isPlayerInvolved
+                  ? "border-hazard/50 bg-black/85 shadow-[0_0_12px_rgba(242,194,48,0.25)] ring-1 ring-hazard/30"
+                  : "border-white/10"
+              }`}
+            >
+              {!isSelf && f.killer && (
+                <>
+                  <span
+                    className={`font-bold truncate max-w-[110px] ${
+                      f.killer.team === "red"
+                        ? "text-[#ff5c47]"
+                        : "text-[#5294ff]"
+                    }`}
+                  >
+                    {f.killer.name}
+                    {f.killer.isPlayer && (
+                      <span className="ml-1 text-[10px] font-bold text-hazard">
+                        (You)
+                      </span>
+                    )}
+                  </span>
+
+                  <div className="flex shrink-0 items-center gap-1 rounded bg-white/5 border border-white/10 px-1.5 py-0.5">
+                    {f.weaponIcon && (
+                      <img
+                        src={asset(`ui/icon_${f.weaponIcon}.png`)}
+                        alt={f.weaponVerb ?? "weapon"}
+                        className="h-3.5 w-5 object-contain filter drop-shadow"
+                      />
+                    )}
+                    {f.weaponVerb && (
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-white/50">
+                        {f.weaponVerb}
+                      </span>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {isSelf && (
+                <div className="flex shrink-0 items-center gap-1 rounded bg-white/5 border border-white/10 px-1.5 py-0.5">
+                  <span className="text-xs">💀</span>
+                  <span className="text-[9px] font-mono uppercase tracking-wider text-white/50">
+                    {f.weaponVerb ?? "crashed"}
+                  </span>
+                </div>
+              )}
+
+              <span
+                className={`font-bold truncate max-w-[110px] ${
+                  f.victim.team === "red"
+                    ? "text-[#ff5c47]"
+                    : "text-[#5294ff]"
+                }`}
+              >
+                {f.victim.name}
+                {f.victim.isPlayer && (
+                  <span className="ml-1 text-[10px] font-bold text-hazard">
+                    (You)
+                  </span>
+                )}
+              </span>
+            </div>
+          )
+        }
+
+        // Standard / System message
+        const isCapture = f.text?.includes("captured")
+        const isSuper = f.text?.includes("supercharged")
+        const isDeploy = f.text?.includes("deployed") || f.text?.includes("joined")
+
+        return (
+          <div
+            key={f.id}
+            className="anim-feed flex items-center gap-2 rounded-md bg-black/75 px-3 py-1.5 text-xs font-semibold backdrop-blur-md shadow-md border border-white/10"
+          >
+            <span className="text-sm">
+              {isCapture ? "🚩" : isSuper ? "⚡" : isDeploy ? "⚔️" : "ℹ️"}
+            </span>
+            <span
+              className={
+                f.team === "red"
+                  ? "text-[#ff5c47] font-semibold"
+                  : f.team === "blue"
+                    ? "text-[#5294ff] font-semibold"
+                    : "text-white/80"
+              }
+            >
+              {f.text}
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }
