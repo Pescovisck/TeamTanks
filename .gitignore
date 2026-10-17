@@ -1,12 +1,74 @@
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Build & output
 dist/
+dist-ssr/
 build/
+out/
+
+# Caching & temporary files
 .cache/
-.env*
 .vite/
 vite.config.*.timestamp-*
 *.tsbuildinfo
-*-debug.log*
+.tmp-*
+tmp/
+temp/
+
+# Deployment & serverless tooling
+.wrangler/
+.vercel/
+.netlify/
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+.dev.vars*
+
+# Logs & diagnostics
 logs/
 *.log
-.tmp-*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*-debug.log*
+
+# Editor, IDE & AI Agent files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.claude/
+.cursor/
+.gemini/
+AGENTS.md
+CLAUDE.md
+DEPLOYMENT.md
+.mise.toml
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Reverse-engineering archives, decompilation dumps & local tools
+raw_assets/
+teamtanks_re/
+shock.py
+*.zip
+*.rar
+*.7z
+*.msi
+*.exe
+*.dir
+*.dxr
+*.cct
+*.cxt
+*.dcr
+*.x32

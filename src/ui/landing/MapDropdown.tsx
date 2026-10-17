@@ -1,4 +1,4 @@
-﻿import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { MAPS, type MapDef } from "../../game/data"
 
 const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
@@ -86,14 +86,14 @@ export default function MapDropdown({ value, onChange, label = "Battlefield" }: 
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[14px] font-bold text-white">{value.name}</span>
           <span className="block truncate text-[11px] capitalize text-white/50">
-            {value.theme} Â· {value.tile} terrain
+            {value.theme} · {value.tile} terrain
           </span>
         </span>
         <span
           className={`text-hazard transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         >
-          â–¾
+          ▾
         </span>
       </button>
 
@@ -133,10 +133,10 @@ export default function MapDropdown({ value, onChange, label = "Battlefield" }: 
                     {m.name}
                   </span>
                   <span className="block truncate text-[10px] capitalize text-white/40">
-                    {m.theme} Â· friction {m.friction}
+                    {m.theme} · friction {m.friction}
                   </span>
                 </span>
-                {selected && <span className="text-hazard">âœ“</span>}
+                {selected && <span className="text-hazard">✓</span>}
               </li>
             )
           })}

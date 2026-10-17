@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { MAPS } from "../game/data"
 import type { Difficulty, GameOptions, Team } from "../game/engine"
 import { lobbyService, type LobbyInfo } from "../game/lobby"
@@ -95,7 +95,7 @@ function Modal({
             aria-label="Close"
             className="rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white"
           >
-            âœ•
+            ✕
           </button>
         </div>
         {children}
@@ -354,7 +354,7 @@ export default function Menu({ initial, onStart }: Props) {
               rel="noreferrer"
               className="rounded border border-white/25 px-3 py-1.5 transition-colors hover:bg-white/10 hover:text-white"
             >
-              GitHub â†—
+              GitHub ↗
             </a>
           </div>
         </nav>
@@ -402,7 +402,7 @@ export default function Menu({ initial, onStart }: Props) {
                     </div>
                     <div className="font-mono text-2xl font-bold text-white">{o.roomCode}</div>
                     <div className="text-[12px] text-white/65">
-                      {o.map.name} Â· ready to join the squad
+                      {o.map.name} · ready to join the squad
                     </div>
                   </div>
                   <button
@@ -412,7 +412,7 @@ export default function Menu({ initial, onStart }: Props) {
                     aria-label="Dismiss invite"
                     className="rounded p-1 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
                   >
-                    âœ•
+                    ✕
                   </button>
                 </div>
                 <div className="mt-3 flex gap-2">
@@ -421,14 +421,14 @@ export default function Menu({ initial, onStart }: Props) {
                     onClick={() => onStart({ ...o, joinAsClient: true, teamSize: 5 })}
                     className="flex-1 rounded bg-hazard px-4 py-2 text-sm font-bold text-gunmetal transition-transform hover:scale-[1.03] active:scale-95"
                   >
-                    Join Battle Now â€º
+                    Join Battle Now ›
                   </button>
                   <button
                     type="button"
                     onClick={handleCopyLink}
                     className="rounded border border-white/20 bg-black/40 px-3 py-2 text-xs font-semibold text-white/80 transition-colors hover:bg-black/60 hover:text-white"
                   >
-                    {copied ? "âœ“ Copied" : "Copy link"}
+                    {copied ? "✓ Copied" : "Copy link"}
                   </button>
                 </div>
               </div>
@@ -492,7 +492,7 @@ export default function Menu({ initial, onStart }: Props) {
                   rel="noreferrer"
                   className="rounded-md bg-white px-5 py-2.5 text-sm font-bold text-gunmetal transition-transform hover:scale-[1.03] active:scale-95"
                 >
-                  Contribute on GitHub â†—
+                  Contribute on GitHub ↗
                 </a>
                 <button
                   type="button"
@@ -547,7 +547,7 @@ export default function Menu({ initial, onStart }: Props) {
                   onClick={() => setModal("host")}
                   className="rounded-md bg-hazard px-4 py-2 text-sm font-bold text-gunmetal transition-transform hover:scale-105 active:scale-95"
                 >
-                  Host battle â€º
+                  Host battle ›
                 </button>
               </div>
             </div>
@@ -606,7 +606,7 @@ export default function Menu({ initial, onStart }: Props) {
               Team Tanks: Armageddon
             </span>
           </div>
-          Unofficial fan remake made for preservation. Team Tanks Â© GameVial. All original W3D
+          Unofficial fan remake made for preservation. Team Tanks © GameVial. All original W3D
           models, textures and sounds belong to their creators.
         </footer>
       </div>
@@ -645,7 +645,7 @@ export default function Menu({ initial, onStart }: Props) {
               onClick={handleHostBattle}
               className="w-full rounded-md bg-hazard py-3 font-sans text-base font-bold text-gunmetal shadow transition-transform hover:scale-[1.02] active:scale-100"
             >
-              Launch on {o.map.name} â€º
+              Launch on {o.map.name} ›
             </button>
           </div>
         </Modal>
@@ -656,7 +656,7 @@ export default function Menu({ initial, onStart }: Props) {
         <Modal title="Join by Room Code" eyebrow="Join a friend" onClose={() => setModal(null)}>
           <form onSubmit={handleJoinWithCode} className="flex flex-col gap-4">
             <p className="text-[13px] text-white/60">
-              Enter the 4â€“6 character code your friend shared. You'll pick your tag and team once
+              Enter the 4–6 character code your friend shared. You'll pick your tag and team once
               you're in.
             </p>
             <input
@@ -676,7 +676,7 @@ export default function Menu({ initial, onStart }: Props) {
               disabled={!manualCode.trim()}
               className="w-full rounded-md bg-hazard py-3 font-sans text-base font-bold text-gunmetal transition-transform hover:scale-[1.02] active:scale-100 disabled:opacity-40 disabled:hover:scale-100"
             >
-              Join Battle â€º
+              Join Battle ›
             </button>
           </form>
         </Modal>
