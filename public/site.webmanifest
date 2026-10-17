@@ -1,0 +1,18 @@
+{
+  "name": "Team Tanks: Armageddon",
+  "short_name": "TeamTanks",
+  "description": "Play Team Tanks in your browser! The faithful 3D multiplayer tank combat game recreation with WebGL, WebRTC peer-to-peer multiplayer, and all original weapons & maps.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a141d",
+  "theme_color": "#d97706",
+  "orientation": "landscape",
+  "categories": ["games", "action", "multiplayer"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
