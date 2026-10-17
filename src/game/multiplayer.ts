@@ -51,6 +51,15 @@ export type NetMessage =
   | { subject: 'talk'; sender: string; team: Team; text: string }
   | { subject: 'mapvote'; sender: string; mapId: string }
   | { subject: 'nextmap'; sender: string; mapId: string }
+  | {
+      subject: 'roundstate';
+      sender: string;
+      timeLeft: number;
+      over: null | { winner: Team | 'draw'; blueShare: number };
+      voteSecondsLeft?: number;
+      candidates?: string[];
+      votes?: Record<string, string>;
+    }
   | { subject: 'left'; sender: string };
 
 export interface RoomMeta {
@@ -66,8 +75,8 @@ function sanitizeRoomSlug(roomId: string): string {
 
 export class MultiplayerSession {
   public readonly roomId: string;
-  public readonly playerName: string;
-  public readonly team: Team;
+  public playerName: string;
+  public team: Team;
   public readonly sessionId: string;
   public isConnected = false;
   public isHost = false;
@@ -102,6 +111,11 @@ export class MultiplayerSession {
 
     this.initBroadcastChannel();
     this.initWebRTC();
+  }
+
+  public updatePlayerIdentity(name: string, team: Team) {
+    this.playerName = name;
+    this.team = team;
   }
 
   private notifyStatus() {

@@ -125,6 +125,7 @@ export type HudState = {
     candidates: MapDef[]
     votes: Record<string, string>
     myVote: string
+    secondsLeft: number
   } | null
 }
 
@@ -352,6 +353,8 @@ export class Game {
   netStatus: HudState["netStatus"] = null
   mapVoteCandidates: MapDef[] = []
   mapVotes: Record<string, string> = {}
+  mapVoteSecondsLeft = 15
+  mapVoteConfirmed = false
   onNextRoundRequested?: (nextMap: MapDef) => void
 
   constructor(
@@ -688,9 +691,58 @@ export class Game {
         }
       }
     } else if (msg.subject === "mapvote") {
-      this.mapVotes[msg.sender] = msg.mapId
+      const voterKey = msg.sender === this.player.name ? `${msg.sender}_remote` : msg.sender
+      this.mapVotes = { ...this.mapVotes, [voterKey]: msg.mapId }
+      // If host receives a vote, immediately broadcast updated roundstate so all connected clients see the tally
+      if (this.mp?.isHost && this.over) {
+        this.broadcastRoundState()
+      }
       this.emitHud()
+    } else if (msg.subject === "roundstate") {
+      if (!this.mp?.isHost) {
+        if (!this.over && !msg.over) {
+          // Keep round clock loosely synchronized with host
+          if (Math.abs(this.timeLeft - msg.timeLeft) > 1.5) {
+            this.timeLeft = msg.timeLeft
+          }
+        } else if (msg.over) {
+          const wasOver = Boolean(this.over)
+          this.over = msg.over
+          if (msg.candidates && msg.candidates.length > 0) {
+            this.mapVoteCandidates = msg.candidates
+              .map((id) => MAPS.find((m) => m.id === id))
+              .filter((m): m is MapDef => Boolean(m))
+          } else if (this.mapVoteCandidates.length === 0) {
+            this.initMapVoteCandidates()
+          }
+          if (typeof msg.voteSecondsLeft === "number") {
+            this.mapVoteSecondsLeft = msg.voteSecondsLeft
+          }
+          if (msg.votes) {
+            const myCurrentVote = this.mapVotes[this.player.name] ?? this.opts.map.id
+            this.mapVotes = { ...msg.votes, [this.player.name]: myCurrentVote }
+          }
+          if (!wasOver) {
+            this.audio.stopAllLoops()
+            const myVote = this.mapVotes[this.player.name] ?? this.opts.map.id
+            this.mp?.send({
+              subject: "mapvote",
+              sender: this.player.name,
+              mapId: myVote,
+            })
+            this.audio.play(
+              msg.over.winner === this.player.team ? "bugle" : "endwav",
+              undefined,
+              0.9,
+            )
+            if (document.pointerLockElement === this.canvas) document.exitPointerLock()
+          }
+          this.emitHud()
+        }
+      }
     } else if (msg.subject === "nextmap") {
+      if (this.mapVoteConfirmed) return
+      this.mapVoteConfirmed = true
       const targetMap = MAPS.find((m) => m.id === msg.mapId) ?? this.opts.map
       this.onNextRoundRequested?.(targetMap)
     }
@@ -1008,7 +1060,14 @@ export class Game {
   }
 
   setPlayerLoadout(name: string, team: Team) {
+    const oldName = this.player.name
     this.player.name = name
+    this.mp?.updatePlayerIdentity(name, team)
+    if (oldName !== name && this.mapVotes[oldName]) {
+      const v = this.mapVotes[oldName]
+      delete this.mapVotes[oldName]
+      this.mapVotes[name] = v
+    }
     if (this.player.team !== team) {
       this.player.team = team
       this.scene.remove(this.player.rig.root)
@@ -1042,17 +1101,48 @@ export class Game {
     this.emitHud()
   }
 
+  getMapVoteLeader(): MapDef {
+    let best = this.mapVoteCandidates[0] ?? this.opts.map
+    let maxVotes = -1
+    for (const c of this.mapVoteCandidates) {
+      const count = Object.values(this.mapVotes).filter((v) => v === c.id).length
+      if (count > maxVotes) {
+        maxVotes = count
+        best = c
+      }
+    }
+    return best
+  }
+
+  broadcastRoundState() {
+    if (!this.mp) return
+    this.mp.send({
+      subject: "roundstate",
+      sender: this.player.name,
+      timeLeft: Math.max(0, this.timeLeft),
+      over: this.over,
+      voteSecondsLeft: this.over ? Math.max(0, Math.ceil(this.mapVoteSecondsLeft)) : undefined,
+      candidates: this.over ? this.mapVoteCandidates.map((c) => c.id) : undefined,
+      votes: this.over ? { ...this.mapVotes } : undefined,
+    })
+  }
+
   castMapVote(mapId: string) {
-    this.mapVotes[this.player.name] = mapId
+    this.mapVotes = { ...this.mapVotes, [this.player.name]: mapId }
     this.mp?.send({
       subject: "mapvote",
       sender: this.player.name,
       mapId,
     })
+    if (this.mp?.isHost && this.over) {
+      this.broadcastRoundState()
+    }
     this.emitHud()
   }
 
   confirmNextMap(mapId: string) {
+    if (this.mapVoteConfirmed) return
+    this.mapVoteConfirmed = true
     const targetMap = MAPS.find((m) => m.id === mapId) ?? this.opts.map
     this.mp?.send({
       subject: "nextmap",
@@ -1110,6 +1200,17 @@ export class Game {
     if (!this.over) {
       this.timeLeft -= DT
       if (this.timeLeft <= 0) this.endRound()
+    } else if (!this.mapVoteConfirmed) {
+      this.mapVoteSecondsLeft = Math.max(0, this.mapVoteSecondsLeft - DT)
+      if (this.mapVoteSecondsLeft <= 0) {
+        // Host (or solo player) triggers the next round; clients wait a tiny grace period in case host disconnected
+        if (!this.mp || this.mp.isHost || this.mp.peerCount === 0) {
+          this.confirmNextMap(this.getMapVoteLeader().id)
+        }
+      }
+    }
+    if (this.mp?.isHost && this.frame % 30 === 0) {
+      this.broadcastRoundState()
     }
     const p = this.player
     const k = this.keys
@@ -2534,17 +2635,7 @@ export class Game {
     }
   }
 
-  /** endgame.ls: sum of the blue channel vs 127 * count decides the round. */
-  endRound() {
-    this.audio.stopAllLoops()
-    const total = this.caps.reduce((s, c) => s + c.v, 0)
-    const mid = 127 * this.caps.length
-    const winner: Team | "draw" =
-      total > mid ? "blue" : total < mid ? "red" : "draw"
-    this.over = {
-      winner,
-      blueShare: this.caps.length ? total / (255 * this.caps.length) : 0.5,
-    }
+  initMapVoteCandidates() {
     const others = MAPS.filter((m) => m.id !== this.opts.map.id)
     const seedStr = (this.opts.roomCode || "SOLO") + this.opts.map.id
     let hash = 0
@@ -2557,12 +2648,32 @@ export class Game {
       return ha - hb
     })
     this.mapVoteCandidates = [this.opts.map, ...shuffled.slice(0, 3)]
-    this.mapVotes = { [this.player.name]: this.opts.map.id }
+  }
+
+  /** endgame.ls: sum of the blue channel vs 127 * count decides the round. */
+  endRound() {
+    if (this.over) return
+    this.audio.stopAllLoops()
+    const total = this.caps.reduce((s, c) => s + c.v, 0)
+    const mid = 127 * this.caps.length
+    const winner: Team | "draw" =
+      total > mid ? "blue" : total < mid ? "red" : "draw"
+    this.over = {
+      winner,
+      blueShare: this.caps.length ? total / (255 * this.caps.length) : 0.5,
+    }
+    this.initMapVoteCandidates()
+    this.mapVoteSecondsLeft = 15
+    this.mapVoteConfirmed = false
+    this.mapVotes = { ...this.mapVotes, [this.player.name]: this.opts.map.id }
     this.mp?.send({
       subject: "mapvote",
       sender: this.player.name,
       mapId: this.opts.map.id,
     })
+    if (this.mp?.isHost) {
+      this.broadcastRoundState()
+    }
     this.audio.play(
       winner === this.player.team ? "bugle" : "endwav",
       undefined,
@@ -2985,6 +3096,7 @@ export class Game {
             candidates: this.mapVoteCandidates,
             votes: { ...this.mapVotes },
             myVote: this.mapVotes[this.player.name] ?? this.opts.map.id,
+            secondsLeft: Math.max(0, Math.ceil(this.mapVoteSecondsLeft)),
           }
         : null,
     })

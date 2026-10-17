@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { MAX_HEALTH, WEAPONS, type MapDef } from "../game/data"
 import type { HudState, Team } from "../game/engine"
 import { copyInviteLink } from "../utils/url"
@@ -539,8 +539,8 @@ function MapVotePanel({
   onConfirmNextMap: (mapId: string) => void
   onMenu: () => void
 }) {
-  const [secondsLeft, setSecondsLeft] = useState(15)
   const confirmedRef = useRef(false)
+  const secondsLeft = mapVote.secondsLeft
 
   // Determine current leading map (candidate 0 / current map wins ties)
   const getLeader = (): MapDef => {
@@ -557,23 +557,6 @@ function MapVotePanel({
   }
 
   const leader = getLeader()
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          if (!confirmedRef.current) {
-            confirmedRef.current = true
-            onConfirmNextMap(leader.id)
-          }
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [leader.id, onConfirmNextMap])
 
   const handleInstantDeploy = () => {
     if (!confirmedRef.current) {

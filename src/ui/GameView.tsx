@@ -8,12 +8,13 @@ const asset = (p: string) => import.meta.env.BASE_URL + "tt/" + p
 
 type Props = {
   options: GameOptions & { n?: number }
+  onLoadoutChange?: (callsign: string, team: Team) => void
   onNextRound: (nextMap: MapDef) => void
   onRematch: () => void
   onMenu: () => void
 }
 
-export default function GameView({ options, onNextRound, onRematch, onMenu }: Props) {
+export default function GameView({ options, onLoadoutChange, onNextRound, onRematch, onMenu }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const gameRef = useRef<Game | null>(null)
   const [hud, setHud] = useState<HudState | null>(null)
@@ -53,7 +54,7 @@ export default function GameView({ options, onNextRound, onRematch, onMenu }: Pr
       game.dispose()
       gameRef.current = null
     }
-  }, [options])
+  }, [options.map.id, options.roomCode, options.n])
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => e.code === "Tab" && setScores(true)
@@ -71,6 +72,7 @@ export default function GameView({ options, onNextRound, onRematch, onMenu }: Pr
       localStorage.setItem("tt_callsign", callsign)
     } catch {}
     gameRef.current?.setPlayerLoadout(callsign, team)
+    onLoadoutChange?.(callsign, team)
     setDeployed(true)
     setDeployModalOpen(false)
     gameRef.current?.requestLock()

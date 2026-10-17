@@ -72,13 +72,17 @@ export default function App() {
   }
 
   if (playing) {
+    const roundNum = (playing as GameOptions & { n?: number }).n ?? 0
     return (
       <GameView
-        key={
-          JSON.stringify(playing) +
-          String((playing as GameOptions & { n?: number }).n ?? 0)
-        }
+        key={`${playing.map.id}_${playing.roomCode ?? ""}_${roundNum}`}
         options={playing}
+        onLoadoutChange={(callsign, team) => {
+          setOptions((prev) => ({ ...prev, playerName: callsign, playerTeam: team }))
+          setPlaying((prev) =>
+            prev ? { ...prev, playerName: callsign, playerTeam: team } : null,
+          )
+        }}
         onNextRound={(nextMap) =>
           setPlaying((prev) =>
             prev
