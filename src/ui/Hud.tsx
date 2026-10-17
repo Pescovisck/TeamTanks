@@ -127,7 +127,7 @@ function Minimap({ s, map }: { s: HudState; map: string }) {
 
 function Feed({ s }: { s: HudState }) {
   return (
-    <div className="pointer-events-none absolute left-4 top-4 flex w-96 flex-col gap-1.5 z-20 select-none">
+    <div className="pointer-events-none absolute left-4 top-4 flex flex-col items-start gap-1 z-20 select-none">
       {s.feed.map((f) => {
         const isPlayerKiller = f.killer?.isPlayer
         const isPlayerVictim = f.victim?.isPlayer
@@ -138,7 +138,7 @@ function Feed({ s }: { s: HudState }) {
           return (
             <div
               key={f.id}
-              className={`anim-feed flex items-center gap-2 rounded-md bg-black/75 px-3 py-1.5 text-xs font-semibold backdrop-blur-md shadow-md border transition-all ${
+              className={`anim-feed flex w-fit items-center gap-1.5 rounded bg-black/75 px-2.5 py-1 text-xs font-semibold backdrop-blur-md shadow-md border transition-all ${
                 isPlayerInvolved
                   ? "border-hazard/50 bg-black/85 shadow-[0_0_12px_rgba(242,194,48,0.25)] ring-1 ring-hazard/30"
                   : "border-white/10"
@@ -147,7 +147,7 @@ function Feed({ s }: { s: HudState }) {
               {!isSelf && f.killer && (
                 <>
                   <span
-                    className={`font-bold truncate max-w-[110px] ${
+                    className={`font-bold ${
                       f.killer.team === "red"
                         ? "text-[#ff5c47]"
                         : "text-[#5294ff]"
@@ -188,7 +188,7 @@ function Feed({ s }: { s: HudState }) {
               )}
 
               <span
-                className={`font-bold truncate max-w-[110px] ${
+                className={`font-bold ${
                   f.victim.team === "red"
                     ? "text-[#ff5c47]"
                     : "text-[#5294ff]"
@@ -213,7 +213,7 @@ function Feed({ s }: { s: HudState }) {
         return (
           <div
             key={f.id}
-            className="anim-feed flex items-center gap-2 rounded-md bg-black/75 px-3 py-1.5 text-xs font-semibold backdrop-blur-md shadow-md border border-white/10"
+            className="anim-feed flex w-fit items-center gap-2 rounded bg-black/75 px-2.5 py-1 text-xs font-semibold backdrop-blur-md shadow-md border border-white/10"
           >
             <span className="text-sm">
               {isCapture ? "🚩" : isSuper ? "⚡" : isDeploy ? "⚔️" : "ℹ️"}

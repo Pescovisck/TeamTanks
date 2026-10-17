@@ -243,51 +243,26 @@ function createNametagSprite(
   team: Team,
 ): { sprite: THREE.Sprite; tex: THREE.CanvasTexture } {
   const canvas = document.createElement("canvas")
-  canvas.width = 512
-  canvas.height = 128
+  canvas.width = 256
+  canvas.height = 64
   const ctx = canvas.getContext("2d")!
 
-  ctx.clearRect(0, 0, 512, 128)
+  ctx.clearRect(0, 0, 256, 64)
 
   const isRed = team === "red"
-  const teamColor = isRed ? "#ff4d3b" : "#4488ff"
-  const teamGlow = isRed ? "rgba(255, 77, 59, 0.5)" : "rgba(68, 136, 255, 0.5)"
+  const teamColor = isRed ? "#ff4433" : "#3b82f6"
 
-  // Rounded pill background
-  const x = 24
-  const y = 24
-  const w = 512 - 48
-  const h = 80
-  const r = 24
-
-  ctx.beginPath()
-  ctx.roundRect(x, y, w, h, r)
-  ctx.fillStyle = "rgba(10, 13, 18, 0.88)"
-  ctx.fill()
-
-  // Team glow & border
-  ctx.shadowColor = teamGlow
-  ctx.shadowBlur = 18
-  ctx.strokeStyle = teamColor
-  ctx.lineWidth = 5
-  ctx.stroke()
-  ctx.shadowBlur = 0
-
-  // Team indicator dot
-  ctx.beginPath()
-  ctx.arc(x + 36, y + h / 2, 12, 0, Math.PI * 2)
-  ctx.fillStyle = teamColor
-  ctx.fill()
-
-  // Tag text with dark outline for 100% legibility against sky/snow
-  ctx.font = "bold 44px 'Chakra Petch', 'Russo One', sans-serif"
+  // Clean text in team color with dark drop shadow for 100% legibility against terrain/sky
+  ctx.font = "bold 26px 'Chakra Petch', 'Russo One', sans-serif"
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
-  ctx.strokeStyle = "#000000"
-  ctx.lineWidth = 6
-  ctx.strokeText(name.toUpperCase(), x + w / 2 + 12, y + h / 2)
-  ctx.fillStyle = "#ffffff"
-  ctx.fillText(name.toUpperCase(), x + w / 2 + 12, y + h / 2)
+
+  ctx.shadowColor = "rgba(0, 0, 0, 0.95)"
+  ctx.shadowBlur = 5
+  ctx.shadowOffsetX = 1
+  ctx.shadowOffsetY = 2
+  ctx.fillStyle = teamColor
+  ctx.fillText(name.toUpperCase(), 128, 32)
 
   const tex = new THREE.CanvasTexture(canvas)
   tex.colorSpace = THREE.SRGBColorSpace
@@ -302,7 +277,7 @@ function createNametagSprite(
   })
 
   const sprite = new THREE.Sprite(mat)
-  sprite.scale.set(72, 18, 1)
+  sprite.scale.set(28, 7, 1)
   sprite.renderOrder = 10
   return { sprite, tex }
 }
@@ -2791,12 +2766,12 @@ export class Game {
         if (show) {
           t.nametagSprite.position.set(
             t.renderPos.x,
-            t.renderPos.y + 54,
+            t.renderPos.y + 44,
             t.renderPos.z,
           )
           const dist = this.camera.position.distanceTo(t.renderPos)
-          const sf = Math.min(2.8, Math.max(0.75, dist * 0.0022))
-          t.nametagSprite.scale.set(72 * sf, 18 * sf, 1)
+          const sf = Math.min(1.4, Math.max(0.7, dist * 0.0012))
+          t.nametagSprite.scale.set(28 * sf, 7 * sf, 1)
         }
       }
 
