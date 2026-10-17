@@ -632,7 +632,7 @@ export class Game {
           pos,
           dir.multiplyScalar(w.speed!),
           0.7,
-          400,
+          w.id === "nook" ? 135 : 400,
         )
         this.audio.play(w.id === "nook" ? "grenade" : "mortar", pos, 0.7)
       } else if (w.kind === "homing") {
@@ -1836,9 +1836,29 @@ export class Game {
   }
 
   // ---------------------------------------------------------------- weapons
+  effectiveBarrelPitch(t: Tank) {
+    if (!t.isPlayer) return t.aimPitch
+    if (this.proMode) {
+      const lobOffset =
+        t.weapon === "nook"
+          ? 25 * (Math.PI / 180)
+          : t.weapon === "mortar"
+            ? 17 * (Math.PI / 180)
+            : 0
+      return THREE.MathUtils.clamp(t.aimPitch + lobOffset, -0.4, 1.15)
+    }
+    if (t.weapon === "nook") return 30 * (Math.PI / 180)
+    if (t.weapon === "mortar") return 20 * (Math.PI / 180)
+    return t.aimPitch
+  }
+
   muzzle(t: Tank) {
     t.rig.root.position.copy(t.pos)
     t.rig.root.quaternion.copy(t.q)
+    const fwd = tmpV.set(0, 0, -1).applyQuaternion(t.q)
+    const hullYaw = Math.atan2(-fwd.x, -fwd.z)
+    t.rig.turret.rotation.y = wrapAngle(t.aimYaw - hullYaw)
+    t.rig.barrel.rotation.x = this.effectiveBarrelPitch(t)
     t.rig.root.updateMatrixWorld(true)
     const pos = t.rig.muzzle.getWorldPosition(new THREE.Vector3())
     const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(
@@ -1882,7 +1902,8 @@ export class Game {
     const diff = DIFF[this.opts.difficulty]
     t.cooldown = Math.round(w.cooldown * (t.isPlayer ? 1 : diff.fireScale))
     const { pos, dir: barrelDir } = this.muzzle(t)
-    const dir = t.isPlayer ? this.crosshairDir(pos) : barrelDir
+    // In original Shockwave (weaponry.ls), lob weapons (nook, mortar) fire strictly along gunrot (barrelDir) so their high-arc elevation works instead of aiming flat at the camera crosshair
+    const dir = t.isPlayer && w.kind !== "lob" ? this.crosshairDir(pos) : barrelDir.clone()
     const spread = t.isPlayer ? 0.012 : diff.spread
 
     if (t.isPlayer && this.mp) {
@@ -1918,10 +1939,11 @@ export class Game {
           "shell",
           w.id,
           pos,
-          dir.multiplyScalar(w.speed!),
+          dir.clone().multiplyScalar(w.speed!),
           0.25,
           120,
         )
+        t.vel.addScaledVector(dir, -120)
         this.audio.play("bgun", pos, 0.7)
         this.flash(pos, 1.4)
         t.ammo--
@@ -1932,10 +1954,11 @@ export class Game {
           "rocket",
           w.id,
           pos,
-          dir.multiplyScalar(w.speed!),
+          dir.clone().multiplyScalar(w.speed!),
           0,
           200,
         )
+        t.vel.addScaledVector(dir, w.id === "rocketx4" ? -320 : -140)
         this.audio.play("rocket", pos, 0.7)
         t.ammo--
         break
@@ -1945,11 +1968,12 @@ export class Game {
           "lob",
           w.id,
           pos,
-          dir.multiplyScalar(w.speed!),
+          dir.clone().multiplyScalar(w.speed!),
           0.7,
-          400,
+          w.id === "nook" ? 135 : 400,
         )
-        this.audio.play(w.id === "nook" ? "nook" : "mortar", pos, 0.7)
+        t.vel.addScaledVector(dir, w.id === "nook" ? -240 : -120)
+        this.audio.play(w.id === "nook" ? "grenade" : "mortar", pos, 0.7)
         t.ammo--
         break
       case "homing": {
@@ -2334,6 +2358,59 @@ export class Game {
         ++p.trail % 2 === 0
       )
         this.puff(p.pos, 60, 40)
+
+      // Authentic nooks.ls physics: Nook is a timed nuclear grenade (howlong = 90 frames in 40fps / 135 at 60Hz)
+      // that halves its velocity on impact and rolls until the fuse expires!
+      if (p.weapon === "nook") {
+        const gh = terrainAt(this.level, p.pos.x, p.pos.z) + 10
+        if (p.pos.y <= gh) {
+          p.pos.y = gh
+          if (p.vel.y < -120) {
+            p.vel.y = -p.vel.y * 0.35
+            p.vel.x *= 0.5
+            p.vel.z *= 0.5
+          } else {
+            p.vel.y = 0
+            p.vel.x *= 0.985
+            p.vel.z *= 0.985
+          }
+        }
+        if (Math.abs(p.pos.x) > this.level.half) {
+          p.pos.x = Math.sign(p.pos.x) * this.level.half
+          p.vel.x *= -0.5
+        }
+        if (Math.abs(p.pos.z) > this.level.half) {
+          p.pos.z = Math.sign(p.pos.z) * this.level.half
+          p.vel.z *= -0.5
+        }
+        if (this.colliders.length && p.vel.lengthSq() > 1) {
+          this.raycaster.set(p.pos, tmpV.copy(p.vel).normalize())
+          this.raycaster.far = Math.max(25, p.vel.length() * DT)
+          const obsHit = this.raycaster.intersectObjects(this.colliders, false)[0]
+          if (obsHit && obsHit.face) {
+            const norm = obsHit.face.normal.clone().transformDirection(obsHit.object.matrixWorld)
+            p.vel.reflect(norm).multiplyScalar(0.5)
+          }
+        }
+        for (const o of this.tanks) {
+          if (o.dead || o === p.owner) continue
+          const c = tmpV.copy(o.pos).add(tmpV2.set(0, 28, 0))
+          if (c.distanceTo(p.pos) < BSP + 10) {
+            p.vel.multiplyScalar(0.5)
+            break
+          }
+        }
+        if (p.life <= 0) {
+          this.explode(
+            p.pos.clone(),
+            WEAPONS[p.weapon].power,
+            p.owner,
+            p.weapon,
+            p,
+          )
+        }
+        continue
+      }
 
       let hit =
         p.life <= 0 || p.pos.y <= terrainAt(this.level, p.pos.x, p.pos.z) + 4
@@ -2895,7 +2972,7 @@ export class Game {
       const fwd = tmpV.set(0, 0, -1).applyQuaternion(t.renderQ)
       const hullYaw = Math.atan2(-fwd.x, -fwd.z)
       r.turret.rotation.y = wrapAngle(t.aimYaw - hullYaw)
-      r.barrel.rotation.x = t.aimPitch
+      r.barrel.rotation.x = this.effectiveBarrelPitch(t)
       const sp = t.vel.dot(fwd)
       for (const w of r.wheels) w.rotation.x -= (sp / 17) * DT
       for (const w of r.frontWheels)
@@ -2970,11 +3047,12 @@ export class Game {
             .addScaledVector(fwd, 2000)
             .add(new THREE.Vector3(0, p.aimPitch * 2000, 0))
         } else {
-          // Authentic Shockwave distance: 200 units back, 65 units up (tracking smoothly interpolated renderPos)
-          want = p.renderPos.clone().addScaledVector(back, 200).add(new THREE.Vector3(0, 65 - p.aimPitch * 100, 0))
+          // Authentic Shockwave distance: 200 units back, 65 units up (in Casual mode vgunangs only tilts the gun barrel, not the camera!)
+          const camPitch = this.proMode ? p.aimPitch : 0
+          want = p.renderPos.clone().addScaledVector(back, 200).add(new THREE.Vector3(0, 65 - camPitch * 100, 0))
           const g = terrainAt(this.level, want.x, want.z) + 30
           if (want.y < g) want.y = g
-          look = p.renderPos.clone().addScaledVector(fwd, 800).add(new THREE.Vector3(0, 45 + p.aimPitch * 600, 0))
+          look = p.renderPos.clone().addScaledVector(fwd, 800).add(new THREE.Vector3(0, 45 + camPitch * 600, 0))
         }
 
         if (this.camPos.lengthSq() === 0) {

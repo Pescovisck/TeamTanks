@@ -174,7 +174,7 @@ export const WEAPONS: Record<WeaponId, WeaponDef> = {
     cooldown: 70,
     power: 40,
     ammo: 1,
-    speed: 1500, // 50 u/frame * 30fps
+    speed: 1920, // Matches 50 u/frame with ageia.ls -1z gravity (~2170u air carry at 30° + ~650u roll)
     aimFov: 45,
     site: 3,
     verb: "nooks",
