@@ -138,7 +138,7 @@ function Feed({ s }: { s: HudState }) {
           return (
             <div
               key={f.id}
-              className={`anim-feed flex w-fit items-center gap-1.5 rounded bg-black/75 px-2.5 py-1 text-xs font-semibold backdrop-blur-md shadow-md border transition-all ${
+              className={`anim-feed flex w-fit items-center gap-2 rounded bg-black/75 px-3 py-1 text-[13px] font-semibold backdrop-blur-md shadow-md border transition-all ${
                 isPlayerInvolved
                   ? "border-hazard/50 bg-black/85 shadow-[0_0_12px_rgba(242,194,48,0.25)] ring-1 ring-hazard/30"
                   : "border-white/10"
@@ -155,7 +155,7 @@ function Feed({ s }: { s: HudState }) {
                   >
                     {f.killer.name}
                     {f.killer.isPlayer && (
-                      <span className="ml-1 text-[10px] font-bold text-hazard">
+                      <span className="ml-1 text-[11px] font-bold text-hazard">
                         (You)
                       </span>
                     )}
@@ -166,11 +166,11 @@ function Feed({ s }: { s: HudState }) {
                       <img
                         src={asset(`ui/icon_${f.weaponIcon}.png`)}
                         alt={f.weaponVerb ?? "weapon"}
-                        className="h-3.5 w-5 object-contain filter drop-shadow"
+                        className="h-4 w-6 object-contain filter drop-shadow"
                       />
                     )}
                     {f.weaponVerb && (
-                      <span className="text-[9px] font-mono uppercase tracking-wider text-white/50">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-white/50">
                         {f.weaponVerb}
                       </span>
                     )}
@@ -180,8 +180,8 @@ function Feed({ s }: { s: HudState }) {
 
               {isSelf && (
                 <div className="flex shrink-0 items-center gap-1 rounded bg-white/5 border border-white/10 px-1.5 py-0.5">
-                  <span className="text-xs">💀</span>
-                  <span className="text-[9px] font-mono uppercase tracking-wider text-white/50">
+                  <span className="text-sm">💀</span>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-white/50">
                     {f.weaponVerb ?? "crashed"}
                   </span>
                 </div>
@@ -196,7 +196,7 @@ function Feed({ s }: { s: HudState }) {
               >
                 {f.victim.name}
                 {f.victim.isPlayer && (
-                  <span className="ml-1 text-[10px] font-bold text-hazard">
+                  <span className="ml-1 text-[11px] font-bold text-hazard">
                     (You)
                   </span>
                 )}
@@ -213,7 +213,7 @@ function Feed({ s }: { s: HudState }) {
         return (
           <div
             key={f.id}
-            className="anim-feed flex w-fit items-center gap-2 rounded bg-black/75 px-2.5 py-1 text-xs font-semibold backdrop-blur-md shadow-md border border-white/10"
+            className="anim-feed flex w-fit items-center gap-2 rounded bg-black/75 px-3 py-1 text-[13px] font-semibold backdrop-blur-md shadow-md border border-white/10"
           >
             <span className="text-sm">
               {isCapture ? "🚩" : isSuper ? "⚡" : isDeploy ? "⚔️" : "ℹ️"}
