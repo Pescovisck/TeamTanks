@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&display=swap");
+﻿@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&display=swap");
 @import "tailwindcss";
 
 @font-face {
@@ -92,3 +92,181 @@ body,
     animation: none;
   }
 }
+
+/* ============================================================
+   Landing page (original-title-screen inspired)
+   ============================================================ */
+.tt-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 58% 62% at 34% 46%, rgba(226, 168, 44, 0.66), transparent 72%),
+    radial-gradient(ellipse 40% 36% at 12% 88%, rgba(150, 84, 24, 0.45), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 92% 14%, rgba(110, 90, 40, 0.35), transparent 70%),
+    linear-gradient(180deg, #1d1610 0%, #0e0b08 100%);
+}
+.tt-bg::before {
+  /* gritty, scratched metal texture */
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.tt-bg::after {
+  /* vignette */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, transparent 38%, rgba(0, 0, 0, 0.78) 100%);
+}
+
+/* logo type: black letters, white outline + white drop shadows (like the original) */
+.tt-logo { font-size: clamp(2.4rem, 7.4vw, 6.6rem); filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); }
+.tt-title { line-height: 0.9; }
+.tt-word {
+  font-family: "Russo One", var(--font-display);
+  color: #0a0a0a;
+  letter-spacing: -0.02em;
+  /* clean 8-way outline (text-stroke double-draws overlapping glyph contours) */
+  text-shadow:
+    0.035em 0 0 #fff, -0.035em 0 0 #fff, 0 0.035em 0 #fff, 0 -0.035em 0 #fff,
+    0.025em 0.025em 0 #fff, -0.025em 0.025em 0 #fff, 0.025em -0.025em 0 #fff, -0.025em -0.025em 0 #fff,
+    0.07em 0.09em 0 rgba(255, 255, 255, 0.9),
+    0 0.14em 0.4em rgba(0, 0, 0, 0.5);
+}
+.tt-cap { font-size: 1.32em; line-height: 0.7; }
+.tt-armageddon {
+  font-family: "Russo One", var(--font-display);
+  font-style: italic;
+  font-size: 0.5em;
+  line-height: 1;
+  color: #f59e0b;
+  transform: rotate(-6deg);
+  text-shadow:
+    0.04em 0 0 #fff, -0.04em 0 0 #fff, 0 0.04em 0 #fff, 0 -0.04em 0 #fff,
+    0.03em 0.03em 0 #fff, -0.03em 0.03em 0 #fff, 0.03em -0.03em 0 #fff, -0.03em -0.03em 0 #fff,
+    0.07em 0.09em 0 rgba(255, 255, 255, 0.85);
+}
+.tt-roundel { animation: tt-spin 120s linear infinite; }
+.tt-chevrons { animation: tt-float 5s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85)); }
+.tt-arc {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: tt-arc 4.2s ease-in-out 1.1s infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85));
+}
+@keyframes tt-spin { to { transform: rotate(360deg); } }
+@keyframes tt-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes tt-arc {
+  0% { stroke-dashoffset: 1; opacity: 1; }
+  55% { stroke-dashoffset: 0; opacity: 1; }
+  80% { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 1; opacity: 0; }
+}
+@keyframes tt-rise {
+  from { opacity: 0; transform: translateY(26px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tt-slam {
+  0% { opacity: 0; transform: scale(1.35) rotate(-2deg); }
+  60% { opacity: 1; transform: scale(0.98) rotate(0.5deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes tt-slide-in {
+  from { opacity: 0; transform: translateX(60px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tt-pop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tt-dust {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  15% { opacity: 0.7; }
+  100% { transform: translate3d(var(--dx, 40px), -110vh, 0); opacity: 0; }
+}
+@keyframes tt-shine {
+  from { transform: translateX(-120%) skewX(-20deg); }
+  to { transform: translateX(260%) skewX(-20deg); }
+}
+
+.tt-rise { animation: tt-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.tt-slam { animation: tt-slam 0.9s cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+.tt-slide { animation: tt-slide-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.tt-pop { animation: tt-pop 0.14s ease-out both; }
+
+.tt-dust {
+  position: absolute;
+  bottom: -10px;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: rgba(255, 220, 140, 0.8);
+  box-shadow: 0 0 8px rgba(255, 200, 90, 0.9);
+  animation: tt-dust var(--dur, 14s) linear var(--delay, 0s) infinite;
+}
+
+/* scroll reveal */
+.tt-reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.tt-reveal.is-in { opacity: 1; transform: none; }
+
+/* parallelogram menu buttons (red upper face, white rule, blue base) */
+.tt-btn-wrap {
+  display: block;
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 5px rgba(255, 255, 255, 0.35)) drop-shadow(0 8px 10px rgba(0, 0, 0, 0.55));
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+.tt-btn-wrap:hover,
+.tt-btn-wrap:focus-visible { transform: translateX(-10px) scale(1.02); filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 14px rgba(255, 255, 255, 0.7)) drop-shadow(0 8px 10px rgba(0, 0, 0, 0.55)); outline: none; }
+.tt-btn-wrap:active { transform: translateX(-4px) scale(0.99); }
+.tt-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  overflow: hidden;
+  padding: 0.85rem 2.6rem 0.95rem 1.6rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.55rem;
+  letter-spacing: 0.01em;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.55), 0 0 10px rgba(0, 0, 0, 0.4);
+  clip-path: polygon(0 16%, 100% 0, 100% 84%, 0 100%);
+  background: linear-gradient(180deg, #e0442e 0 64%, #fff 64% 69%, #2b5fd0 69% 100%);
+}
+.tt-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-120%) skewX(-20deg);
+}
+.tt-btn-wrap:hover .tt-btn::after,
+.tt-btn-wrap:focus-visible .tt-btn::after { animation: tt-shine 0.7s ease; }
+.tt-btn-badge {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tt-roundel, .tt-chevrons, .tt-arc, .tt-dust, .tt-rise, .tt-slam, .tt-slide, .tt-pop { animation: none !important; }
+  .tt-arc { stroke-dashoffset: 0; }
+  .tt-reveal { opacity: 1; transform: none; transition: none; }
+}
+
+
+.tt-h { font-family: "Russo One", var(--font-display); letter-spacing: 0.01em; }
+
